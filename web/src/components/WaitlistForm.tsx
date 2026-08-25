@@ -20,7 +20,7 @@ export default function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
   const [msgKind, setMsgKind] = useState<"err" | "ok" | null>(null);
-  const [justJoined, setJustJoined] = useState(false);
+  const [justJoined, setJustJoined] = useState<null | { emailed: boolean }>(null);
   const [busy, setBusy] = useState(false);
 
   const previouslyJoined = useSyncExternalStore(
@@ -28,7 +28,7 @@ export default function WaitlistForm() {
     storedWaitlisted,
     serverWaitlisted,
   );
-  const done = justJoined || previouslyJoined;
+  const done = justJoined !== null || previouslyJoined;
 
   if (done) {
     return (
@@ -36,6 +36,12 @@ export default function WaitlistForm() {
         <p className="big">
           You&apos;re on the list — gently<span className="dot">.</span>
         </p>
+        {justJoined?.emailed && (
+          <p style={{ marginTop: 12 }}>
+            We sent a confirmation link to <b>{email.trim()}</b> — it expires
+            never, but why wait.
+          </p>
+        )}
       </div>
     );
   }
@@ -56,12 +62,13 @@ export default function WaitlistForm() {
         body: JSON.stringify({ email: value }),
       });
       if (!res.ok) throw new Error("failed");
+      const data = (await res.json()) as { emailed?: boolean };
       try {
         window.localStorage.setItem("molehill-waitlisted", "1");
       } catch {
         // ignore storage errors
       }
-      setJustJoined(true);
+      setJustJoined({ emailed: Boolean(data.emailed) });
     } catch {
       setMsg("Something went wrong on our end — please try again.");
       setMsgKind("err");
