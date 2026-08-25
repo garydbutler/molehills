@@ -4,7 +4,10 @@
 */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+
+loadEnv({ path: ".env.local" });
+loadEnv();
 
 const url = process.env.POSTGRES_URL;
 if (!url || url.includes("user:password")) {
