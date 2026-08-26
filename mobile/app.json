@@ -30,7 +30,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Molehill to access your photos so you can capture the spaces you want to transform.",
+          "cameraPermission": "Allow Molehill to use the camera so you can photograph the spaces you want to transform."
+        }
+      ]
     ]
   }
 }

@@ -1,10 +1,11 @@
 /*
-  Capture — "Snap the truth". In the prototype the photo step is simulated
-  with a space picker; the camera roll / vision model plugs in later.
+  Capture — "Snap the truth". Photograph whatever feels like a mountain.
+  Uses expo-image-picker for camera/library access.
 */
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -25,10 +26,60 @@ export default function Capture() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [space, setSpace] = useState("Living room");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+
+  const pickFromLibrary = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission needed",
+        "Molehill needs access to your photos to select an image of your space.",
+        [{ text: "OK" }],
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 0.8,
+      aspect: [4, 3],
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission needed",
+        "Molehill needs camera access to photograph your space.",
+        [{ text: "OK" }],
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+      aspect: [4, 3],
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
+
+  const clearPhoto = () => {
+    setPhotoUri(null);
+  };
 
   const begin = () => {
     const name = title.trim() || `${space} reset`;
-    const project = makeProject(name, space);
+    const project = makeProject(name, space, photoUri ?? undefined);
     addProject(project);
     router.replace(`/vision/${project.id}`);
   };
@@ -42,11 +93,30 @@ export default function Capture() {
         </Headline>
         <Text style={styles.lead}>
           Photograph whatever feels like a mountain — no tidying first, ever.
-          For now, point us at it.
         </Text>
       </View>
 
       <Card style={styles.panel}>
+        {photoUri ? (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: photoUri }} style={styles.preview} />
+            <Pressable onPress={clearPhoto} style={styles.clearButton}>
+              <Text style={styles.clearLabel}>✕ Retake</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.captureButtons}>
+            <Pressable onPress={takePhoto} style={styles.captureButton}>
+              <Text style={styles.captureIcon}>📷</Text>
+              <Text style={styles.captureLabel}>Take photo</Text>
+            </Pressable>
+            <Pressable onPress={pickFromLibrary} style={styles.captureButton}>
+              <Text style={styles.captureIcon}>🖼️</Text>
+              <Text style={styles.captureLabel}>Choose from library</Text>
+            </Pressable>
+          </View>
+        )}
+
         <Text style={styles.label}>What are we tackling?</Text>
         <Field
           placeholder="e.g. The living room, the wild garden…"
@@ -65,10 +135,12 @@ export default function Capture() {
           ))}
         </View>
         <PrimaryButton label="Show me the end state" onPress={begin} />
-        <Text style={styles.note}>
-          Photo capture + AI vision arrive with the backend — this creates a
-          real 12-step plan either way.
-        </Text>
+        {!photoUri && (
+          <Text style={styles.note}>
+            A photo helps you see the transformation — but you can skip it and
+            add one later.
+          </Text>
+        )}
       </Card>
     </View>
   );
@@ -110,5 +182,49 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: colors.muted,
     textAlign: "center",
+  },
+  captureButtons: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 4,
+  },
+  captureButton: {
+    flex: 1,
+    backgroundColor: colors.tint,
+    borderRadius: 14,
+    paddingVertical: 20,
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: colors.accentInk,
+  },
+  captureIcon: {
+    fontSize: 28,
+  },
+  captureLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: colors.accentInk,
+  },
+  previewContainer: {
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
+  preview: {
+    width: "100%",
+    height: 180,
+    borderRadius: 14,
+    backgroundColor: colors.tintDeep,
+  },
+  clearButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  clearLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: colors.accentInk,
   },
 });

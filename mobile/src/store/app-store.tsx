@@ -7,9 +7,16 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const STORAGE_KEYS = {
+  USER: "molehill:user",
+  PROJECTS: "molehill:projects",
+} as const;
 
 export type Step = {
   id: string;
@@ -25,6 +32,7 @@ export type Project = {
   space: string;
   vision: string; // the end-state line, e.g. "Sunday-you, sitting in a calm room."
   glyph: string; // stand-in for the photo / rendered vision
+  photoUri?: string; // URI of the captured "before" photo
   createdAt: number;
   steps: Step[];
 };
@@ -38,6 +46,7 @@ type Store = {
   projects: Project[];
   addProject: (p: Project) => void;
   toggleStep: (projectId: string, stepId: string) => void;
+  hydrated: boolean;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -146,7 +155,11 @@ const VISIONS: Record<string, string> = {
   Goal: "It exists, and you made it.",
 };
 
-export function makeProject(title: string, spaceKey: string): Project {
+export function makeProject(
+  title: string,
+  spaceKey: string,
+  photoUri?: string,
+): Project {
   const bp = BLUEPRINTS[spaceKey] ?? GENERIC;
   return {
     id: nextId(),
@@ -163,6 +176,7 @@ export function makeProject(title: string, spaceKey: string): Project {
             : bp.space === "Garage"
               ? "\u{1F6E0}\uFE0F"
               : "\u{1F3AF}",
+    photoUri,
     createdAt: Date.now(),
     steps: bp.steps.map(([label, minutes], i) => ({
       id: `${nextId()}-${i}`,
@@ -197,7 +211,48 @@ export function projectStats(p: Project) {
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [projects, setProjects] = useState<Project[]>(() => [seedProject()]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [storedUser, storedProjects] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.USER),
+          AsyncStorage.getItem(STORAGE_KEYS.PROJECTS),
+        ]);
+
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+
+        if (storedProjects) {
+          setProjects(JSON.parse(storedProjects));
+        } else {
+          setProjects([seedProject()]);
+        }
+      } catch (e) {
+        console.warn("Failed to hydrate store from AsyncStorage:", e);
+        setProjects([seedProject()]);
+      } finally {
+        setHydrated(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)).catch((e) =>
+      console.warn("Failed to persist user:", e),
+    );
+  }, [user, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    AsyncStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects)).catch(
+      (e) => console.warn("Failed to persist projects:", e),
+    );
+  }, [projects, hydrated]);
 
   const signIn = useCallback((u: User) => setUser(u), []);
   const signOut = useCallback(() => setUser(null), []);
@@ -221,8 +276,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, signIn, signOut, projects, addProject, toggleStep }),
-    [user, signIn, signOut, projects, addProject, toggleStep],
+    () => ({ user, signIn, signOut, projects, addProject, toggleStep, hydrated }),
+    [user, signIn, signOut, projects, addProject, toggleStep, hydrated],
   );
 
   return (
