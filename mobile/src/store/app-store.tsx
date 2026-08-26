@@ -12,11 +12,22 @@ import React, {
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { File } from "expo-file-system";
 
 const STORAGE_KEYS = {
   USER: "molehill:user",
   PROJECTS: "molehill:projects",
 } as const;
+
+function validatePhotoUri(uri: string | undefined): string | undefined {
+  if (!uri) return undefined;
+  try {
+    const file = new File(uri);
+    return file.exists ? uri : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export type Step = {
   id: string;
@@ -227,7 +238,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (storedProjects) {
-          setProjects(JSON.parse(storedProjects));
+          const parsed: Project[] = JSON.parse(storedProjects);
+          const validated = parsed.map((p) => ({
+            ...p,
+            photoUri: validatePhotoUri(p.photoUri),
+          }));
+          setProjects(validated);
         } else {
           setProjects([seedProject()]);
         }

@@ -6,6 +6,7 @@ import { Alert, Image, StyleSheet, Text, View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import { File, Directory, Paths } from "expo-file-system";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -20,6 +21,25 @@ import {
 import { makeProject, useStore } from "@/store/app-store";
 
 const SPACES = ["Living room", "Desk", "Garden", "Garage", "Something else"];
+
+const PHOTOS_DIR = "molehill-photos";
+
+async function copyToDurableStorage(cacheUri: string): Promise<string> {
+  const photosDir = new Directory(Paths.document, PHOTOS_DIR);
+  if (!photosDir.exists) {
+    photosDir.create();
+  }
+
+  const ext = cacheUri.split(".").pop() || "jpg";
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+
+  const sourceFile = new File(cacheUri);
+  const destFile = new File(photosDir, filename);
+
+  await sourceFile.copy(destFile);
+
+  return destFile.uri;
+}
 
 export default function Capture() {
   const { addProject } = useStore();
@@ -47,7 +67,13 @@ export default function Capture() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setPhotoUri(result.assets[0].uri);
+      try {
+        const durableUri = await copyToDurableStorage(result.assets[0].uri);
+        setPhotoUri(durableUri);
+      } catch (e) {
+        console.warn("Failed to save photo:", e);
+        setPhotoUri(result.assets[0].uri);
+      }
     }
   };
 
@@ -69,7 +95,13 @@ export default function Capture() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setPhotoUri(result.assets[0].uri);
+      try {
+        const durableUri = await copyToDurableStorage(result.assets[0].uri);
+        setPhotoUri(durableUri);
+      } catch (e) {
+        console.warn("Failed to save photo:", e);
+        setPhotoUri(result.assets[0].uri);
+      }
     }
   };
 
