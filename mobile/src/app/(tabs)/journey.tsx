@@ -2,7 +2,7 @@
   Journey — "Watch it change". Every project, its ring, and the proof that
   small steps add up: before → during → after.
 */
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import { Link } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
@@ -37,7 +37,11 @@ export default function Journey() {
         return (
           <Link key={p.id} href={`/vision/${p.id}`} asChild>
             <Card style={styles.projectRow}>
-              <Ring pct={s.pct} size={72} stroke={6} />
+              {p.photoUri ? (
+                <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
+              ) : (
+                <Ring pct={s.pct} size={72} stroke={6} />
+              )}
               <View style={styles.projectText}>
                 <Text style={styles.projectTitle}>{p.title}</Text>
                 <Text style={styles.projectMeta}>
@@ -57,7 +61,11 @@ export default function Journey() {
         return (
           <Link key={p.id} href={`/vision/${p.id}`} asChild>
             <Card style={[styles.projectRow, styles.finishedRow]}>
-              <Ring pct={100} size={72} stroke={6} />
+              {p.photoUri ? (
+                <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
+              ) : (
+                <Ring pct={100} size={72} stroke={6} />
+              )}
               <View style={styles.projectText}>
                 <Text style={styles.projectTitle}>{p.title}</Text>
                 <Text style={styles.finishedLabel}>
@@ -90,6 +98,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
+  },
+  projectThumb: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    backgroundColor: colors.tintDeep,
   },
   finishedRow: {
     backgroundColor: colors.tint,

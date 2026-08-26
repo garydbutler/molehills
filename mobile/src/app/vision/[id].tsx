@@ -2,7 +2,14 @@
   Vision — "See the end state". In the prototype the rendered scene is a
   stylised placeholder card; the generated image lands here later.
 */
-import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  ScrollView,
+  Image,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
@@ -40,7 +47,11 @@ export default function Vision() {
       </Pressable>
 
       <Card style={styles.visionCard}>
-        <Text style={styles.visionGlyph}>{project.glyph}</Text>
+        {project.photoUri ? (
+          <Image source={{ uri: project.photoUri }} style={styles.visionPhoto} />
+        ) : (
+          <Text style={styles.visionGlyph}>{project.glyph}</Text>
+        )}
         <Kicker>Your vision · {project.space}</Kicker>
         <Text style={styles.visionLine}>{project.vision}</Text>
         <Text style={styles.visionTitle}>{project.title}</Text>
@@ -123,6 +134,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.tint,
   },
   visionGlyph: { fontSize: 52 },
+  visionPhoto: {
+    width: "100%",
+    height: 180,
+    borderRadius: 14,
+    backgroundColor: colors.tintDeep,
+  },
   visionLine: {
     fontFamily: fonts.serifItalic,
     fontSize: 21,
