@@ -16,4 +16,6 @@ export const colors = {
   clay: "#d79a65",
   bone: "#f1eee1",
   dusk: "#1c3935",
+  faint: "#7d968f",
+  line: "#20403b2b",
 } as const;

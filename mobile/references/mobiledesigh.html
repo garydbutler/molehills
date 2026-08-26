@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head><script type="application/json" data-od-external-dependencies>["/frames/android-pixel.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/01-capture.html","/frames/android-pixel.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/03-today.html","/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/01-capture.html","/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/02-vision.html","/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/03-today.html","/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/04-journey.html","https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap"]</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molehill — App Prototype · iOS + Android</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:oklch(0.962 0.016 108);--paper-deep:oklch(0.93 0.024 106);--surface:oklch(0.985 0.008 105);
+  --tint:oklch(0.925 0.028 138);--tint-deep:oklch(0.87 0.045 143);
+  --ink:oklch(0.295 0.032 168);--ink-soft:oklch(0.38 0.03 166);--muted:oklch(0.495 0.028 165);--faint:oklch(0.525 0.024 162);
+  --line:oklch(0.295 0.032 168/0.16);--line-soft:oklch(0.295 0.032 168/0.08);
+  --accent:oklch(0.46 0.082 163);--accent-ink:oklch(0.42 0.082 163);
+  --clay:oklch(0.70 0.1 48);--bone:oklch(0.955 0.018 100);
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter Tight','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(circle at 12% 18%,oklch(0.55 0.05 150/0.05) 0,transparent 30%),radial-gradient(circle at 88% 74%,oklch(0.55 0.06 120/0.05) 0,transparent 34%)}
+.shell{position:relative;z-index:1;max-width:1840px;margin:0 auto;padding:0 40px}
+a{color:inherit}
+:focus-visible{outline:none;box-shadow:0 0 0 3px oklch(0.46 0.082 163/0.35);border-radius:8px}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:24px;font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:15px 0;border-bottom:1px solid var(--line)}
+.topbar b{color:var(--ink);font-weight:500}
+.topbar .mid{display:inline-flex;gap:26px}
+@media (max-width:900px){.topbar .mid{display:none}}
+
+.hero{padding:76px 0 30px;max-width:860px}
+.index-label{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:12px}
+.index-label::before{content:'';width:26px;height:1px;background:var(--clay);display:inline-block}
+h1{font-family:var(--sans);font-weight:800;letter-spacing:-0.03em;line-height:1.05;font-size:clamp(42px,5vw,72px);margin-top:20px;text-wrap:balance}
+h1 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:-0.01em}
+.dot{color:var(--clay)}
+.lead{margin-top:26px;font-size:18.5px;line-height:1.68;color:var(--ink-soft);font-weight:300;max-width:58ch}
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.meta-chip{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink-soft);border:1px dotted var(--line);background:var(--surface);border-radius:999px;padding:11px 20px}
+.meta-chip i{color:var(--clay);font-style:normal;margin-right:8px}
+
+.row-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;margin:58px 0 30px}
+.row-label{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:12px}
+.row-label::before{content:'';width:26px;height:1px;background:var(--clay);display:inline-block}
+.row-note{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);text-align:right}
+@media (max-width:640px){.row-head{flex-direction:column;gap:6px}.row-note{text-align:left}}
+
+.frames{display:flex;flex-wrap:wrap;gap:48px;justify-content:center;align-items:flex-start}
+.shot{display:flex;flex-direction:column;margin:0}
+.frame-box{position:relative;overflow:visible}
+.frame-box iframe{border:0;background:transparent;transform-origin:top left;display:block}
+.plate-cap{margin-top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+.plate-cap b{color:var(--ink);font-weight:500}
+.plate-cap span{text-align:right}
+
+.android-note{max-width:72ch;margin:0 auto 34px;text-align:center;font-size:15.5px;line-height:1.68;color:var(--ink-soft)}
+.android-note b{color:var(--ink);font-weight:600}
+
+footer{border-top:1px solid var(--line);margin-top:72px}
+.foot-inner{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:26px 0 36px;font-family:var(--mono);font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
+.foot-inner a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 180ms ease;padding-bottom:1px}
+.foot-inner a:hover{border-bottom-color:var(--accent-ink)}
+@media (max-width:640px){.foot-inner{flex-direction:column;gap:10px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar" data-od-id="gallery-topbar">
+    <span><b>Molehill</b> · App prototype</span>
+    <span class="mid"><span>A field guide to finishing</span><span>Vol. 01</span></span>
+    <span>iOS + Android · React Native</span>
+  </header>
+
+  <section class="hero" data-od-id="gallery-hero">
+    <span class="index-label">A calmer way to get things done · Nº 01</span>
+    <h1 data-od-id="gallery-headline">One loop, four <em>quiet</em> moves<span class="dot">.</span></h1>
+    <p class="lead" data-od-id="gallery-lead">Molehill takes a photo of whatever feels like a mountain, shows a clear vision of the end state, then walks you there in steps so small they're almost easy. Below is that loop as a working prototype — every screen is live, so go on and tap.</p>
+    <div class="meta-row" data-od-id="gallery-meta">
+      <span class="meta-chip"><i>·</i>React Native · Expo</span>
+      <span class="meta-chip"><i>·</i>iPhone 15 Pro + Pixel 8 Pro</span>
+      <span class="meta-chip"><i>·</i>Working states — tap through</span>
+    </div>
+  </section>
+
+  <section data-od-id="gallery-ios-row">
+    <div class="row-head">
+      <span class="row-label">iOS — iPhone 15 Pro</span>
+      <span class="row-note">390 × 844 · the capture → vision → today → journey loop</span>
+    </div>
+    <div class="frames">
+      <figure class="shot" data-od-id="shot-ios-capture">
+        <div class="frame-box" data-w="390" data-h="844">
+          <iframe src="/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/01-capture.html" width="390" height="844" title="Molehill capture screen in an iPhone 15 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Plate Nº 01 — Capture</b><span>Snap the truth</span></figcaption>
+      </figure>
+      <figure class="shot" data-od-id="shot-ios-vision">
+        <div class="frame-box" data-w="390" data-h="844">
+          <iframe src="/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/02-vision.html" width="390" height="844" title="Molehill vision screen in an iPhone 15 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Plate Nº 02 — Vision</b><span>See the end state</span></figcaption>
+      </figure>
+      <figure class="shot" data-od-id="shot-ios-today">
+        <div class="frame-box" data-w="390" data-h="844">
+          <iframe src="/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/03-today.html" width="390" height="844" title="Molehill today screen in an iPhone 15 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Plate Nº 03 — Today</b><span>Three little steps</span></figcaption>
+      </figure>
+      <figure class="shot" data-od-id="shot-ios-journey">
+        <div class="frame-box" data-w="390" data-h="844">
+          <iframe src="/frames/iphone-15-pro.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/04-journey.html" width="390" height="844" title="Molehill journey screen in an iPhone 15 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Plate Nº 04 — Journey</b><span>Watch it change</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section data-od-id="gallery-android-row">
+    <div class="row-head">
+      <span class="row-label">Android — Pixel 8 Pro</span>
+      <span class="row-note">412 × 900 · same shared components, native shell</span>
+    </div>
+    <p class="android-note" data-od-id="gallery-android-note">The <b>same screens</b> on a Pixel 8 Pro. One React Native component library renders both shells — the operating system supplies only the status bar and navigation, exactly as the app will.</p>
+    <div class="frames">
+      <figure class="shot" data-od-id="shot-android-today">
+        <div class="frame-box" data-w="412" data-h="900">
+          <iframe src="/frames/android-pixel.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/03-today.html" width="412" height="900" title="Molehill today screen in a Pixel 8 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Today</b><span>Pixel 8 Pro</span></figcaption>
+      </figure>
+      <figure class="shot" data-od-id="shot-android-capture">
+        <div class="frame-box" data-w="412" data-h="900">
+          <iframe src="/frames/android-pixel.html?screen=/api/projects/01e74556-9dc1-42d7-ac79-27f315fe4695/files/screens/01-capture.html" width="412" height="900" title="Molehill capture screen in a Pixel 8 Pro frame"></iframe>
+        </div>
+        <figcaption class="plate-cap"><b>Capture</b><span>Pixel 8 Pro</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <footer data-od-id="gallery-footer">
+    <div class="foot-inner">
+      <span>Molehill — big things, finished gently.</span>
+      <a href="tend-landing.html" data-od-id="gallery-guide-link">Read the field guide →</a>
+      <span>Made with and for ADHD minds</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.frame-box'));
+  function fit() {
+    var avail = document.documentElement.clientWidth - 48;
+    boxes.forEach(function (box) {
+      var w = parseFloat(box.getAttribute('data-w'));
+      var h = parseFloat(box.getAttribute('data-h'));
+      var s = Math.min(1, avail / w);
+      box.style.width = (w * s) + 'px';
+      box.style.height = (h * s) + 'px';
+      box.querySelector('iframe').style.transform = 'scale(' + s + ')';
+    });
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  fit();
+})();
+</script>
+</body>
+</html>
