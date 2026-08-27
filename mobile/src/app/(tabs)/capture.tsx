@@ -1,8 +1,17 @@
 /*
   Capture — "Snap the truth". Photograph whatever feels like a mountain.
   Uses expo-image-picker for camera/library access.
+  Calls /api/plan for AI-generated task breakdown when photo is captured.
 */
-import { Alert, Image, StyleSheet, Text, View, Pressable } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -18,7 +27,8 @@ import {
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
-import { makeProject, useStore } from "@/store/app-store";
+import { makeProject, makeProjectFromPlan, useStore } from "@/store/app-store";
+import { fetchPlan } from "@/lib/api";
 
 const SPACES = ["Living room", "Desk", "Garden", "Garage", "Something else"];
 
@@ -47,6 +57,7 @@ export default function Capture() {
   const [title, setTitle] = useState("");
   const [space, setSpace] = useState("Living room");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const pickFromLibrary = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -109,8 +120,24 @@ export default function Capture() {
     setPhotoUri(null);
   };
 
-  const begin = () => {
+  const begin = async () => {
     const name = title.trim() || `${space} reset`;
+
+    if (photoUri) {
+      setLoading(true);
+      try {
+        const plan = await fetchPlan(photoUri, name, space);
+        const project = makeProjectFromPlan(plan, photoUri);
+        addProject(project);
+        router.replace(`/vision/${project.id}`);
+        return;
+      } catch (err) {
+        console.warn("API plan failed, using fallback:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     const project = makeProject(name, space, photoUri ?? undefined);
     addProject(project);
     router.replace(`/vision/${project.id}`);
@@ -132,7 +159,11 @@ export default function Capture() {
         {photoUri ? (
           <View style={styles.previewContainer}>
             <Image source={{ uri: photoUri }} style={styles.preview} />
-            <Pressable onPress={clearPhoto} style={styles.clearButton}>
+            <Pressable
+              onPress={clearPhoto}
+              style={styles.clearButton}
+              disabled={loading}
+            >
               <Text style={styles.clearLabel}>✕ Retake</Text>
             </Pressable>
           </View>
@@ -166,8 +197,19 @@ export default function Capture() {
             />
           ))}
         </View>
-        <PrimaryButton label="Show me the end state" onPress={begin} />
-        {!photoUri && (
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={colors.accentInk} />
+            <Text style={styles.loadingText}>
+              Looking at your space and making a gentle plan…
+            </Text>
+          </View>
+        ) : (
+          <PrimaryButton label="Show me the end state" onPress={begin} />
+        )}
+
+        {!photoUri && !loading && (
           <Text style={styles.note}>
             A photo helps you see the transformation — but you can skip it and
             add one later.
@@ -258,5 +300,16 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodySemi,
     fontSize: 13,
     color: colors.accentInk,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 15,
+  },
+  loadingText: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
   },
 });

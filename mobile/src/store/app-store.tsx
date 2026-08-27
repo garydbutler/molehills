@@ -44,6 +44,7 @@ export type Project = {
   vision: string; // the end-state line, e.g. "Sunday-you, sitting in a calm room."
   glyph: string; // stand-in for the photo / rendered vision
   photoUri?: string; // URI of the captured "before" photo
+  endStateImage?: string; // base64 of AI-generated tidy version
   createdAt: number;
   steps: Step[];
 };
@@ -56,6 +57,7 @@ type Store = {
   signOut: () => void;
   projects: Project[];
   addProject: (p: Project) => void;
+  updateProject: (projectId: string, updates: Partial<Project>) => void;
   toggleStep: (projectId: string, stepId: string) => void;
   hydrated: boolean;
 };
@@ -166,6 +168,18 @@ const VISIONS: Record<string, string> = {
   Goal: "It exists, and you made it.",
 };
 
+function spaceToGlyph(space: string): string {
+  const lower = space.toLowerCase();
+  if (lower.includes("living")) return "\u{1FA91}";
+  if (lower.includes("desk") || lower.includes("office")) return "\u{1F4BB}";
+  if (lower.includes("garden") || lower.includes("yard")) return "\u{1F33F}";
+  if (lower.includes("garage")) return "\u{1F6E0}\uFE0F";
+  if (lower.includes("kitchen")) return "\u{1F373}";
+  if (lower.includes("bed")) return "\u{1F6CF}\uFE0F";
+  if (lower.includes("bath")) return "\u{1F6C1}";
+  return "\u{1F3AF}";
+}
+
 export function makeProject(
   title: string,
   spaceKey: string,
@@ -177,19 +191,38 @@ export function makeProject(
     title,
     space: bp.space,
     vision: VISIONS[bp.space] ?? VISIONS.Goal,
-    glyph:
-      bp.space === "Living room"
-        ? "\u{1FA91}"
-        : bp.space === "Desk"
-          ? "\u{1F4BB}"
-          : bp.space === "Garden"
-            ? "\u{1F33F}"
-            : bp.space === "Garage"
-              ? "\u{1F6E0}\uFE0F"
-              : "\u{1F3AF}",
+    glyph: spaceToGlyph(bp.space),
     photoUri,
     createdAt: Date.now(),
     steps: bp.steps.map(([label, minutes], i) => ({
+      id: `${nextId()}-${i}`,
+      label,
+      minutes,
+      dayIndex: Math.floor(i / 3),
+      done: false,
+    })),
+  };
+}
+
+export type ApiPlanStep = { label: string; minutes: number };
+
+export type ApiPlan = {
+  title: string;
+  space: string;
+  vision: string;
+  steps: ApiPlanStep[];
+};
+
+export function makeProjectFromPlan(plan: ApiPlan, photoUri?: string): Project {
+  return {
+    id: nextId(),
+    title: plan.title,
+    space: plan.space,
+    vision: plan.vision,
+    glyph: spaceToGlyph(plan.space),
+    photoUri,
+    createdAt: Date.now(),
+    steps: plan.steps.map(({ label, minutes }, i) => ({
       id: `${nextId()}-${i}`,
       label,
       minutes,
@@ -276,6 +309,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (p: Project) => setProjects((prev) => [p, ...prev]),
     [],
   );
+  const updateProject = useCallback(
+    (projectId: string, updates: Partial<Project>) => {
+      setProjects((prev) =>
+        prev.map((p) => (p.id !== projectId ? p : { ...p, ...updates })),
+      );
+    },
+    [],
+  );
   const toggleStep = useCallback((projectId: string, stepId: string) => {
     setProjects((prev) =>
       prev.map((p) =>
@@ -292,8 +333,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, signIn, signOut, projects, addProject, toggleStep, hydrated }),
-    [user, signIn, signOut, projects, addProject, toggleStep, hydrated],
+    () => ({ user, signIn, signOut, projects, addProject, updateProject, toggleStep, hydrated }),
+    [user, signIn, signOut, projects, addProject, updateProject, toggleStep, hydrated],
   );
 
   return (
