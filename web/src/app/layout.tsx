@@ -30,7 +30,7 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Molehill — Big things, finished gently. A calm companion for overwhelming tasks.",
   description:
-    "Molehill turns a photo of whatever feels like a mountain into a clear vision of the end state, then walks you there in steps so small they're almost easy. Built for ADHD minds and anyone facing a task that feels too big.",
+    "Molehill turns a photo of whatever feels like a mountain into a 12-step plan with a written vision of done, then walks you there three tiny steps a day. Built for ADHD minds and anyone facing a task that feels too big.",
 };
 
 export default function RootLayout({
