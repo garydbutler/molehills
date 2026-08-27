@@ -43,8 +43,6 @@ export default function Login() {
   const [loading, setLoading] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  if (user) return <Redirect href="/today" />;
-
   const handleOAuth = useCallback(async (provider: OAuthProvider) => {
     setLoading(provider);
     setError(null);
@@ -99,6 +97,9 @@ export default function Login() {
       provider: "email",
     });
   }, [email, signIn]);
+
+  // All hooks are above this line — the redirect must not gate any of them.
+  if (user) return <Redirect href="/today" />;
 
   return (
     <View style={styles.page}>
