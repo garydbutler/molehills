@@ -6,6 +6,7 @@
 import {
   ActivityIndicator,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -163,7 +164,11 @@ export default function Capture() {
   };
 
   return (
-    <View style={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.header}>
         <Kicker>Step 01 · Capture</Kicker>
         <Headline>
@@ -236,16 +241,18 @@ export default function Capture() {
           </Text>
         )}
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.paper },
   page: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: colors.paper,
     padding: 24,
     paddingTop: 68,
+    paddingBottom: 40,
     gap: 22,
   },
   header: { gap: 4 },
