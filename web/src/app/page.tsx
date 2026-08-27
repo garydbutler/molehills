@@ -34,7 +34,7 @@ const methodSteps = [
     no: "Step 03",
     tag: "Today",
     title: "Three steps, then rest",
-    body: "The mountain is cut into steps of minutes, not weekends. Each day serves exactly three — never more. Finish them and you&apos;re done for today. Genuinely done.",
+    body: "The mountain is cut into steps of minutes, not weekends. Each day serves exactly three — never more. Finish them and you're done for today. Genuinely done.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M5 9h22M5 16h15M5 23h8" />
@@ -45,7 +45,7 @@ const methodSteps = [
     no: "Step 04",
     tag: "Journey",
     title: "Return when ready",
-    body: "Projects wait in Journey until you pick them again. When you finish a day&apos;s steps, re-photograph the space — not a checkbox, just a second look. Before-and-after becomes proof you&apos;re actually moving.",
+    body: "Projects wait in Journey until you pick them again. When you finish a day's steps, re-photograph the space — not a checkbox, just a second look. Before-and-after becomes proof you're actually moving.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M16 27V13" />
