@@ -5,7 +5,6 @@
 */
 import {
   ActivityIndicator,
-  Alert,
   Image,
   StyleSheet,
   Text,
@@ -15,7 +14,6 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { File, Directory, Paths } from "expo-file-system";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -29,43 +27,36 @@ import {
 } from "@/components/ui";
 import { makeProject, makeProjectFromPlan, useStore } from "@/store/app-store";
 import { fetchPlan } from "@/lib/api";
+import { copyToDurableStorage } from "@/lib/photos";
+import { ask, tell } from "@/lib/dialog";
 
-const SPACES = ["Living room", "Desk", "Garden", "Garage", "Something else"];
-
-const PHOTOS_DIR = "molehill-photos";
-
-async function copyToDurableStorage(cacheUri: string): Promise<string> {
-  const photosDir = new Directory(Paths.document, PHOTOS_DIR);
-  if (!photosDir.exists) {
-    photosDir.create();
-  }
-
-  const ext = cacheUri.split(".").pop() || "jpg";
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
-
-  const sourceFile = new File(cacheUri);
-  const destFile = new File(photosDir, filename);
-
-  await sourceFile.copy(destFile);
-
-  return destFile.uri;
-}
+// A project is any piece of work — not always a place.
+const SPACES = [
+  "Kitchen",
+  "Living room",
+  "Bathroom",
+  "Garden",
+  "Garage",
+  "Desk",
+  "Essay",
+  "Homework",
+  "Something else",
+];
 
 export default function Capture() {
-  const { addProject } = useStore();
+  const { addProject, todayProject, setTodayProject } = useStore();
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [space, setSpace] = useState("Living room");
+  const [space, setSpace] = useState("Kitchen");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const pickFromLibrary = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
+      tell(
         "Permission needed",
-        "Molehill needs access to your photos to select an image of your space.",
-        [{ text: "OK" }],
+        "Molehill needs access to your photos to select an image of your project.",
       );
       return;
     }
@@ -91,10 +82,9 @@ export default function Capture() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
+      tell(
         "Permission needed",
-        "Molehill needs camera access to photograph your space.",
-        [{ text: "OK" }],
+        "Molehill needs camera access to photograph your project.",
       );
       return;
     }
@@ -120,16 +110,45 @@ export default function Capture() {
     setPhotoUri(null);
   };
 
-  const begin = async () => {
-    const name = title.trim() || `${space} reset`;
+  /* Switching projects mid-day is how nothing gets finished, so a second
+     project asks before it takes over the day. */
+  const startProject = (projectId: string) => {
+    if (!todayProject || todayProject.id === projectId) {
+      setTodayProject(projectId);
+      router.replace(`/vision/${projectId}`);
+      return;
+    }
 
-    if (photoUri) {
+    ask(
+      "Work on this now, or save it for later?",
+      `${todayProject.title} is today's project. Its leftover jobs stay with it either way — nothing is deleted.`,
+      ["Work on it now", "Save for later"],
+    ).then((choice) => {
+      if (choice === 0) setTodayProject(projectId);
+      router.replace(`/vision/${projectId}`);
+    });
+  };
+
+  const begin = async () => {
+    const typed = title.trim();
+    const name = typed || `${space} reset`;
+
+    // A project can start from a photo, a sentence, or both.
+    if (photoUri || typed) {
       setLoading(true);
       try {
-        const plan = await fetchPlan(photoUri, name, space);
-        const project = makeProjectFromPlan(plan, photoUri);
+        const plan = await fetchPlan(
+          photoUri ?? undefined,
+          name,
+          space,
+          typed || undefined,
+        );
+        const project = {
+          ...makeProjectFromPlan(plan, photoUri ?? undefined),
+          description: typed || undefined,
+        };
         addProject(project);
-        router.replace(`/vision/${project.id}`);
+        startProject(project.id);
         return;
       } catch (err) {
         console.warn("API plan failed, using fallback:", err);
@@ -140,7 +159,7 @@ export default function Capture() {
 
     const project = makeProject(name, space, photoUri ?? undefined);
     addProject(project);
-    router.replace(`/vision/${project.id}`);
+    startProject(project.id);
   };
 
   return (
@@ -151,7 +170,8 @@ export default function Capture() {
           Snap the <SerifEm>truth</SerifEm>.
         </Headline>
         <Text style={styles.lead}>
-          Photograph whatever feels like a mountain — no tidying first, ever.
+          Show us where the project stands — a photo, a screenshot, or just a
+          sentence. No tidying first, ever.
         </Text>
       </View>
 
@@ -180,13 +200,13 @@ export default function Capture() {
           </View>
         )}
 
-        <Text style={styles.label}>What are we tackling?</Text>
+        <Text style={styles.label}>What are we finishing?</Text>
         <Field
-          placeholder="e.g. The living room, the wild garden…"
+          placeholder="e.g. Clean the kitchen, finish the history essay…"
           value={title}
           onChangeText={setTitle}
         />
-        <Text style={[styles.label, { marginTop: 8 }]}>Where is it?</Text>
+        <Text style={[styles.label, { marginTop: 8 }]}>What kind of project?</Text>
         <View style={styles.chips}>
           {SPACES.map((s) => (
             <Chip
@@ -206,13 +226,13 @@ export default function Capture() {
             </Text>
           </View>
         ) : (
-          <PrimaryButton label="Show me the end state" onPress={begin} />
+          <PrimaryButton label="Build my plan" onPress={begin} />
         )}
 
         {!photoUri && !loading && (
           <Text style={styles.note}>
-            A photo helps you see the transformation — but you can skip it and
-            add one later.
+            A photo or screenshot is what we compare against later. Without
+            one, a sentence still gets you a plan.
           </Text>
         )}
       </Card>

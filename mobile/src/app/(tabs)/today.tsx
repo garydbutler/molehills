@@ -1,15 +1,18 @@
 /*
-  Today — exactly three little steps, then rest. Mirrors the landing page's
-  promise: "Finish them and you're done — genuinely done."
+  Today — at most three jobs, all from ONE project. The kitchen and the essay
+  never share a day. The day ends by showing the project again, not by ticking
+  a box.
 */
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import { Link } from "expo-router";
+import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { Link, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
   Card,
+  DonePicture,
   Headline,
   Kicker,
+  PrimaryButton,
   Ring,
   SerifEm,
   StepRow,
@@ -27,15 +30,44 @@ const DAYS = [
 ];
 
 export default function Today() {
-  const { projects, toggleStep, user, signOut } = useStore();
-  const active = projects[0];
-  const stats = projectStats(active);
+  const { todayProject, projects, markTired, user, signOut } = useStore();
+  const router = useRouter();
   const dayName = DAYS[new Date().getDay()];
 
-  const allDone = stats.todaySteps.length === 0;
+  const active = todayProject;
+  const saved = projects.filter((p) => p.status === "saved");
+
+  if (!active) {
+    return (
+      <View style={styles.page}>
+        <View style={styles.header}>
+          <View style={styles.kickerRow}>
+            <Kicker>
+              {dayName} · signed in as {user?.name}
+            </Kicker>
+            <Pressable onPress={signOut} hitSlop={8}>
+              <Text style={styles.signOut}>Sign out</Text>
+            </Pressable>
+          </View>
+          <Headline>
+            Nothing on today<SerifEm>.</SerifEm>
+          </Headline>
+        </View>
+        <Card style={styles.doneCard}>
+          <Text style={styles.doneBody}>
+            {saved.length > 0
+              ? "You have projects waiting. Pick one from Journey when you're ready."
+              : "Capture something when you're ready to start."}
+          </Text>
+        </Card>
+      </View>
+    );
+  }
+
+  const stats = projectStats(active);
 
   return (
-    <View style={styles.page}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
       <View style={styles.header}>
         <View style={styles.kickerRow}>
           <Kicker>
@@ -46,32 +78,75 @@ export default function Today() {
           </Pressable>
         </View>
         <Headline>
-          Three little steps<SerifEm>.</SerifEm>
+          {stats.restingUntilTomorrow ? (
+            <>
+              Done for today<SerifEm>.</SerifEm>
+            </>
+          ) : stats.tired ? (
+            <>
+              One small thing<SerifEm>.</SerifEm>
+            </>
+          ) : (
+            <>
+              Three little jobs<SerifEm>.</SerifEm>
+            </>
+          )}
         </Headline>
       </View>
 
-      {allDone ? (
+      {/* The done picture, filling in as the project actually moves. */}
+      {active.endStateImage || active.photoUri ? (
+        <Card style={styles.pictureCard}>
+          <DonePicture
+            before={active.photoUri}
+            done={
+              active.endStateImage
+                ? `data:image/png;base64,${active.endStateImage}`
+                : undefined
+            }
+            progress={active.progress ?? 0}
+            height={180}
+          />
+          <Text style={styles.pictureMeta}>
+            {Math.round((active.progress ?? 0) * 100)}% of the way there
+          </Text>
+        </Card>
+      ) : null}
+
+      {stats.restingUntilTomorrow ? (
         <Card style={styles.doneCard}>
-          <Text style={styles.doneGlyph}>{"\u274B"}</Text>
-          <Text style={styles.doneTitle}>That's everything for today.</Text>
+          <Text style={styles.doneGlyph}>{"❋"}</Text>
+          <Text style={styles.doneTitle}>
+            That&apos;s everything for today.
+          </Text>
           <Text style={styles.doneBody}>
-            The rest can wait — you did the kind thing.
+            You showed the work. The rest waits for tomorrow.
           </Text>
           <Link href={`/vision/${active.id}`} style={styles.visionLink}>
-            Revisit the vision →
+            See the vision →
+          </Link>
+        </Card>
+      ) : stats.complete ? (
+        <Card style={styles.doneCard}>
+          <Text style={styles.doneGlyph}>{"✹"}</Text>
+          <Text style={styles.doneTitle}>{active.title} is finished.</Text>
+          <Link href={`/vision/${active.id}`} style={styles.visionLink}>
+            See how it changed →
           </Link>
         </Card>
       ) : (
         <>
           <Card style={styles.progressRow}>
-            <Ring pct={Math.round((stats.todayDone / 3) * 100)} size={84} />
+            <Ring pct={stats.pct} size={84} />
             <View style={styles.progressText}>
               <Text style={styles.progressTitle}>{active.title}</Text>
               <Text style={styles.progressMeta}>
-                {stats.todayDone} of 3 done · no rush
+                {stats.todaySteps.length}{" "}
+                {stats.todaySteps.length === 1 ? "job" : "jobs"} today · about{" "}
+                {stats.todayMinutes} min
               </Text>
               <Text style={styles.progressMeta}>
-                {stats.total - stats.done} small steps to go
+                {stats.total - stats.done} still to go, no rush
               </Text>
               <Link href={`/vision/${active.id}`} style={styles.visionLink}>
                 See the vision →
@@ -84,31 +159,43 @@ export default function Today() {
               <StepRow
                 key={s.id}
                 label={s.label}
-                meta={`${active.space} · ${s.minutes} min`}
+                meta={`${s.minutes} min`}
                 done={false}
-                onPress={() => toggleStep(active.id, s.id)}
+                onPress={() => router.push(`/recapture/${active.id}`)}
               />
             ))}
           </View>
 
-          {stats.todayDone > 0 && (
+          <PrimaryButton
+            label="I think I'm done for today"
+            onPress={() => router.push(`/recapture/${active.id}`)}
+          />
+
+          {!stats.tired ? (
+            <Pressable onPress={() => markTired(active.id)} hitSlop={8}>
+              <Text style={styles.tiredLink}>
+                I&apos;m exhausted — give me just one
+              </Text>
+            </Pressable>
+          ) : (
             <Text style={styles.gentle}>
-              Every tick moves the ring. That's the whole trick.
+              One real job. That still counts as a day.
             </Text>
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.paper },
   page: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: colors.paper,
     padding: 24,
     paddingTop: 68,
-    gap: 20,
+    gap: 18,
   },
   header: { gap: 2 },
   kickerRow: {
@@ -121,6 +208,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 1.5,
     textTransform: "uppercase",
+    color: colors.muted,
+  },
+  pictureCard: { gap: 8 },
+  pictureMeta: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    letterSpacing: 1.3,
     color: colors.muted,
   },
   progressRow: {
@@ -146,6 +240,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   steps: { gap: 10 },
+  tiredLink: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 14.5,
+    color: colors.muted,
+    textAlign: "center",
+  },
   gentle: {
     fontFamily: fonts.serifItalic,
     fontSize: 15,
@@ -159,6 +259,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansSemi,
     fontSize: 19,
     color: colors.ink,
+    textAlign: "center",
   },
   doneBody: {
     fontFamily: fonts.body,

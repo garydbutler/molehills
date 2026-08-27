@@ -13,7 +13,7 @@ const PLAN_SCHEMA = {
     space: {
       type: "string",
       description:
-        "The type of space: Living room, Desk, Garden, Garage, Kitchen, Bedroom, Bathroom, or Other",
+        "What kind of project this is: Kitchen, Living room, Bathroom, Garden, Garage, Desk, Essay, Homework, Writing, Admin, or Other",
     },
     vision: {
       type: "string",
@@ -28,38 +28,52 @@ const PLAN_SCHEMA = {
           label: {
             type: "string",
             description:
-              "A tiny, specific, physical action grounded in what is visible in the photo. Example: 'Put the 4 mugs in the dishwasher'",
+              "One specific, checkable action. It must be visible in a later photo or screenshot. Examples: 'Put the 4 mugs in the dishwasher', 'Write one ugly paragraph of the introduction', 'Do problems 4 through 6'.",
           },
           minutes: {
             type: "integer",
-            description: "Estimated minutes (2-10)",
+            description:
+              "Real working minutes, 2-10. Never under 2 — a thirty-second job is a planning bug.",
           },
         },
         required: ["label", "minutes"],
       },
       minItems: 12,
       maxItems: 12,
-      description: "Exactly 12 tiny steps, each 2-10 minutes",
+      description:
+        "Exactly 12 jobs of real weight, each 2-10 minutes, ordered so any three consecutive jobs make a sensible day of 10-20 minutes",
     },
   },
   required: ["title", "space", "vision", "steps"],
 } as const;
 
-const SYSTEM_PROMPT = `You are Molehill, an ADHD-friendly companion that helps people transform messy spaces into calm ones through tiny steps.
+const SYSTEM_PROMPT = `You are Molehill, an ADHD-friendly companion that breaks a project into a handful of small jobs a day.
 
-You will receive a photo of a messy or cluttered space. Your job is to:
-1. Identify what type of space it is
-2. Create a calm, encouraging vision statement (one sentence, gentle, never shaming)
-3. Generate exactly 12 tiny, specific, physical tasks grounded in what you SEE in the photo
+A PROJECT is any piece of work someone wants finished: cleaning the kitchen, remodelling the bathroom, a history essay, a homework packet, chapter 4 of a book. Never call these "rooms" — a project is not always a place.
 
-IMPORTANT RULES:
-- Be specific to what's actually visible ("Put the 3 coffee mugs on the counter into the sink" not "Tidy up")
-- Each step should take 2-10 minutes
-- Steps should be physically doable, not overwhelming
-- Never shame or judge the mess - it's just a starting point
-- The vision should feel like a reward, not a criticism
-- Use gentle, friendly language throughout
-- Reference actual objects you can see in the image`;
+You will receive a photo, a screenshot, or a written description of where a project stands today. Your job is to:
+1. Identify what kind of project it is
+2. Write one calm, encouraging sentence describing what finished looks like (gentle, never shaming)
+3. Write exactly 12 jobs that get them from here to finished
+
+HOW BIG IS A JOB:
+- Each job is 2-10 minutes of REAL work. Not thirty seconds. Not an hour.
+- Any three consecutive jobs should add up to roughly 10-20 minutes — that is one day's work.
+- "Pick up one sock" is too small. "Clean the whole kitchen" is too big. "Clear one shelf" is right. "Write one ugly paragraph" is right. "Do problems 4 through 6" is right.
+- The 12 jobs should feel like several days of work, not one afternoon.
+
+EVERY JOB MUST BE CHECKABLE:
+- Later that day they will photograph or screenshot the project again, and we must be able to SEE whether the job got done.
+- For physical projects, the job must be visible in a photo.
+- For writing or homework, it must be visible in a screenshot, a photo of the page, or a file that got longer.
+- "Feel more organised" is not a job. "Decide how you feel about chapter 4" is not a job. If you cannot see it, do not write it.
+
+OTHER RULES:
+- Be specific to what is actually in front of you ("Put the 3 coffee mugs on the counter into the sink", not "Tidy up").
+- Never shame or judge where the project stands — it is just a starting point.
+- The finished-state sentence should feel like a reward, not a criticism.
+- Never mention streaks, timers, or scores. There are none.
+- If a project is genuinely enormous (a whole novel, a whole house), plan only the next sensible chunk and say so in the title.`;
 
 type PlanStep = { label: string; minutes: number };
 type PlanResponse = {
@@ -105,7 +119,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { image?: string; title?: string; space?: string };
+  let body: {
+    image?: string;
+    title?: string;
+    space?: string;
+    description?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -115,44 +134,48 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { image, title, space } = body;
+  const { image, title, space, description } = body;
 
-  if (!image || typeof image !== "string") {
+  const hasImage = typeof image === "string" && image.length > 0;
+  const hasDescription =
+    typeof description === "string" && description.trim().length > 0;
+
+  // Not every project is photographable. A sentence is enough to start one.
+  if (!hasImage && !hasDescription) {
     return NextResponse.json(
-      { error: "Missing required field: image (base64 JPEG)" },
+      { error: "Send either an image or a description of the project." },
       { status: 400, headers },
     );
   }
-
-  const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
 
   try {
     const ai = new GoogleGenAI({ apiKey });
 
     const userPrompt = [
-      title ? `The user calls this space: "${title}"` : null,
+      title ? `The user calls this project: "${title}"` : null,
       space ? `They categorize it as: ${space}` : null,
-      "Please analyze this photo and create a 12-step plan to transform it into a calm, organized space.",
+      hasDescription ? `They describe the project as: "${description}"` : null,
+      hasImage
+        ? "Please look at this image of where the project stands and write the 12 jobs that get it finished."
+        : "There is no image — work from the description alone and write the 12 jobs that get this project finished.",
     ]
       .filter(Boolean)
       .join("\n");
 
+    const parts: object[] = [];
+    if (hasImage) {
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: (image as string).replace(/^data:image\/\w+;base64,/, ""),
+        },
+      });
+    }
+    parts.push({ text: userPrompt });
+
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: base64Data,
-              },
-            },
-            { text: userPrompt },
-          ],
-        },
-      ],
+      contents: [{ role: "user", parts }],
       config: {
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: "application/json",

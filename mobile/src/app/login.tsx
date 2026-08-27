@@ -19,7 +19,7 @@ import { useStore } from "@/store/app-store";
 export default function Login() {
   const { user, signIn } = useStore();
   const [email, setEmail] = useState("");
-  if (user) return <Redirect href="/(tabs)" />;
+  if (user) return <Redirect href="/today" />;
 
   const providerSignIn = (provider: string) =>
     signIn({

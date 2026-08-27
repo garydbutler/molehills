@@ -1,6 +1,8 @@
 /* Shared UI pieces styled to match references/mobiledesigh.html. */
 import React from "react";
 import {
+  Image,
+  PanResponder,
   Pressable,
   StyleSheet,
   Text,
@@ -383,5 +385,161 @@ const stepStyles = StyleSheet.create({
     fontSize: 11.5,
     letterSpacing: 1,
     color: colors.muted,
+  },
+});
+
+/* ---- before/after reveal ---- */
+
+export function BeforeAfter({
+  before,
+  after,
+  height = 220,
+}: {
+  before: string;
+  after: string;
+  height?: number;
+}) {
+  const [width, setWidth] = React.useState(0);
+  const [x, setX] = React.useState(0);
+
+  // ponytail: rebuilt each render so the handlers close over the current
+  // width — cheaper than the bookkeeping to keep a memoized one honest.
+  // setState per drag frame is fine for one slider per card; reach for
+  // Animated.Value if a long Journey list starts to stutter.
+  const pan = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: (e) => setX(clampX(e.nativeEvent.locationX, width)),
+    onPanResponderMove: (e) => setX(clampX(e.nativeEvent.locationX, width)),
+  });
+
+  return (
+    <View
+      style={[revealStyles.frame, { height }]}
+      onLayout={(e) => {
+        const w = e.nativeEvent.layout.width;
+        if (w === width) return;
+        setWidth(w);
+        setX(w / 2);
+      }}
+      {...pan.panHandlers}
+    >
+      <Image source={{ uri: after }} style={{ width, height }} />
+
+      <View style={[revealStyles.beforeClip, { width: x, height }]}>
+        <Image source={{ uri: before }} style={{ width, height }} />
+      </View>
+
+      <View style={[revealStyles.handle, { left: x - 1, height }]} />
+      <View style={[revealStyles.grip, { left: x - 15, top: height / 2 - 15 }]}>
+        <Text style={revealStyles.gripLabel}>‹ ›</Text>
+      </View>
+
+      <Text style={[revealStyles.tag, revealStyles.tagLeft]}>BEFORE</Text>
+      <Text style={[revealStyles.tag, revealStyles.tagRight]}>AFTER</Text>
+    </View>
+  );
+}
+
+function clampX(value: number, width: number) {
+  return Math.max(0, Math.min(value, width));
+}
+
+const revealStyles = StyleSheet.create({
+  frame: {
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: colors.tintDeep,
+  },
+  beforeClip: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    overflow: "hidden",
+  },
+  handle: {
+    position: "absolute",
+    top: 0,
+    width: 2,
+    backgroundColor: colors.surface,
+  },
+  grip: {
+    position: "absolute",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  gripLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: colors.accentInk,
+  },
+  tag: {
+    position: "absolute",
+    bottom: 8,
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    letterSpacing: 1.5,
+    color: colors.surface,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  tagLeft: { left: 8 },
+  tagRight: { right: 8 },
+});
+
+/* ---- the done picture, catching up ----
+   Version 1 of "the done picture moves": the finished image fades in over the
+   before, driven by how far recapture says the project really is. Not a
+   progress bar with a wallpaper — the picture itself is filling in. */
+
+export function DonePicture({
+  before,
+  done,
+  progress,
+  height = 220,
+}: {
+  before?: string;
+  done?: string;
+  progress: number; // 0..1
+  height?: number;
+}) {
+  const clamped = Math.max(0, Math.min(1, progress));
+
+  if (!before && !done) return null;
+
+  return (
+    <View style={[doneStyles.frame, { height }]}>
+      {before ? (
+        <Image source={{ uri: before }} style={doneStyles.layer} />
+      ) : null}
+      {done ? (
+        <Image
+          source={{ uri: done }}
+          style={[doneStyles.layer, { opacity: before ? clamped : 1 }]}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+const doneStyles = StyleSheet.create({
+  frame: {
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: colors.tintDeep,
+  },
+  layer: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: "100%",
+    height: "100%",
   },
 });

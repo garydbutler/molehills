@@ -2,11 +2,19 @@
   Journey — "Watch it change". Every project, its ring, and the proof that
   small steps add up: before → during → after.
 */
-import { StyleSheet, Text, View, Image } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+} from "react-native";
 import { Link } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
+  BeforeAfter,
   Card,
   Headline,
   Kicker,
@@ -14,17 +22,38 @@ import {
   SerifEm,
 } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
+import { ask } from "@/lib/dialog";
 
 export default function Journey() {
-  const { projects } = useStore();
+  const { projects, todayProject, setTodayProject } = useStore();
 
-  const finished = projects.filter((p) => projectStats(p).done === p.steps.length);
-  const active = projects.filter(
-    (p) => projectStats(p).done < p.steps.length,
-  );
+  const finished = projects.filter((p) => projectStats(p).complete);
+  const active = projects.filter((p) => !projectStats(p).complete);
+
+  /* Switching is allowed and never punished — we just say plainly what
+     happens to the project being put down. */
+  const switchToday = (projectId: string, projectTitle: string) => {
+    if (todayProject?.id === projectId) return;
+
+    if (!todayProject) {
+      setTodayProject(projectId);
+      return;
+    }
+
+    ask(
+      `Make ${projectTitle} today's project?`,
+      `${todayProject.title}'s leftover jobs will still be there tomorrow. Today will be ${projectTitle} instead.`,
+      ["Switch", "Never mind"],
+    ).then((choice) => {
+      if (choice === 0) setTodayProject(projectId);
+    });
+  };
 
   return (
-    <View style={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.page}
+    >
       <View style={styles.header}>
         <Kicker>Step 04 · Grow</Kicker>
         <Headline>
@@ -35,7 +64,8 @@ export default function Journey() {
       {active.map((p) => {
         const s = projectStats(p);
         return (
-          <Link key={p.id} href={`/vision/${p.id}`} asChild>
+          <View key={p.id} style={styles.reveal}>
+          <Link href={`/vision/${p.id}`} asChild>
             <Card style={styles.projectRow}>
               {p.photoUri ? (
                 <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
@@ -45,21 +75,39 @@ export default function Journey() {
               <View style={styles.projectText}>
                 <Text style={styles.projectTitle}>{p.title}</Text>
                 <Text style={styles.projectMeta}>
-                  {s.done} of {s.total} steps · {s.daysIn}{" "}
-                  {s.daysIn === 1 ? "day" : "days"} in
+                  {s.done} of {s.total} jobs · {s.daysIn}{" "}
+                  {s.daysIn === 1 ? "day" : "days"} shown
                 </Text>
                 <Text style={styles.projectVision}>{p.vision}</Text>
               </View>
               <Text style={styles.chevron}>→</Text>
             </Card>
           </Link>
+          {p.id === todayProject?.id ? (
+            <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
+          ) : (
+            <Pressable onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
+              <Text style={styles.switchLink}>Make this today&apos;s project</Text>
+            </Pressable>
+          )}
+          {p.photoUri && p.endStateImage ? (
+            <Card>
+              <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
+              <BeforeAfter
+                before={p.photoUri}
+                after={`data:image/png;base64,${p.endStateImage}`}
+              />
+            </Card>
+          ) : null}
+          </View>
         );
       })}
 
       {finished.map((p) => {
         const s = projectStats(p);
         return (
-          <Link key={p.id} href={`/vision/${p.id}`} asChild>
+          <View key={p.id} style={styles.reveal}>
+          <Link href={`/vision/${p.id}`} asChild>
             <Card style={[styles.projectRow, styles.finishedRow]}>
               {p.photoUri ? (
                 <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
@@ -75,23 +123,53 @@ export default function Journey() {
               <Text style={styles.chevron}>→</Text>
             </Card>
           </Link>
+          {p.photoUri && p.endStateImage ? (
+            <Card>
+              <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
+              <BeforeAfter
+                before={p.photoUri}
+                after={`data:image/png;base64,${p.endStateImage}`}
+              />
+            </Card>
+          ) : null}
+          </View>
         );
       })}
 
       <Text style={styles.closing}>
         Nothing magical happened to any of these rooms. Twelve tiny visits did.
       </Text>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.paper },
   page: {
-    flex: 1,
-    backgroundColor: colors.paper,
+    flexGrow: 1,
     padding: 24,
     paddingTop: 68,
     gap: 14,
+  },
+  reveal: { gap: 10 },
+  todayTag: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    letterSpacing: 1.5,
+    color: colors.accentInk,
+    paddingLeft: 4,
+  },
+  switchLink: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13.5,
+    color: colors.muted,
+    paddingLeft: 4,
+  },
+  revealCaption: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    letterSpacing: 1.4,
+    color: colors.muted,
   },
   header: { gap: 2, marginBottom: 8 },
   projectRow: {
