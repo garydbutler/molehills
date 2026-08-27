@@ -48,7 +48,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { image?: string; vision?: string };
+  let body: {
+    image?: string;
+    vision?: string;
+    space?: string;
+    title?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -58,7 +63,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { image, vision } = body;
+  const { image, vision, space, title } = body;
 
   if (!image || typeof image !== "string") {
     return NextResponse.json(
@@ -73,12 +78,19 @@ export async function POST(request: NextRequest) {
     const ai = new GoogleGenAI({ apiKey });
 
     const userPrompt = [
-      "Transform this messy space into a clean, organized, peaceful version of itself.",
+      "Show this same space as it will look once the work is finished.",
       vision ? `The goal is: "${vision}"` : null,
-      "Keep the same room structure and furniture, just make it tidy and inviting.",
+      space ? `The space is a ${space}.` : null,
+      title ? `The project is called "${title}".` : null,
+      "Rules:",
+      "- Keep the exact same camera position, angle, and framing as the original photo. These two images are shown as a before/after comparison and must line up.",
+      "- Keep the same architecture, fixed structures, and permanent features. Do not redesign or restyle the space.",
+      "- Reach the goal above, whatever that means for this space: finish what is unfinished, put away what is out of place, repair what is broken, or let what should be growing look healthy.",
+      "- Photorealistic. Same time of day and lighting as the original.",
+      "- No text, labels, people, or watermarks.",
     ]
       .filter(Boolean)
-      .join(" ");
+      .join("\n");
 
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite-image",

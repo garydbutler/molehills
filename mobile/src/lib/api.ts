@@ -19,6 +19,19 @@ export type EndStateResponse = {
   mimeType: string;
 };
 
+export type RecaptureVerdict =
+  | "progress"
+  | "leap"
+  | "no_change"
+  | "wrong_project";
+
+export type RecaptureResponse = {
+  verdict: RecaptureVerdict;
+  completedJobs: number[];
+  progress: number; // 0-100
+  message: string;
+};
+
 export type ApiError = {
   error: string;
 };
@@ -30,11 +43,12 @@ async function fileToBase64(uri: string): Promise<string> {
 }
 
 export async function fetchPlan(
-  photoUri: string,
+  photoUri: string | undefined,
   title?: string,
   space?: string,
+  description?: string,
 ): Promise<PlanResponse> {
-  const base64Image = await fileToBase64(photoUri);
+  const base64Image = photoUri ? await fileToBase64(photoUri) : undefined;
 
   const response = await fetch(`${API_URL}/api/plan`, {
     method: "POST",
@@ -45,6 +59,7 @@ export async function fetchPlan(
       image: base64Image,
       title: title || undefined,
       space: space || undefined,
+      description: description || undefined,
     }),
   });
 
@@ -61,6 +76,8 @@ export async function fetchPlan(
 export async function fetchEndState(
   photoUri: string,
   vision?: string,
+  space?: string,
+  title?: string,
 ): Promise<EndStateResponse> {
   const base64Image = await fileToBase64(photoUri);
 
@@ -72,6 +89,8 @@ export async function fetchEndState(
     body: JSON.stringify({
       image: base64Image,
       vision: vision || undefined,
+      space: space || undefined,
+      title: title || undefined,
     }),
   });
 
@@ -83,4 +102,48 @@ export async function fetchEndState(
   }
 
   return response.json() as Promise<EndStateResponse>;
+}
+
+/*
+  Recapture — show the project again instead of ticking a box. Cheap
+  text+vision call; deliberately never generates an image.
+*/
+export async function fetchRecapture(args: {
+  nowPhotoUri: string;
+  beforePhotoUri?: string;
+  title?: string;
+  vision?: string;
+  description?: string;
+  todayJobs: string[];
+  remainingJobs: string[];
+}): Promise<RecaptureResponse> {
+  const [nowImage, beforeImage] = await Promise.all([
+    fileToBase64(args.nowPhotoUri),
+    args.beforePhotoUri
+      ? fileToBase64(args.beforePhotoUri).catch(() => undefined)
+      : Promise.resolve(undefined),
+  ]);
+
+  const response = await fetch(`${API_URL}/api/recapture`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nowImage,
+      beforeImage,
+      title: args.title || undefined,
+      vision: args.vision || undefined,
+      description: args.description || undefined,
+      todayJobs: args.todayJobs,
+      remainingJobs: args.remainingJobs,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = (await response.json().catch(() => ({}))) as ApiError;
+    throw new Error(errorBody.error || `API error: ${response.status}`);
+  }
+
+  return response.json() as Promise<RecaptureResponse>;
 }

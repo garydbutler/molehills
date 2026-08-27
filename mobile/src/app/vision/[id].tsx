@@ -11,7 +11,6 @@ import {
   Pressable,
   ScrollView,
   Image,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
@@ -19,12 +18,13 @@ import { fonts } from "@/theme/fonts";
 import { Card, Kicker, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
+import { tell } from "@/lib/dialog";
 
 const ORDINALS = ["Day one", "Day two", "Day three", "Day four", "Day five"];
 
 export default function Vision() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, toggleStep, updateProject } = useStore();
+  const { projects, toggleStep, updateProject, setTodayProject } = useStore();
   const router = useRouter();
   const project = projects.find((p) => p.id === id);
 
@@ -49,15 +49,19 @@ export default function Vision() {
 
     setGeneratingEndState(true);
     try {
-      const result = await fetchEndState(project.photoUri, project.vision);
+      const result = await fetchEndState(
+        project.photoUri,
+        project.vision,
+        project.space,
+        project.title,
+      );
       updateProject(project.id, { endStateImage: result.image });
       setShowEndState(true);
     } catch (err) {
       console.warn("End state generation failed:", err);
-      Alert.alert(
+      tell(
         "Couldn't generate image",
         "The vision service is temporarily unavailable. Your plan is still here — try again later.",
-        [{ text: "OK" }],
       );
     } finally {
       setGeneratingEndState(false);
@@ -71,11 +75,45 @@ export default function Vision() {
   const hasEndState = !!project.endStateImage;
   const displayingEndState = showEndState && hasEndState;
 
+  // Finishing is celebrated once, quietly. We never auto-start the next
+  // project — that is a cousin of a streak. We ask.
+  const nextUp = projects.find(
+    (p) => p.id !== project.id && !projectStats(p).complete,
+  );
+
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
-      <Pressable onPress={() => router.back()} style={styles.back}>
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/today"))}
+        style={styles.back}
+      >
         <Text style={styles.backLabel}>← Back</Text>
       </Pressable>
+
+      {s.complete ? (
+        <Card style={styles.finishedCard}>
+          <Text style={styles.finishedGlyph}>{"\u2739"}</Text>
+          <Text style={styles.finishedTitle}>{project.title} is finished.</Text>
+          <Text style={styles.finishedBody}>
+            Nothing magical happened here. Twelve small visits did.
+          </Text>
+          {nextUp ? (
+            <View style={styles.finishedActions}>
+              <PrimaryButton
+                label={`Start ${nextUp.title}`}
+                variant="outline"
+                onPress={() => {
+                  setTodayProject(nextUp.id);
+                  router.replace(`/vision/${nextUp.id}`);
+                }}
+              />
+              <Text style={styles.finishedRest}>Or rest. Both are fine.</Text>
+            </View>
+          ) : (
+            <Text style={styles.finishedRest}>Rest. You earned the quiet.</Text>
+          )}
+        </Card>
+      ) : null}
 
       <Card style={styles.visionCard}>
         {displayingEndState && project.endStateImage ? (
@@ -107,12 +145,12 @@ export default function Vision() {
             ) : hasEndState ? (
               <Pressable onPress={toggleImageView} style={styles.toggleButton}>
                 <Text style={styles.toggleLabel}>
-                  {displayingEndState ? "Show before" : "Show tidy version"}
+                  {displayingEndState ? "Show before" : "Show the end state"}
                 </Text>
               </Pressable>
             ) : (
               <PrimaryButton
-                label="Show me the room tidy"
+                label="Show me the end state"
                 variant="outline"
                 onPress={handleGenerateEndState}
               />
@@ -165,6 +203,27 @@ export default function Vision() {
 }
 
 const styles = StyleSheet.create({
+  finishedCard: { alignItems: "center", gap: 10, paddingVertical: 26 },
+  finishedGlyph: { fontSize: 32, color: colors.clay },
+  finishedTitle: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 19,
+    color: colors.ink,
+    textAlign: "center",
+  },
+  finishedBody: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 15,
+    color: colors.inkSoft,
+    textAlign: "center",
+  },
+  finishedActions: { alignSelf: "stretch", gap: 8 },
+  finishedRest: {
+    fontFamily: fonts.body,
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
+  },
   scroll: { flex: 1, backgroundColor: colors.paper },
   page: {
     padding: 24,
