@@ -1,28 +1,35 @@
 /*
-  Vision — "See the end state". In the prototype the rendered scene is a
-  stylised placeholder card; the generated image lands here later.
+  Vision — "See the end state". Shows the captured photo, AI-generated plan,
+  and optionally generates a photoreal tidy version of the space.
 */
+import { useState } from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
   Pressable,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Kicker, Ring } from "@/components/ui";
+import { Card, Kicker, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
+import { fetchEndState } from "@/lib/api";
 
 const ORDINALS = ["Day one", "Day two", "Day three", "Day four", "Day five"];
 
 export default function Vision() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, toggleStep } = useStore();
+  const { projects, toggleStep, updateProject } = useStore();
   const router = useRouter();
   const project = projects.find((p) => p.id === id);
+
+  const [generatingEndState, setGeneratingEndState] = useState(false);
+  const [showEndState, setShowEndState] = useState(false);
 
   if (!project) {
     return (
@@ -37,35 +44,90 @@ export default function Vision() {
     new Set(project.steps.map((st) => st.dayIndex)),
   ).sort((a, b) => a - b);
 
+  const handleGenerateEndState = async () => {
+    if (!project.photoUri) return;
+
+    setGeneratingEndState(true);
+    try {
+      const result = await fetchEndState(project.photoUri, project.vision);
+      updateProject(project.id, { endStateImage: result.image });
+      setShowEndState(true);
+    } catch (err) {
+      console.warn("End state generation failed:", err);
+      Alert.alert(
+        "Couldn't generate image",
+        "The vision service is temporarily unavailable. Your plan is still here — try again later.",
+        [{ text: "OK" }],
+      );
+    } finally {
+      setGeneratingEndState(false);
+    }
+  };
+
+  const toggleImageView = () => {
+    setShowEndState((prev) => !prev);
+  };
+
+  const hasEndState = !!project.endStateImage;
+  const displayingEndState = showEndState && hasEndState;
+
   return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.page}
-    >
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
       <Pressable onPress={() => router.back()} style={styles.back}>
         <Text style={styles.backLabel}>← Back</Text>
       </Pressable>
 
       <Card style={styles.visionCard}>
-        {project.photoUri ? (
+        {displayingEndState && project.endStateImage ? (
+          <Image
+            source={{ uri: `data:image/png;base64,${project.endStateImage}` }}
+            style={styles.visionPhoto}
+          />
+        ) : project.photoUri ? (
           <Image source={{ uri: project.photoUri }} style={styles.visionPhoto} />
         ) : (
           <Text style={styles.visionGlyph}>{project.glyph}</Text>
         )}
-        <Kicker>Your vision · {project.space}</Kicker>
+        <Kicker>
+          {displayingEndState ? "The calm version" : "Your vision"} ·{" "}
+          {project.space}
+        </Kicker>
         <Text style={styles.visionLine}>{project.vision}</Text>
         <Text style={styles.visionTitle}>{project.title}</Text>
+
+        {project.photoUri && (
+          <View style={styles.endStateActions}>
+            {generatingEndState ? (
+              <View style={styles.generatingContainer}>
+                <ActivityIndicator size="small" color={colors.accentInk} />
+                <Text style={styles.generatingText}>
+                  Imagining the calm version…
+                </Text>
+              </View>
+            ) : hasEndState ? (
+              <Pressable onPress={toggleImageView} style={styles.toggleButton}>
+                <Text style={styles.toggleLabel}>
+                  {displayingEndState ? "Show before" : "Show tidy version"}
+                </Text>
+              </Pressable>
+            ) : (
+              <PrimaryButton
+                label="Show me the room tidy"
+                variant="outline"
+                onPress={handleGenerateEndState}
+              />
+            )}
+          </View>
+        )}
       </Card>
 
       <View style={styles.progressRow}>
         <Ring pct={s.pct} size={92} />
         <View style={styles.progressText}>
-          <Text style={styles.progressBig}>
-            {s.total} steps total
-          </Text>
+          <Text style={styles.progressBig}>{s.total} steps total</Text>
           <Text style={styles.progressMeta}>
-            {s.daysIn} {s.daysIn === 1 ? "day" : "days"} in ·{" "}
-            {s.total - s.done} to go
+            {s.daysIn} {s.daysIn === 1 ? "day" : "days"} in · {s.total - s.done}{" "}
+            to go
           </Text>
           <Text style={styles.progressMeta}>
             Three little steps a day — never more.
@@ -75,9 +137,7 @@ export default function Vision() {
 
       {days.map((d) => (
         <View key={d} style={styles.dayBlock}>
-          <Text style={styles.dayLabel}>
-            {ORDINALS[d] ?? `Day ${d + 1}`}
-          </Text>
+          <Text style={styles.dayLabel}>{ORDINALS[d] ?? `Day ${d + 1}`}</Text>
           {project.steps
             .filter((st) => st.dayIndex === d)
             .map((st) => (
@@ -89,19 +149,10 @@ export default function Vision() {
                   pressed && { opacity: 0.6 },
                 ]}
               >
-                <View
-                  style={[styles.box, st.done && styles.boxDone]}
-                >
-                  {st.done && (
-                    <Text style={styles.check}>{"\u2713"}</Text>
-                  )}
+                <View style={[styles.box, st.done && styles.boxDone]}>
+                  {st.done && <Text style={styles.check}>{"\u2713"}</Text>}
                 </View>
-                <Text
-                  style={[
-                    styles.stepLabel,
-                    st.done && styles.stepDone,
-                  ]}
-                >
+                <Text style={[styles.stepLabel, st.done && styles.stepDone]}>
                   {st.label}
                 </Text>
                 <Text style={styles.minutes}>{st.minutes} min</Text>
@@ -152,6 +203,31 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     color: colors.ink,
     textAlign: "center",
+  },
+  endStateActions: {
+    marginTop: 10,
+    width: "100%",
+  },
+  generatingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 12,
+  },
+  generatingText: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 14,
+    color: colors.muted,
+  },
+  toggleButton: {
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  toggleLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 14,
+    color: colors.accentInk,
   },
   progressRow: {
     flexDirection: "row",
