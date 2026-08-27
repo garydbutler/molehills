@@ -1,10 +1,14 @@
 /*
-  Login — simulated for the prototype. Google / Facebook / email all sign in
-  locally; real OAuth arrives with the Next.js + Neon backend.
+  Login — real OAuth via Auth.js on the Next.js backend. Google and Facebook
+  open a browser session; on success, the backend redirects back with a JWT.
+  
+  Email sign-in is local-only for quick prototype testing.
 */
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -16,17 +20,85 @@ import {
 } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://molehills.vercel.app";
+const REDIRECT_URI = "molehill://auth";
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+type OAuthProvider = "google" | "facebook";
+
 export default function Login() {
   const { user, signIn } = useStore();
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState<OAuthProvider | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   if (user) return <Redirect href="/today" />;
 
-  const providerSignIn = (provider: string) =>
+  const handleOAuth = useCallback(async (provider: OAuthProvider) => {
+    setLoading(provider);
+    setError(null);
+
+    try {
+      const authUrl = `${API_URL}/api/auth/mobile/start?provider=${provider}`;
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, REDIRECT_URI);
+
+      if (result.type === "cancel" || result.type === "dismiss") {
+        setLoading(null);
+        return;
+      }
+
+      if (result.type === "success" && result.url) {
+        const url = new URL(result.url);
+        const token = url.searchParams.get("token");
+        const errorParam = url.searchParams.get("error");
+        const errorMessage = url.searchParams.get("message");
+
+        if (errorParam) {
+          setError(errorMessage || "Authentication failed. Please try again.");
+          setLoading(null);
+          return;
+        }
+
+        if (token) {
+          const payload = decodeJwtPayload(token);
+          if (payload) {
+            signIn({
+              name: (payload.name as string) || (payload.email as string) || "User",
+              email: (payload.email as string) || "",
+              provider: (payload.provider as string) || provider,
+            });
+            return;
+          }
+        }
+
+        setError("Could not read authentication response.");
+      }
+    } catch (err) {
+      console.error("OAuth error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(null);
+    }
+  }, [signIn]);
+
+  const handleEmailSignIn = useCallback(() => {
     signIn({
-      name: "Gary",
-      email: email.trim() || "gary@molehills.app",
-      provider,
+      name: email.trim().split("@")[0] || "Tester",
+      email: email.trim() || "test@local.dev",
+      provider: "email",
     });
+  }, [email, signIn]);
 
   return (
     <View style={styles.page}>
@@ -43,43 +115,61 @@ export default function Login() {
       </View>
 
       <Card style={styles.panel}>
-        <Text style={styles.panelTitle}>Try it now</Text>
-        <Field
-          placeholder="Email address (optional)"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <PrimaryButton
-          label="Continue with email"
-          onPress={() => providerSignIn("email")}
-        />
+        <Text style={styles.panelTitle}>Sign in</Text>
+
+        <Pressable
+          onPress={() => handleOAuth("google")}
+          disabled={loading !== null}
+          style={({ pressed }) => [
+            styles.oauthBtn,
+            (pressed || loading === "google") && { opacity: 0.7 },
+          ]}
+        >
+          {loading === "google" ? (
+            <ActivityIndicator size="small" color={colors.accentInk} style={{ width: 22 }} />
+          ) : (
+            <Text style={styles.oauthGlyph}>G</Text>
+          )}
+          <Text style={styles.oauthLabel}>Continue with Google</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => handleOAuth("facebook")}
+          disabled={loading !== null}
+          style={({ pressed }) => [
+            styles.oauthBtn,
+            (pressed || loading === "facebook") && { opacity: 0.7 },
+          ]}
+        >
+          {loading === "facebook" ? (
+            <ActivityIndicator size="small" color="#3b5998" style={{ width: 22 }} />
+          ) : (
+            <Text style={[styles.oauthGlyph, { color: "#3b5998" }]}>f</Text>
+          )}
+          <Text style={styles.oauthLabel}>Continue with Facebook</Text>
+        </Pressable>
+
+        {error && (
+          <Text style={styles.errorText}>{error}</Text>
+        )}
+
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
           <Text style={styles.dividerText}>or</Text>
           <View style={styles.divider} />
         </View>
-        <Pressable
-          onPress={() => providerSignIn("google")}
-          style={({ pressed }) => [
-            styles.oauthBtn,
-            pressed && { opacity: 0.7 },
-          ]}
-        >
-          <Text style={styles.oauthGlyph}>G</Text>
-          <Text style={styles.oauthLabel}>Continue with Google</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => providerSignIn("facebook")}
-          style={({ pressed }) => [
-            styles.oauthBtn,
-            pressed && { opacity: 0.7 },
-          ]}
-        >
-          <Text style={[styles.oauthGlyph, { color: "#3b5998" }]}>f</Text>
-          <Text style={styles.oauthLabel}>Continue with Facebook</Text>
-        </Pressable>
+
+        <Field
+          placeholder="Email (local testing only)"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <PrimaryButton
+          label="Continue with email (local)"
+          onPress={handleEmailSignIn}
+        />
         <Text style={styles.note}>
-          Simulated sign-in — nothing leaves this device in the prototype.
+          Email sign-in is for local testing only — it does not verify your address.
         </Text>
       </Card>
 
@@ -163,6 +253,16 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textAlign: "center",
     marginTop: 4,
+  },
+  errorText: {
+    fontFamily: fonts.body,
+    fontSize: 14,
+    color: "#c53030",
+    textAlign: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#fff5f5",
+    borderRadius: 8,
   },
   footer: {
     fontFamily: fonts.serifItalic,
