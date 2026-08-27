@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { areAuthSecretsConfigured, getMissingSecrets } from "@/lib/auth";
+import { areAuthSecretsConfigured, getMissingSecrets, signIn } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
 
   const baseUrl = process.env.AUTH_URL || new URL(request.url).origin;
   const callbackUrl = `${baseUrl}/api/auth/mobile/callback`;
-  const signInUrl = `${baseUrl}/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
-  return NextResponse.redirect(signInUrl);
+  await signIn(provider, { redirectTo: callbackUrl });
 }
