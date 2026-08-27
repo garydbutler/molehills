@@ -9,7 +9,7 @@ const methodSteps = [
     no: "Step 01",
     tag: "Capture",
     title: "Snap the truth",
-    body: "Photograph the cluttered room, the overgrown bed, the half-done project. Or just describe the goal and attach what helps. No tidying first — ever.",
+    body: "Photograph the cluttered room, the overgrown bed, the half-done project. Molehill reads the image and writes a 12-step plan — a title, a written vision, and small jobs split across days. Save it for later or start today.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <rect x="4" y="9" width="24" height="17" rx="3" />
@@ -21,8 +21,8 @@ const methodSteps = [
   {
     no: "Step 02",
     tag: "Vision",
-    title: "See the end state",
-    body: "Molehill renders the finished scene — the same room, calm and done — so your brain finally has a destination it can believe in.",
+    title: "Read the destination",
+    body: "The plan comes with a written vision — a sentence that describes what done looks like. If you want, you can ask for a rendered picture of that end state, but the plan works just as well without it.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M3 16c3.5-5.5 7.8-8.5 13-8.5S25.5 10.5 29 16c-3.5 5.5-7.8 8.5-13 8.5S6.5 21.5 3 16Z" />
@@ -32,9 +32,9 @@ const methodSteps = [
   },
   {
     no: "Step 03",
-    tag: "Slice",
-    title: "Get today's three",
-    body: "The mountain is cut into steps of minutes, not weekends. Each day serves exactly three. Finish them and you're done — genuinely done.",
+    tag: "Today",
+    title: "Three steps, then rest",
+    body: "The mountain is cut into steps of minutes, not weekends. Each day serves exactly three — never more. Finish them and you&apos;re done for today. Genuinely done.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M5 9h22M5 16h15M5 23h8" />
@@ -43,9 +43,9 @@ const methodSteps = [
   },
   {
     no: "Step 04",
-    tag: "Grow",
-    title: "Watch it change",
-    body: "Every completed step updates your vision's progress. Before-and-after becomes before-during-after — proof you are actually moving.",
+    tag: "Journey",
+    title: "Return when ready",
+    body: "Projects wait in Journey until you pick them again. When you finish a day&apos;s steps, re-photograph the space — not a checkbox, just a second look. Before-and-after becomes proof you&apos;re actually moving.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M16 27V13" />
@@ -166,9 +166,9 @@ export default function Home() {
               <Reveal delay={90}>
                 <p className="lead">
                   Molehill takes a photo of whatever feels like a mountain — the
-                  cluttered room, the wild garden, the looming project — shows
-                  you a clear vision of the end state, then walks you there in
-                  steps so small they&apos;re almost easy.
+                  cluttered room, the wild garden, the looming project — writes
+                  a 12-step plan with a vision of the end state, then walks you
+                  there three tiny steps a day.
                 </p>
               </Reveal>
               <Reveal delay={180} className="hero-actions">
@@ -292,10 +292,10 @@ export default function Home() {
                 <p className="body-copy">
                   So Molehill starts where motivation actually lives: your own
                   eyes. Show it the room, the desk, the yard, the goal. It
-                  imagines the finished version beside you, then quietly hands
-                  you today&apos;s part — small enough to start on a low-battery
-                  day, real enough to matter. Momentum comes back on its own
-                  once progress becomes visible again.
+                  writes a plan — 12 steps, a vision of done, split into days —
+                  then quietly hands you today&apos;s three. Small enough to start
+                  on a low-battery day, real enough to matter. Momentum comes
+                  back on its own once progress becomes visible again.
                 </p>
               </Reveal>
             </div>
@@ -356,18 +356,19 @@ export default function Home() {
                       <p>
                         The photo is allowed to be honest. Messy rooms,
                         half-finished corners, the drawer everyone has. Starting
-                        is one tap, not a ritual.
+                        is one tap, not a ritual. The photo becomes a written
+                        plan you can save or start today.
                       </p>
                     </div>
                   </Reveal>
                   <Reveal delay={120} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                     <span className="note-no">02</span>
                     <div>
-                      <h3>Your end state, on screen</h3>
+                      <h3>A vision in words, an image if you want</h3>
                       <p>
-                        Molehill renders the finished version of your exact
-                        space or goal. Motivation stops being imagination and
-                        becomes a picture you can check against.
+                        Every plan includes a written vision — what done looks
+                        like. If you want to see a rendered tidy version, tap to
+                        generate one. But the plan works without it.
                       </p>
                     </div>
                   </Reveal>
