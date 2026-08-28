@@ -892,6 +892,7 @@ h2.display { font-size: clamp(34px, 4.4vw, 56px); }
   margin-top: 18px;
 }
 .share-link {
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -905,6 +906,43 @@ h2.display { font-size: clamp(34px, 4.4vw, 56px); }
   transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 .share-link:hover { border-color: var(--accent-ink); background: var(--paper); color: var(--accent-ink); transform: translateY(-2px); }
+.share-link::before,
+.share-link::after {
+  position: absolute;
+  left: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.share-link::before {
+  content: "";
+  bottom: calc(100% + 5px);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  transform: translate(-50%, 3px);
+}
+.share-link::after {
+  content: attr(data-tooltip);
+  bottom: calc(100% + 15px);
+  z-index: 3;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translate(-50%, 3px);
+}
+.share-link:hover::before,
+.share-link:hover::after,
+.share-link:focus-visible::before,
+.share-link:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
 .share-link svg { width: 18px; height: 18px; display: block; }
 .share-status {
   margin-top: 12px;
@@ -1123,7 +1161,7 @@ footer { background: var(--dusk); color: var(--bone); position: relative; z-inde
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   [data-reveal] { opacity: 1 !important; translate: 0 0 !important; scale: 1 !important; transition: none !important; }
-  .nav, .btn-primary, .btn-ghost, .method-step, .space-tile { transition: none !important; }
+  .nav, .btn-primary, .btn-ghost, .method-step, .space-tile, .share-link, .share-link::before, .share-link::after { transition: none !important; }
   .pulse { animation: none; }
 }
 
