@@ -226,13 +226,17 @@ export function Field({
   value,
   onChangeText,
   multiline,
+  maxLength,
+  autoFocus,
   style,
 }: {
   placeholder: string;
   value: string;
   onChangeText: (t: string) => void;
   multiline?: boolean;
-  style?: StyleProp<ViewStyle>;
+  maxLength?: number;
+  autoFocus?: boolean;
+  style?: StyleProp<TextStyle>;
 }) {
   return (
     <TextInput
@@ -241,6 +245,8 @@ export function Field({
       value={value}
       onChangeText={onChangeText}
       multiline={multiline}
+      maxLength={maxLength}
+      autoFocus={autoFocus}
       style={[
         fieldStyles.base,
         multiline && fieldStyles.multiline,

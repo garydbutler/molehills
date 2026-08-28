@@ -3,6 +3,13 @@
   checkbox: a second look at the actual work.
 
   A checkbox believes you meant to do it. This doesn't.
+
+  Two ways to show it, decided per project at capture:
+    - photo: point the camera at it again
+    - words: say what changed, in your own words
+
+  The words path is for work that can't be photographed, which is usually
+  also the private work. It asks what moved — never for the work itself.
 */
 import { useState } from "react";
 import {
@@ -18,7 +25,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Headline, Kicker, PrimaryButton, SerifEm } from "@/components/ui";
+import {
+  Card,
+  Field,
+  Headline,
+  Kicker,
+  PrimaryButton,
+  SerifEm,
+} from "@/components/ui";
 import {
   MAX_RECAPTURES_PER_DAY,
   projectStats,
@@ -28,6 +42,9 @@ import {
 import { copyToDurableStorage } from "@/lib/photos";
 import { fetchRecapture } from "@/lib/api";
 import { tell } from "@/lib/dialog";
+
+/* Matches the server's cap. A sentence about the work, never the work. */
+const MAX_NOTE_CHARS = 600;
 
 type Outcome = {
   verdict: RecaptureVerdict;
@@ -47,6 +64,7 @@ export default function Recapture() {
 
   const [looking, setLooking] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [note, setNote] = useState("");
 
   const project = projects.find((p) => p.id === id);
 
@@ -59,9 +77,79 @@ export default function Recapture() {
   }
 
   const stats = projectStats(project);
+  const inWords = project.evidence === "words";
 
   const goBack = () =>
     router.canGoBack() ? router.back() : router.replace("/today");
+
+  /* Everything past "we have the evidence in hand" is the same either way. */
+  const submit = async (shown: { nowUri?: string; note?: string }) => {
+    // Claim the attempt before spending a call — a stuck retry loop must not
+    // be able to run up a bill.
+    if (!claimRecaptureAttempt(project.id)) {
+      tell("That's plenty of looks for today", "Come back tomorrow.");
+      return;
+    }
+
+    setLooking(true);
+    try {
+      const todayJobs = stats.todaySteps;
+      const remainingJobs = project.steps.filter(
+        (s) => !s.done && !todayJobs.some((t) => t.id === s.id),
+      );
+
+      const res = await fetchRecapture({
+        nowPhotoUri: shown.nowUri,
+        note: shown.note,
+        beforePhotoUri: project.photoUri,
+        title: project.title,
+        vision: project.vision,
+        description: project.description,
+        todayJobs: todayJobs.map((s) => s.label),
+        remainingJobs: remainingJobs.map((s) => s.label),
+      });
+
+      // Indices come back against [today's jobs, then the rest] — same order
+      // we sent them.
+      const ordered = [...todayJobs, ...remainingJobs];
+      const credited = res.completedJobs
+        .map((i) => ordered[i])
+        .filter((s) => s !== undefined);
+
+      const moved = res.verdict === "progress" || res.verdict === "leap";
+
+      applyRecapture(project.id, {
+        verdict: res.verdict,
+        // Trust what we can see: a leap skips ahead rather than making them
+        // redo work already visible.
+        progress: res.progress / 100,
+        completedStepIds: moved
+          ? (credited.length > 0 ? credited : todayJobs).map((s) => s.id)
+          : [],
+        photoUri: shown.nowUri,
+        note: shown.note,
+        message: res.message,
+      });
+
+      setOutcome({
+        verdict: res.verdict,
+        message: res.message,
+        creditedCount: moved
+          ? credited.length > 0
+            ? credited.length
+            : todayJobs.length
+          : 0,
+      });
+    } catch (err) {
+      console.warn("Recapture failed:", err);
+      tell(
+        "Couldn't look just now",
+        "That's on us, not you. Try again in a moment.",
+      );
+    } finally {
+      setLooking(false);
+    }
+  };
 
   const look = async (pick: "camera" | "library") => {
     if (!stats.canRecapture) {
@@ -95,76 +183,29 @@ export default function Recapture() {
 
     if (result.canceled || !result.assets[0]) return;
 
-    // Claim the attempt before spending a call — a stuck retry loop must not
-    // be able to run up a bill.
-    if (!claimRecaptureAttempt(project.id)) {
-      tell("That's plenty of looks for today", "Come back tomorrow.");
+    let nowUri = result.assets[0].uri;
+    try {
+      nowUri = await copyToDurableStorage(nowUri);
+    } catch {
+      // Keep the temp uri; the look still works, it just may not persist.
+    }
+
+    await submit({ nowUri });
+  };
+
+  const sayIt = async () => {
+    const trimmed = note.trim();
+    if (!trimmed) return;
+
+    if (!stats.canRecapture) {
+      tell(
+        "That's plenty of looks for today",
+        "Come back tomorrow — the jobs will still be here, and so will you.",
+      );
       return;
     }
 
-    setLooking(true);
-    try {
-      let nowUri = result.assets[0].uri;
-      try {
-        nowUri = await copyToDurableStorage(nowUri);
-      } catch {
-        // Keep the temp uri; the look still works, it just may not persist.
-      }
-
-      const todayJobs = stats.todaySteps;
-      const remainingJobs = project.steps.filter(
-        (s) => !s.done && !todayJobs.some((t) => t.id === s.id),
-      );
-
-      const res = await fetchRecapture({
-        nowPhotoUri: nowUri,
-        beforePhotoUri: project.photoUri,
-        title: project.title,
-        vision: project.vision,
-        description: project.description,
-        todayJobs: todayJobs.map((s) => s.label),
-        remainingJobs: remainingJobs.map((s) => s.label),
-      });
-
-      // Indices come back against [today's jobs, then the rest] — same order
-      // we sent them.
-      const ordered = [...todayJobs, ...remainingJobs];
-      const credited = res.completedJobs
-        .map((i) => ordered[i])
-        .filter((s) => s !== undefined);
-
-      const moved = res.verdict === "progress" || res.verdict === "leap";
-
-      applyRecapture(project.id, {
-        verdict: res.verdict,
-        // Trust what we can see: a leap skips ahead rather than making them
-        // redo work already visible.
-        progress: res.progress / 100,
-        completedStepIds: moved
-          ? (credited.length > 0 ? credited : todayJobs).map((s) => s.id)
-          : [],
-        photoUri: nowUri,
-        message: res.message,
-      });
-
-      setOutcome({
-        verdict: res.verdict,
-        message: res.message,
-        creditedCount: moved
-          ? credited.length > 0
-            ? credited.length
-            : todayJobs.length
-          : 0,
-      });
-    } catch (err) {
-      console.warn("Recapture failed:", err);
-      tell(
-        "Couldn't look just now",
-        "That's on us, not you. Try again in a moment.",
-      );
-    } finally {
-      setLooking(false);
-    }
+    await submit({ note: trimmed });
   };
 
   /* ---- after the look ---- */
@@ -194,7 +235,9 @@ export default function Recapture() {
                 ? "That's the day, done."
                 : outcome.verdict === "wrong_project"
                   ? "That looks like something else."
-                  : "We can't quite see it yet."}
+                  : inWords
+                    ? "Tell me one more thing."
+                    : "We can't quite see it yet."}
           </Text>
 
           {outcome.message ? (
@@ -214,7 +257,7 @@ export default function Recapture() {
           ) : (
             <>
               <PrimaryButton
-                label="Show it again"
+                label={inWords ? "Add a detail" : "Show it again"}
                 variant="outline"
                 onPress={() => setOutcome(null)}
               />
@@ -227,11 +270,13 @@ export default function Recapture() {
 
         {!good && stats.manualFallbackUnlocked ? (
           <Card style={styles.fallbackCard}>
-            <Text style={styles.fallbackTitle}>Camera not cooperating?</Text>
+            <Text style={styles.fallbackTitle}>
+              {inWords ? "Words not landing?" : "Camera not cooperating?"}
+            </Text>
             <Text style={styles.fallbackBody}>
-              Twice now we couldn&apos;t read the picture. You shouldn&apos;t be stuck
-              because the light is bad — tell us it&apos;s done and we&apos;ll believe
-              you.
+              {inWords
+                ? "Twice now we couldn't line up what you wrote with today's jobs. You shouldn't be stuck on phrasing — tell us it's done and we'll believe you."
+                : "Twice now we couldn't read the picture. You shouldn't be stuck because the light is bad — tell us it's done and we'll believe you."}
             </Text>
             <Pressable
               onPress={() => {
@@ -258,15 +303,24 @@ export default function Recapture() {
       <View style={styles.header}>
         <Kicker>Show your work</Kicker>
         <Headline>
-          Show it to me <SerifEm>again</SerifEm>.
+          {inWords ? (
+            <>
+              What <SerifEm>moved</SerifEm>?
+            </>
+          ) : (
+            <>
+              Show it to me <SerifEm>again</SerifEm>.
+            </>
+          )}
         </Headline>
         <Text style={styles.lead}>
-          Not a checkbox — just point the camera at {project.title.toLowerCase()}{" "}
-          one more time.
+          {inWords
+            ? `Not a checkbox — just tell me what changed on ${project.title.toLowerCase()} today.`
+            : `Not a checkbox — just point the camera at ${project.title.toLowerCase()} one more time.`}
         </Text>
       </View>
 
-      {project.photoUri ? (
+      {!inWords && project.photoUri ? (
         <Card style={styles.guideCard}>
           <Text style={styles.guideLabel}>
             THIS IS HOW IT LOOKED — ROUGHLY MATCH IT
@@ -282,8 +336,29 @@ export default function Recapture() {
       {looking ? (
         <Card style={styles.lookingCard}>
           <ActivityIndicator size="small" color={colors.accentInk} />
-          <Text style={styles.lookingText}>Having a look…</Text>
+          <Text style={styles.lookingText}>
+            {inWords ? "Reading that…" : "Having a look…"}
+          </Text>
         </Card>
+      ) : inWords ? (
+        <View style={styles.actions}>
+          <Field
+            placeholder="e.g. Got the intro rewritten and pulled the two citations I was missing"
+            value={note}
+            onChangeText={setNote}
+            multiline
+            maxLength={MAX_NOTE_CHARS}
+          />
+          <Text style={styles.privacyNote}>
+            One specific sentence is plenty. Don&apos;t paste the work itself —
+            we never need to see it, only what moved.
+          </Text>
+          <PrimaryButton
+            label="That's my day"
+            onPress={sayIt}
+            disabled={note.trim().length === 0}
+          />
+        </View>
       ) : (
         <View style={styles.actions}>
           <PrimaryButton
@@ -341,6 +416,13 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   actions: { gap: 10 },
+  privacyNote: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: colors.muted,
+    paddingHorizontal: 2,
+  },
   lookingCard: { alignItems: "center", gap: 10, paddingVertical: 26 },
   lookingText: {
     fontFamily: fonts.body,

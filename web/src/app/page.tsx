@@ -3,13 +3,14 @@ import SiteNav from "@/components/SiteNav";
 import PhoneDemo from "@/components/PhoneDemo";
 import BeforeAfter from "@/components/BeforeAfter";
 import WaitlistForm from "@/components/WaitlistForm";
+import ShareLinks from "@/components/ShareLinks";
 
 const methodSteps = [
   {
     no: "Step 01",
     tag: "Capture",
-    title: "Snap the truth",
-    body: "Photograph the cluttered room, the overgrown bed, the half-done project. Molehill reads the image and writes a 12-step plan — a title, a written vision, and small jobs split across days. Save it for later or start today.",
+    title: "Take the photo",
+    body: "Photograph whatever you want to change, mess and all. Molehill reads the picture and writes a plan: a name for the project, one line describing what done looks like, and about 12 small steps sorted into days. Start it now or save it for later.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <rect x="4" y="9" width="24" height="17" rx="3" />
@@ -21,8 +22,8 @@ const methodSteps = [
   {
     no: "Step 02",
     tag: "Vision",
-    title: "Read the destination",
-    body: "The plan comes with a written vision — a sentence that describes what done looks like. If you want, you can ask for a rendered picture of that end state, but the plan works just as well without it.",
+    title: "See what done looks like",
+    body: "Every plan opens with one sentence describing the finished result. If a picture would help more than words, you can generate one, but the plan works fine without it.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M3 16c3.5-5.5 7.8-8.5 13-8.5S25.5 10.5 29 16c-3.5 5.5-7.8 8.5-13 8.5S6.5 21.5 3 16Z" />
@@ -34,7 +35,7 @@ const methodSteps = [
     no: "Step 03",
     tag: "Today",
     title: "Three steps, then rest",
-    body: "The mountain is cut into steps of minutes, not weekends. Each day serves exactly three — never more. Finish them and you're done for today. Genuinely done.",
+    body: "The work is cut into steps of a few minutes each. Each day gives you three of them and never a fourth. Finish those and the day is done, with nothing left nagging in the background.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M5 9h22M5 16h15M5 23h8" />
@@ -45,7 +46,7 @@ const methodSteps = [
     no: "Step 04",
     tag: "Journey",
     title: "Return when ready",
-    body: "Projects wait in Journey until you pick them again. When you finish a day's steps, re-photograph the space — not a checkbox, just a second look. Before-and-after becomes proof you're actually moving.",
+    body: "Your projects wait in the Journey tab until you come back to them. To finish a day you photograph the space again, and Molehill compares it with the last shot to check the work really happened. The before and after is your proof.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M16 27V13" />
@@ -60,7 +61,7 @@ const methodSteps = [
 const spaces = [
   {
     title: "Cluttered rooms",
-    body: "The classic. Watch the living room become a place you want to sit in.",
+    body: "The most common one. Turn a living room back into somewhere you actually want to sit.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <path d="M4 21v-8l9-6 9 6v8" />
@@ -71,7 +72,7 @@ const spaces = [
   },
   {
     title: "Desk resets",
-    body: "Papers, cables, mystery piles — back to a surface that thinks clearly.",
+    body: "Papers, cables, and the pile you stopped looking at, cleared back to a usable surface.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <path d="M13 3v6" />
@@ -82,7 +83,7 @@ const spaces = [
   },
   {
     title: "Gardens & yards",
-    body: "From jungle to sanctuary, one handful of leaves per visit.",
+    body: "An overgrown bed brought back under control, one handful of weeds at a time.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <path d="M13 22V10" />
@@ -93,7 +94,7 @@ const spaces = [
   },
   {
     title: "Storage & garage",
-    body: "The boxes of forgetting, sorted into keep, gift, and goodbye.",
+    body: "The boxes you keep meaning to deal with, sorted into keep, donate, and toss.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <rect x="4" y="9" width="18" height="12" rx="1.5" />
@@ -103,7 +104,7 @@ const spaces = [
   },
   {
     title: "Any pictured goal",
-    body: "A race medal, a repaired bike, a gallery wall. Describe it, attach a photo, begin.",
+    body: "It doesn't have to be tidying. Describe a goal like finishing an essay or fixing up a bike, add a photo if you have one, and you get the same kind of plan.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <circle cx="13" cy="13" r="8" />
@@ -132,11 +133,10 @@ export default function Home() {
         <div className="container">
           <div className="topbar-inner">
             <span>
-              <b>Vol. 01</b> — Field notes on gentle progress
+              <b>Vol. 01</b> · Field notes on steady progress
             </span>
             <span className="mid">
               <span>The ADHD-friendly companion</span>
-              <span>Nº 001</span>
             </span>
             <span className="right">
               <span>
@@ -157,23 +157,31 @@ export default function Home() {
           <div className="hero-grid">
             <div className="hero-copy">
               <Reveal as="span" className="index-label">
-                A calmer way to get things done · Nº 01
+                The ADHD-friendly app for tasks too big to start
               </Reveal>
               <h1 className="display">
                 Big things, finished <em>gently</em>
                 <span className="dot">.</span>
               </h1>
-              <Reveal delay={90}>
-                <p className="lead">
-                  Molehill takes a photo of whatever feels like a mountain — the
-                  cluttered room, the wild garden, the looming project — writes
-                  a 12-step plan with a vision of the end state, then walks you
-                  there three tiny steps a day.
+              <Reveal delay={80}>
+                <p className="hero-deck">
+                  Photograph whatever you&apos;re avoiding. Molehill turns it into
+                  a plan and gives you three small steps a day — never a fourth.
                 </p>
               </Reveal>
-              <Reveal delay={180} className="hero-actions">
+              <Reveal delay={150}>
+                <p className="lead">
+                  The task that won&apos;t start usually isn&apos;t laziness — it&apos;s
+                  not being able to see the finish line or the next step. So
+                  Molehill makes both: a picture of what done looks like, and
+                  three small steps to get there each day. When you think
+                  you&apos;re finished, you photograph it again, and it confirms the
+                  work is really there.
+                </p>
+              </Reveal>
+              <Reveal delay={230} className="hero-actions">
                 <a className="btn-primary" href="#waitlist">
-                  Join the waitlist
+                  Get early access
                 </a>
                 <a className="btn-ghost" href="#method">
                   See how it works
@@ -189,18 +197,18 @@ export default function Home() {
                   </svg>
                 </a>
               </Reveal>
-              <Reveal delay={270} className="hero-stats">
+              <Reveal delay={310} className="hero-stats">
                 <div className="stat">
                   <b>1</b>
-                  <span>photo is all it takes to begin a plan</span>
+                  <span>photo, or a sentence, to start a plan</span>
                 </div>
                 <div className="stat">
                   <b>3</b>
-                  <span>tiny steps a day — never more</span>
+                  <span>small steps a day, never more</span>
                 </div>
                 <div className="stat">
                   <b>0</b>
-                  <span>guilt timers, streaks, or shame mechanics</span>
+                  <span>streaks, timers, or guilt trips</span>
                 </div>
               </Reveal>
             </div>
@@ -261,7 +269,7 @@ export default function Home() {
                       <img className="plate-photo" src="/images/hero.png" alt="" />
                     </div>
                     <figcaption className="plate-cap">
-                      <span>Plate Nº 01 — Morning, eventually</span>
+                      <span>A calm morning</span>
                       <span>Sage / ivory / light</span>
                     </figcaption>
                   </div>
@@ -277,25 +285,35 @@ export default function Home() {
           <div className="container">
             <div className="about-grid">
               <Reveal>
-                <span className="index-label">The weight · Nº 02</span>
+                <span className="index-label">The weight</span>
                 <h2 className="display" style={{ marginTop: 18 }}>
                   It was never about <em>laziness</em>
                   <span className="dot">.</span>
                 </h2>
+                <p className="body-copy" style={{ marginTop: 22 }}>
+                  Every other app rewards the streak. Molehill rewards
+                  finishing — then stopping.
+                </p>
               </Reveal>
               <Reveal delay={140}>
                 <p className="pull-serif" style={{ marginBottom: 22 }}>
-                  Big tasks don&apos;t fail because people stop caring. They fail
-                  because the finish line is invisible and the next step is
-                  nowhere to be seen.
+                  Big tasks don&apos;t fail because you stopped caring. They fail
+                  because you can&apos;t see the finish line, and the next step
+                  isn&apos;t obvious.
                 </p>
                 <p className="body-copy">
-                  So Molehill starts where motivation actually lives: your own
-                  eyes. Show it the room, the desk, the yard, the goal. It
-                  writes a plan — 12 steps, a vision of done, split into days —
-                  then quietly hands you today&apos;s three. Small enough to start
-                  on a low-battery day, real enough to matter. Momentum comes
-                  back on its own once progress becomes visible again.
+                  So Molehill starts with something you can already do: point
+                  your camera at the problem. It reads the photo and writes a
+                  plan of about 12 steps, sorted into days, with a short note on
+                  what finished looks like. Then it hands you the first three. On
+                  a rough day you can ask for just one. The steps are small
+                  enough to manage when you have nothing left in the tank, and
+                  once you can see the pile getting smaller, the urge to keep
+                  going usually comes back on its own.
+                </p>
+                <p className="pull-serif" style={{ marginTop: 26 }}>
+                  The mountain was never the problem. It just needed to be a
+                  molehill<span className="dot">.</span>
                 </p>
               </Reveal>
             </div>
@@ -305,7 +323,7 @@ export default function Home() {
         <section className="sec-pad" id="method">
           <div className="container">
             <div className="sec-head">
-              <span className="index-label">How it works · Nº 03</span>
+              <span className="index-label">How it works</span>
               <Reveal>
                 <h2 className="display" style={{ marginTop: 18 }}>
                   One loop, four <em>quiet</em> moves<span className="dot">.</span>
@@ -340,10 +358,10 @@ export default function Home() {
               </Reveal>
               <div>
                 <div className="sec-head" style={{ marginBottom: 40 }}>
-                  <span className="index-label">Inside the app · Nº 04</span>
+                  <span className="index-label">Inside the app</span>
                   <Reveal>
                     <h2 className="display" style={{ marginTop: 18 }}>
-                      A day in Molehill fits inside a <em>breath</em>
+                      Most days you&apos;re in and out in under a <em>minute</em>
                       <span className="dot">.</span>
                     </h2>
                   </Reveal>
@@ -352,34 +370,34 @@ export default function Home() {
                   <Reveal delay={0} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                     <span className="note-no">01</span>
                     <div>
-                      <h3>Snap, don&apos;t prepare</h3>
+                      <h3>Don&apos;t tidy first</h3>
                       <p>
-                        The photo is allowed to be honest. Messy rooms,
-                        half-finished corners, the drawer everyone has. Starting
-                        is one tap, not a ritual. The photo becomes a written
-                        plan you can save or start today.
+                        The photo is supposed to be honest, so don&apos;t clean up
+                        for it. A messy room or a half-finished corner is exactly
+                        what Molehill wants to see. One tap turns it into a plan
+                        you can start now or come back to later.
                       </p>
                     </div>
                   </Reveal>
                   <Reveal delay={120} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                     <span className="note-no">02</span>
                     <div>
-                      <h3>A vision in words, an image if you want</h3>
+                      <h3>Skip the picture if you like</h3>
                       <p>
-                        Every plan includes a written vision — what done looks
-                        like. If you want to see a rendered tidy version, tap to
-                        generate one. But the plan works without it.
+                        The plan always describes the finished result in words.
+                        Generating an image of it is one optional tap, and
+                        skipping it changes nothing about the steps you get.
                       </p>
                     </div>
                   </Reveal>
                   <Reveal delay={240} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                     <span className="note-no">03</span>
                     <div>
-                      <h3>Three steps, then rest</h3>
+                      <h3>Try it here</h3>
                       <p>
-                        Try the preview — tap a step. Each tick moves the ring,
-                        and the day closes gently when it&apos;s done. Overwhelm
-                        doesn&apos;t stand a chance against small.
+                        Tap a step in the preview. The ring fills as you check
+                        things off, and the day wraps up on its own once all
+                        three are done.
                       </p>
                     </div>
                   </Reveal>
@@ -392,7 +410,7 @@ export default function Home() {
         <section className="sec-pad" id="spaces">
           <div className="container">
             <div className="sec-head">
-              <span className="index-label">Where vision helps · Nº 05</span>
+              <span className="index-label">Where vision helps</span>
               <Reveal>
                 <h2 className="display" style={{ marginTop: 18 }}>
                   If you can photograph it, Molehill can <em>plan it</em>
@@ -420,31 +438,31 @@ export default function Home() {
           <div className="container">
             <div className="slab-grid">
               <div>
-                <span className="index-label">Before / after · Nº 06</span>
+                <span className="index-label">Before / after</span>
                 <Reveal>
                   <h2 className="display" style={{ marginTop: 18 }}>
-                    Same corner. New <em>evening</em>
+                    The same corner, twelve steps <em>later</em>
                     <span className="dot">.</span>
                   </h2>
                 </Reveal>
                 <Reveal>
                   <p className="lead" style={{ marginTop: 22 }}>
-                    This is the whole promise: nothing magical happened to the
-                    room. Twelve tiny visits did. Drag the divider — or use
-                    arrow keys — to move through the change.
+                    Nothing dramatic happened to this room. Twelve small
+                    sessions did the work. Drag the divider (or use the arrow
+                    keys) to move through the change.
                   </p>
                 </Reveal>
                 <Reveal>
                   <div className="ba-cap">
-                    <span>Catch of the day: one shelf, one basket, one plant watered</span>
+                    <span>One visit&apos;s work: a shelf cleared and the plant finally watered</span>
                   </div>
                 </Reveal>
               </div>
               <Reveal variant="right">
                 <BeforeAfter />
                 <div className="ba-cap">
-                  <span>Fig. A — the corner, Tuesday</span>
-                  <span>Fig. B — the corner, twelve small visits later</span>
+                  <span>Fig. A · The corner on Tuesday</span>
+                  <span>Fig. B · The same corner, twelve visits later</span>
                 </div>
               </Reveal>
             </div>
@@ -454,7 +472,7 @@ export default function Home() {
         <section className="sec-pad principles" id="principles">
           <div className="container">
             <Reveal as="span" className="index-label" >
-              Principles · Nº 07
+              Principles
             </Reveal>
             <Reveal delay={90}>
               <blockquote className="principle-quote" style={{ marginTop: 34 }}>
@@ -463,13 +481,13 @@ export default function Home() {
               </blockquote>
             </Reveal>
             <Reveal delay={180}>
-              <div className="quote-attr">— From the Molehill field notes, № 2</div>
+              <div className="quote-attr">From the Molehill principles</div>
             </Reveal>
             <Reveal delay={270}>
               <div className="chip-row">
-                <span className="chip"><i>·</i>Momentum over marathons</span>
-                <span className="chip"><i>·</i>Pictures over pep talks</span>
-                <span className="chip"><i>·</i>Rest counts as progress</span>
+                <span className="chip"><i>·</i>A few minutes a day</span>
+                <span className="chip"><i>·</i>See real progress</span>
+                <span className="chip"><i>·</i>Rest is allowed</span>
               </div>
             </Reveal>
           </div>
@@ -479,7 +497,7 @@ export default function Home() {
           <div className="container">
             <div className="cta-box">
               <Reveal as="span" className="index-label">
-                Early access · Nº 08
+                Early access
               </Reveal>
               <Reveal>
                 <h2 className="display" style={{ marginTop: 18 }}>
@@ -489,17 +507,20 @@ export default function Home() {
               </Reveal>
               <Reveal delay={90}>
                 <p className="lead">
-                  Molehill is being finished in small, loving increments —
-                  appropriately enough. Leave an email and you&apos;ll be among
-                  the first through the window.
+                  We&apos;re building Molehill a little at a time, which feels
+                  about right. Leave your email and we&apos;ll tell you the moment
+                  it&apos;s ready to try.
                 </p>
               </Reveal>
               <Reveal delay={180}>
                 <WaitlistForm />
               </Reveal>
               <p className="cta-fine">
-                One quiet email at launch, nothing else, ever.
+One email when it launches. We won&apos;t use your address for anything else.
               </p>
+              <Reveal delay={240}>
+                <ShareLinks />
+              </Reveal>
             </div>
           </div>
         </section>
@@ -525,8 +546,8 @@ export default function Home() {
                 Molehill<span className="dot">.</span>
               </a>
               <p>
-                A vision-led companion for big, overwhelming tasks. Made with
-                and for ADHD minds.
+A companion for the tasks that feel too big to begin. Made for
+                people with ADHD.
               </p>
             </div>
             <div className="foot-col">
@@ -549,8 +570,8 @@ export default function Home() {
             <div className="foot-col">
               <h4>Fine print</h4>
               <ul>
-                <li><a href="#top">Privacy, briefly</a></li>
-                <li><a href="#top">Terms, humanly</a></li>
+                <li><a href="/privacy-policy">Privacy</a></li>
+                <li><a href="/terms-of-service">Terms</a></li>
                 <li><a href="#top">Accessibility</a></li>
               </ul>
             </div>
@@ -560,7 +581,7 @@ export default function Home() {
           <div className="container">
             <Reveal variant="rise-lg">
               <div className="word">
-                Go <em>gently</em>
+                Start <em>small</em>
                 <span className="dot">.</span>
               </div>
             </Reveal>
@@ -569,8 +590,8 @@ export default function Home() {
         <div className="container">
           <div className="fine-print">
             <span>© 2026 Molehill · MoleHills.app</span>
-            <span>Imagery drawn in-page · No photos were shamed</span>
-            <span>Vol. 01 · Nº 001</span>
+            <span>Illustrations drawn in the page</span>
+            <span>Vol. 01</span>
           </div>
         </div>
       </footer>

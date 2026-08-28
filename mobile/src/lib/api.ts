@@ -107,9 +107,14 @@ export async function fetchEndState(
 /*
   Recapture — show the project again instead of ticking a box. Cheap
   text+vision call; deliberately never generates an image.
+
+  Show it with a photo (nowPhotoUri) or with a sentence (note). Never both —
+  a project that can be photographed doesn't need the words, and one that
+  can't must never be asked for a picture of private work.
 */
 export async function fetchRecapture(args: {
-  nowPhotoUri: string;
+  nowPhotoUri?: string;
+  note?: string;
   beforePhotoUri?: string;
   title?: string;
   vision?: string;
@@ -118,8 +123,11 @@ export async function fetchRecapture(args: {
   remainingJobs: string[];
 }): Promise<RecaptureResponse> {
   const [nowImage, beforeImage] = await Promise.all([
-    fileToBase64(args.nowPhotoUri),
-    args.beforePhotoUri
+    args.nowPhotoUri
+      ? fileToBase64(args.nowPhotoUri)
+      : Promise.resolve(undefined),
+    // The "before" is only ever context for a photo comparison.
+    args.nowPhotoUri && args.beforePhotoUri
       ? fileToBase64(args.beforePhotoUri).catch(() => undefined)
       : Promise.resolve(undefined),
   ]);
@@ -132,6 +140,7 @@ export async function fetchRecapture(args: {
     body: JSON.stringify({
       nowImage,
       beforeImage,
+      note: args.note || undefined,
       title: args.title || undefined,
       vision: args.vision || undefined,
       description: args.description || undefined,

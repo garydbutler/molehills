@@ -54,10 +54,21 @@ export type Recapture = {
   day: string; // local YYYY-MM-DD
   at: number;
   photoUri?: string;
+  note?: string; // what they said changed, for projects shown in words
   verdict: RecaptureVerdict;
   progress: number; // 0..1 — how filled the done picture is after this look
   message?: string;
 };
+
+/*
+  How a project gets shown at the end of a day.
+
+  "photo" — point the camera at it, as before.
+  "words" — say what changed, in your own words. For work that is private
+  (a dissertation, a legal filing, a therapy journal) or simply has nothing
+  to photograph. We never ask for the work itself, only for what moved.
+*/
+export type Evidence = "photo" | "words";
 
 export type Project = {
   id: string;
@@ -66,6 +77,7 @@ export type Project = {
   vision: string; // the end-state line, e.g. "Sunday-you, sitting in a calm room."
   glyph: string; // stand-in for the photo / rendered vision
   description?: string; // for projects started from a sentence, not a photo
+  evidence: Evidence; // how this project gets shown at the end of a day
   photoUri?: string; // URI of the captured "before" photo
   endStateImage?: string; // base64 of the AI-generated done picture
   createdAt: number;
@@ -120,6 +132,7 @@ export type RecaptureResult = {
   progress: number; // 0..1
   completedStepIds: string[];
   photoUri?: string;
+  note?: string;
   message?: string;
 };
 
@@ -253,6 +266,9 @@ export function makeProject(
     space: bp.space,
     vision: VISIONS[bp.space] ?? VISIONS.Goal,
     glyph: spaceToGlyph(bp.space),
+    // Start as you began: a photo project ends its days in photos, a project
+    // started from a sentence ends them in sentences. Overridable at capture.
+    evidence: photoUri ? "photo" : "words",
     photoUri,
     createdAt: Date.now(),
     status: "saved",
@@ -283,6 +299,7 @@ export function makeProjectFromPlan(plan: ApiPlan, photoUri?: string): Project {
     space: plan.space,
     vision: plan.vision,
     glyph: spaceToGlyph(plan.space),
+    evidence: photoUri ? "photo" : "words",
     photoUri,
     createdAt: Date.now(),
     status: "saved",
@@ -368,6 +385,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             // Projects stored before recapture landed have no status/progress.
             status: p.status ?? "saved",
             progress: p.progress ?? 0,
+            // Projects stored before evidence landed were all photo projects.
+            evidence: p.evidence ?? (p.photoUri ? "photo" : "words"),
           }));
           // Exactly one project holds "today".
           if (validated.length > 0 && !validated.some((p) => p.status === "today")) {
@@ -488,6 +507,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             day: today,
             at: Date.now(),
             photoUri: result.photoUri,
+            note: result.note,
             verdict: result.verdict,
             progress: result.progress,
             message: result.message,

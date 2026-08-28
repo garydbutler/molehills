@@ -34,14 +34,18 @@ export default function WaitlistForm() {
     return (
       <div className="waitlist-done show">
         <p className="big">
-          You&apos;re on the list — gently<span className="dot">.</span>
+          You&apos;re on the list<span className="dot">.</span>
         </p>
         {justJoined?.emailed && (
           <p style={{ marginTop: 12 }}>
-            We sent a confirmation link to <b>{email.trim()}</b> — it expires
-            never, but why wait.
+            We sent a confirmation link to <b>{email.trim()}</b>. It doesn&apos;t
+            expire, so confirm whenever you like.
           </p>
         )}
+        <p style={{ marginTop: 12 }}>
+          We&apos;ll email you once — the day Molehill&apos;s ready to try. Nothing
+          before that.
+        </p>
       </div>
     );
   }
@@ -50,7 +54,7 @@ export default function WaitlistForm() {
     e.preventDefault();
     const value = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
-      setMsg("That email looks unfinished — mind checking it?");
+      setMsg("That email address looks incomplete. Mind checking it?");
       setMsgKind("err");
       return;
     }
@@ -70,7 +74,7 @@ export default function WaitlistForm() {
       }
       setJustJoined({ emailed: Boolean(data.emailed) });
     } catch {
-      setMsg("Something went wrong on our end — please try again.");
+      setMsg("Something went wrong on our end. Please try again.");
       setMsgKind("err");
     } finally {
       setBusy(false);
@@ -98,7 +102,7 @@ export default function WaitlistForm() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <button className="btn-primary" type="submit" disabled={busy}>
-            Join the waitlist
+            Get early access
           </button>
         </div>
         <p

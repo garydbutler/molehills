@@ -28,9 +28,28 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Molehill — Big things, finished gently. A calm companion for overwhelming tasks.",
+  metadataBase: new URL("https://molehills.app"),
+  title: "ADHD-friendly app for tasks too big to start | Molehill",
   description:
-    "Molehill turns a photo of whatever feels like a mountain into a 12-step plan with a written vision of done, then walks you there three tiny steps a day. Built for ADHD minds and anyone facing a task that feels too big.",
+    "Molehill turns a photo of whatever feels too big into a plan of small steps, then hands you three a day — never a fourth. Built for ADHD minds and anyone stuck.",
+  openGraph: {
+    title: "Molehill — big things, finished gently",
+    description:
+      "Photograph the task that feels too big. Molehill turns it into three small steps a day.",
+    url: "https://molehills.app",
+    siteName: "Molehill",
+    images: [
+      { url: "/og.png", width: 1200, height: 630, alt: "Molehill — big things, finished gently" },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Molehill — big things, finished gently",
+    description:
+      "Photograph the task that feels too big. Molehill turns it into three small steps a day.",
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({

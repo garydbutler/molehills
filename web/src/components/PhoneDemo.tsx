@@ -48,7 +48,7 @@ export default function PhoneDemo() {
             <span className="ring-num">{pct}%</span>
           </div>
         </div>
-        <ul className="tasks" aria-label="Today's tasks — try tapping them">
+        <ul className="tasks" aria-label="Today's tasks, tap to try them">
           {initialTasks.map((task, i) => (
             <li key={task.label} className={`task${done[i] ? " done" : ""}`}>
               <button
@@ -75,7 +75,7 @@ export default function PhoneDemo() {
           {doneCount} of {initialTasks.length} done · no rush
         </div>
         <div className={`all-done${allDone ? " show" : ""}`}>
-          That&apos;s everything for today. The rest can wait — you did the kind thing.
+          That&apos;s everything for today. The rest can wait, and stopping now is fine.
         </div>
         <div className="vision-card">
           <div className="vision-thumb" aria-hidden="true">

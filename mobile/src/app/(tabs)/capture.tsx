@@ -26,7 +26,12 @@ import {
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
-import { makeProject, makeProjectFromPlan, useStore } from "@/store/app-store";
+import {
+  makeProject,
+  makeProjectFromPlan,
+  useStore,
+  type Evidence,
+} from "@/store/app-store";
 import { fetchPlan } from "@/lib/api";
 import { copyToDurableStorage } from "@/lib/photos";
 import { ask, tell } from "@/lib/dialog";
@@ -51,6 +56,10 @@ export default function Capture() {
   const [space, setSpace] = useState("Kitchen");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // null = follow the photo. Set only when they choose for themselves.
+  const [evidencePick, setEvidencePick] = useState<Evidence | null>(null);
+
+  const evidence: Evidence = evidencePick ?? (photoUri ? "photo" : "words");
 
   const pickFromLibrary = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -147,6 +156,7 @@ export default function Capture() {
         const project = {
           ...makeProjectFromPlan(plan, photoUri ?? undefined),
           description: typed || undefined,
+          evidence,
         };
         addProject(project);
         startProject(project.id);
@@ -158,7 +168,10 @@ export default function Capture() {
       }
     }
 
-    const project = makeProject(name, space, photoUri ?? undefined);
+    const project = {
+      ...makeProject(name, space, photoUri ?? undefined),
+      evidence,
+    };
     addProject(project);
     startProject(project.id);
   };
@@ -223,11 +236,32 @@ export default function Capture() {
           ))}
         </View>
 
+        <Text style={[styles.label, { marginTop: 8 }]}>
+          How will you show me it got done?
+        </Text>
+        <View style={styles.chips}>
+          <Chip
+            label="A photo"
+            active={evidence === "photo"}
+            onPress={() => setEvidencePick("photo")}
+          />
+          <Chip
+            label="A sentence"
+            active={evidence === "words"}
+            onPress={() => setEvidencePick("words")}
+          />
+        </View>
+        <Text style={styles.evidenceHint}>
+          {evidence === "photo"
+            ? "At the end of a day you'll photograph it again — that's what marks the jobs done, not a checkbox."
+            : "At the end of a day you'll say what changed, in a sentence. For work that's private or has nothing to photograph — we never ask to see the work itself."}
+        </Text>
+
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={colors.accentInk} />
             <Text style={styles.loadingText}>
-              Looking at your space and making a gentle plan…
+              Looking at your project and making a calm plan…
             </Text>
           </View>
         ) : (
@@ -236,8 +270,7 @@ export default function Capture() {
 
         {!photoUri && !loading && (
           <Text style={styles.note}>
-            A photo or screenshot is what we compare against later. Without
-            one, a sentence still gets you a plan.
+            No photo? A sentence still gets you a plan.
           </Text>
         )}
       </Card>
@@ -283,6 +316,14 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: colors.muted,
     textAlign: "center",
+  },
+  evidenceHint: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: colors.muted,
+    marginTop: -2,
+    marginBottom: 4,
   },
   captureButtons: {
     flexDirection: "row",
