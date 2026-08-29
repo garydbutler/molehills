@@ -17,7 +17,14 @@ if (!url || url.includes("user:password")) {
   process.exit(1);
 }
 
-const { sql } = await import("@vercel/postgres");
+/*
+  createClient, not the pooled `sql` helper: `vercel env pull` hands back a
+  direct (unpooled) connection string, which the pooled client refuses. The
+  deployed app is unaffected — it gets a pooled URL from the integration.
+*/
+const { createClient } = await import("@vercel/postgres");
+const client = createClient({ connectionString: url });
+await client.connect();
 
 const schemaPath = join(process.cwd(), "scripts", "schema.sql");
 const statements = readFileSync(schemaPath, "utf8")
@@ -25,9 +32,16 @@ const statements = readFileSync(schemaPath, "utf8")
   .map((s) => s.trim())
   .filter(Boolean);
 
-for (const statement of statements) {
-  await sql.query(statement);
-  console.log("Applied:", statement.split("\n")[0].slice(0, 60), "…");
+try {
+  for (const statement of statements) {
+    await client.query(statement);
+    // Comment-only chunks are harmless, but naming them would be noise.
+    const firstCode = statement
+      .split("\n")
+      .find((l) => l.trim() && !l.trim().startsWith("--"));
+    if (firstCode) console.log("Applied:", firstCode.slice(0, 60), "…");
+  }
+  console.log("Schema is up to date.");
+} finally {
+  await client.end();
 }
-
-console.log("Schema is up to date.");
