@@ -55,7 +55,7 @@ export default function Journey() {
       contentContainerStyle={styles.page}
     >
       <View style={styles.header}>
-        <Kicker>Step 04 · Grow</Kicker>
+        <Kicker>Step 04 · Journey</Kicker>
         <Headline>
           Watch it <SerifEm>change</SerifEm>.
         </Headline>
@@ -137,7 +137,7 @@ export default function Journey() {
       })}
 
       <Text style={styles.closing}>
-        Nothing magical happened to any of these rooms. Twelve tiny visits did.
+        Nothing magical happened to any of these. Twelve tiny visits did.
       </Text>
     </ScrollView>
   );

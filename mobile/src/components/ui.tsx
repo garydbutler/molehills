@@ -8,6 +8,7 @@ import {
   Text,
   TextInput,
   View,
+  type ImageStyle,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
@@ -549,3 +550,42 @@ const doneStyles = StyleSheet.create({
     height: "100%",
   },
 });
+
+/* ---- mascot ----
+
+   The inchworm. Four poses, each with a job:
+     wave     — greeting (login)
+     notebook — writing the plan (while the plan is being built)
+     sprout   — a small beginning, and a quiet finish
+     measure  — the brand mark; also the app icon
+
+   Decorative only, so it is hidden from screen readers. Every source is
+   transparent, sized by height with the aspect ratio kept.
+*/
+const MASCOTS = {
+  wave: require("../../assets/mascots/inchworm-peeking-wave.png"),
+  notebook: require("../../assets/mascots/inchworm-field-guide.png"),
+  sprout: require("../../assets/mascots/inchworm-sprout.png"),
+  measure: require("../../assets/mascots/inchworm-measuring-tape.png"),
+} as const;
+
+export function Mascot({
+  pose,
+  height = 120,
+  style,
+}: {
+  pose: keyof typeof MASCOTS;
+  height?: number;
+  style?: StyleProp<ImageStyle>;
+}) {
+  return (
+    <Image
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      source={MASCOTS[pose]}
+      resizeMode="contain"
+      style={[{ height, width: "100%" }, style]}
+    />
+  );
+}

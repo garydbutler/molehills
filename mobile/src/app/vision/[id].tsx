@@ -15,7 +15,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Kicker, PrimaryButton, Ring } from "@/components/ui";
+import { Card, Kicker, Mascot, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
 import { tell } from "@/lib/dialog";
@@ -92,7 +92,7 @@ export default function Vision() {
 
       {s.complete ? (
         <Card style={styles.finishedCard}>
-          <Text style={styles.finishedGlyph}>{"\u2739"}</Text>
+          <Mascot pose="sprout" height={120} />
           <Text style={styles.finishedTitle}>{project.title} is finished.</Text>
           <Text style={styles.finishedBody}>
             Nothing magical happened here. Twelve small visits did.
@@ -124,11 +124,10 @@ export default function Vision() {
         ) : project.photoUri ? (
           <Image source={{ uri: project.photoUri }} style={styles.visionPhoto} />
         ) : (
-          <Text style={styles.visionGlyph}>{project.glyph}</Text>
+          <Mascot pose="sprout" height={62} />
         )}
         <Kicker>
-          {displayingEndState ? "The calm version" : "Your vision"} ·{" "}
-          {project.space}
+          {displayingEndState ? "The calm version" : "Your vision"}
         </Kicker>
         <Text style={styles.visionLine}>{project.vision}</Text>
         <Text style={styles.visionTitle}>{project.title}</Text>
@@ -204,7 +203,6 @@ export default function Vision() {
 
 const styles = StyleSheet.create({
   finishedCard: { alignItems: "center", gap: 10, paddingVertical: 26 },
-  finishedGlyph: { fontSize: 32, color: colors.clay },
   finishedTitle: {
     fontFamily: fonts.sansSemi,
     fontSize: 19,
@@ -240,10 +238,9 @@ const styles = StyleSheet.create({
   visionCard: {
     alignItems: "center",
     gap: 10,
-    paddingVertical: 30,
+    paddingVertical: 22,
     backgroundColor: colors.tint,
   },
-  visionGlyph: { fontSize: 52 },
   visionPhoto: {
     width: "100%",
     height: 180,

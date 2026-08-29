@@ -13,10 +13,12 @@ import React, {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File } from "expo-file-system";
+import { clearAuthToken } from "@/lib/auth-token";
 
 const STORAGE_KEYS = {
   USER: "molehill:user",
   PROJECTS: "molehill:projects",
+  PLANS_USED: "molehill:plansUsed",
 } as const;
 
 function validatePhotoUri(uri: string | undefined): string | undefined {
@@ -107,7 +109,15 @@ export function dayKey(d: Date = new Date()) {
   ).padStart(2, "0")}`;
 }
 
-export type User = { name: string; email: string; provider: string };
+export type User = {
+  name: string;
+  email: string;
+  provider: string;
+  /* Stable account id from the OAuth JWT. RevenueCat keys entitlements off
+     this, so a subscription follows the account, not the handset. Optional
+     because the local email tester has no real one. */
+  sub?: string;
+};
 
 type Store = {
   user: User | null;
@@ -124,6 +134,10 @@ type Store = {
   claimRecaptureAttempt: (projectId: string) => boolean;
   applyRecapture: (projectId: string, result: RecaptureResult) => void;
   finishToday: (projectId: string) => void;
+  /* Plans generated on this install, ever. The only metered thing in the app —
+     each one is a paid vision-model call. */
+  plansUsed: number;
+  recordPlanUsed: () => void;
   hydrated: boolean;
 };
 
@@ -363,19 +377,24 @@ export function projectStats(p: Project) {
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [plansUsed, setPlansUsed] = useState(0);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const [storedUser, storedProjects] = await Promise.all([
+        const [storedUser, storedProjects, storedPlansUsed] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.USER),
           AsyncStorage.getItem(STORAGE_KEYS.PROJECTS),
+          AsyncStorage.getItem(STORAGE_KEYS.PLANS_USED),
         ]);
 
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
+
+        const used = Number(storedPlansUsed);
+        if (Number.isFinite(used) && used > 0) setPlansUsed(used);
 
         if (storedProjects) {
           const parsed: Project[] = JSON.parse(storedProjects);
@@ -421,8 +440,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     );
   }, [projects, hydrated]);
 
+  useEffect(() => {
+    if (!hydrated) return;
+    AsyncStorage.setItem(STORAGE_KEYS.PLANS_USED, String(plansUsed)).catch((e) =>
+      console.warn("Failed to persist plansUsed:", e),
+    );
+  }, [plansUsed, hydrated]);
+
   const signIn = useCallback((u: User) => setUser(u), []);
-  const signOut = useCallback(() => setUser(null), []);
+  const recordPlanUsed = useCallback(() => setPlansUsed((n) => n + 1), []);
+  const signOut = useCallback(() => {
+    setUser(null);
+    // Leaving the token behind would keep the API callable after sign out.
+    clearAuthToken();
+  }, []);
   const addProject = useCallback(
     (p: Project) => setProjects((prev) => [p, ...prev]),
     [],
@@ -587,6 +618,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       claimRecaptureAttempt,
       applyRecapture,
       finishToday,
+      plansUsed,
+      recordPlanUsed,
       hydrated,
     }),
     [
@@ -604,6 +637,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       claimRecaptureAttempt,
       applyRecapture,
       finishToday,
+      plansUsed,
+      recordPlanUsed,
       hydrated,
     ],
   );

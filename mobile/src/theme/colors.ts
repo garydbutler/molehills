@@ -1,6 +1,6 @@
 /*
   Shared color tokens — mirrors the CSS variables in web/src/app/globals.css
-  (the Molehill landing design) so the app and marketing site stay in sync.
+  (the Inchmeal landing design) so the app and marketing site stay in sync.
   Values are hex approximations of the site's oklch() tokens.
 */
 export const colors = {

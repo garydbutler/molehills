@@ -11,7 +11,7 @@ What it is, in one sentence a stranger would understand:
 An ADHD-friendly mobile app that turns a photo of any overwhelming task into a small daily plan you can actually finish.
 
 What it actually does (the mechanism, not the promise):
-You photograph the thing you're avoiding — a cluttered room, an overgrown garden, a stalled project. A vision model reads the photo and writes a plan: a project name, a one-line "what done looks like" description (optionally an AI-generated image of it), and about 12 small steps sorted into days. Each day surfaces exactly three steps — one on a rough day — each only a few minutes. To finish a day you re-photograph the space; Molehill compares it against the last shot to confirm the work actually happened, so completion is a before/after, not a ticked box. Unfinished projects wait in a "Journey" tab until you come back. iOS + Android (Expo / React Native). Currently pre-launch — the site collects a waitlist.
+You photograph the thing you're avoiding — a cluttered room, an overgrown garden, a stalled project. A vision model reads the photo and writes a plan: a project name, a one-line "what done looks like" description (optionally an AI-generated image of it), and about 12 small steps sorted into days. Each day surfaces exactly three steps — one on a rough day — each only a few minutes. To finish a day you re-photograph the space; Inchmeal compares it against the last shot to confirm the work actually happened, so completion is a before/after, not a ticked box. Unfinished projects wait in a "Journey" tab until you come back. iOS + Android (Expo / React Native). Currently pre-launch — the site collects a waitlist.
 
 What it does NOT do (this prevents overclaiming):
 No streaks, timers, gamification, guilt, or nagging. It doesn't ask you to tidy before photographing (the mess is the input). The AI "vision image" is optional — skipping it changes nothing about the steps. It is not a blank to-do list you type into; the photo is the starting point. It does not treat or diagnose ADHD. Not yet launched.
@@ -31,7 +31,7 @@ Streak/habit apps (Finch, Habitica, Streaks), generic to-do apps (Todoist, Apple
 
 ## Positioning
 The one thing true about us that a competitor could not also say:
-Molehill starts from a photo of the real mess and verifies completion with a second photo — a before/after, not a checkbox — while capping the day at three small steps and refusing streaks entirely. The photo-in / photo-verify loop is the defensible wedge; the "three steps then rest" gentleness is the emotional one.
+Inchmeal starts from a photo of the real mess and verifies completion with a second photo — a before/after, not a checkbox — while capping the day at three small steps and refusing streaks entirely. The photo-in / photo-verify loop is the defensible wedge; the "three steps then rest" gentleness is the emotional one.
 
 Category we compete in:
 Task / productivity apps — deliberately positioned *against* the gamified, streak-driven end of that category. A useful internal frame: "gentle productivity" or "the anti-streak task app for ADHD."
@@ -51,13 +51,13 @@ Any language implying clinical or therapeutic benefit for ADHD. "ADHD-friendly" 
 
 ## Voice
 How we sound:
-Calm, warm, plain-spoken, quietly literary — an editorial "field guide" register (Vol. 01, field notes). Permission-giving ("rest is allowed," "stopping now is fine"). Honest and anti-hype. Leans on the molehill/mountain metaphor.
+Calm, warm, plain-spoken, quietly literary — an editorial "field guide" register (Vol. 01, field notes). Permission-giving ("rest is allowed," "stopping now is fine"). Honest and anti-hype. Tagline: **Little and often.** "Inchmeal" is a real word (Merriam-Webster) meaning *little by little, gradually* — lean on that, not on the old molehill/mountain metaphor, which was retired 2026-08-29 to separate the entity from a same-category competitor also called Molehill. See [geo-audit-molehills-2026-08-29.md](geo-audit-molehills-2026-08-29.md).
 
 How we never sound:
 Hustle or grind. Hyped or urgent. Shaming. Gamified ("crush your goals," "don't break your streak"). Clinical or medical.
 
 Words we always use:
-gentle, small, calm, three, photo, plan, done, rest, Journey, vision, molehill, finish.
+gentle, small, calm, three, photo, plan, done, rest, Journey, vision, inch, little, often, finish.
 
 Words we never use:
 streak, grind, crush, hustle, hack, optimize, 10x, guilt, "lazy" (except to reject it), gamify, unlock, dominate.

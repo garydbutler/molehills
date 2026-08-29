@@ -44,7 +44,7 @@ export default function SiteNav() {
                 />
               </svg>
             </span>
-            Molehill<span className="dot">.</span>
+            Inchmeal<span className="dot">.</span>
           </a>
           <div className="nav-links">
             <a href="#method">How it works</a>

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Molehill**
+**Inchmeal**
 
 **Last updated: 27 August 2026**
 **Effective: 27 August 2026**
@@ -9,29 +9,29 @@
 
 ## 1. Who we are
 
-This Privacy Policy explains how **Gary Butler**, doing business as **Molehill**
-("Molehill", "we", "us", or "our"), collects, uses, and shares personal
+This Privacy Policy explains how **Gary Butler**, doing business as **Inchmeal**
+("Inchmeal", "we", "us", or "our"), collects, uses, and shares personal
 information when you:
 
 - visit **molehills.app** and join the waitlist (the "**Website**"), and
-- use the Molehill mobile app for iOS and Android (the "**App**").
+- use the Inchmeal mobile app for iOS and Android (the "**App**").
 
 Together we call the Website and the App the "**Service**".
 
 For people in the European Economic Area ("EEA"), the United Kingdom ("UK"), or
-other regions with similar laws, **Gary Butler (d/b/a Molehill)** is the "data
+other regions with similar laws, **Gary Butler (d/b/a Inchmeal)** is the "data
 controller" of your personal information. You can reach us at
 **hello@molehills.app** (postal address: 109885 S 4743 RD, Muldrow, OK 74948).
 
 ---
 
-## 2. A note on what Molehill is — and isn't
+## 2. A note on what Inchmeal is — and isn't
 
-Molehill is a productivity companion designed to be friendly to people with ADHD
+Inchmeal is a productivity companion designed to be friendly to people with ADHD
 and to anyone facing a task that feels too big to start. **It is not a medical
 device, and it does not diagnose, treat, or provide advice about ADHD or any
 other health condition.** We do not require, ask for, or knowingly collect any
-medical diagnosis. Using Molehill is not evidence of any health condition, and we
+medical diagnosis. Using Inchmeal is not evidence of any health condition, and we
 do not treat your use of the Service as health information.
 
 ---
@@ -57,7 +57,7 @@ how it reaches us.
 - **Notes.** For projects you cannot photograph, you may instead type a short note
   describing what changed. **Please do not paste the underlying work itself** (for
   example, the text of a dissertation, a legal filing, or a private message) —
-  Molehill only needs a sentence about what moved, not the work.
+  Inchmeal only needs a sentence about what moved, not the work.
 
 ### 3.2 Information created when you use the Service
 
@@ -133,7 +133,7 @@ verdict). This is what makes the core features work.
 If you join the waitlist, we will use your email address **only** to:
 
 1. send you one email asking you to confirm your address (double opt‑in), and
-2. send you one email when Molehill is ready to try.
+2. send you one email when Inchmeal is ready to try.
 
 We will not sell it, rent it, or use it for unrelated marketing. You can ask us to
 delete your address at any time by emailing **hello@molehills.app**, and every
@@ -161,7 +161,7 @@ happened.
 ## 8. When we share information
 
 We do not sell your personal information. We share it only with the service
-providers ("subprocessors") that help us run Molehill, and only as needed. As of
+providers ("subprocessors") that help us run Inchmeal, and only as needed. As of
 the date above, these are:
 
 | Provider | Purpose | Data involved |
@@ -174,7 +174,7 @@ the date above, these are:
 | **Apple Inc. / Google LLC (app stores)** | Distributing the App; crash/diagnostic data | Device and diagnostic data per the store |
 
 We may also disclose information if required by law, to enforce our Terms, or to
-protect the rights, safety, and security of our users, the public, or Molehill;
+protect the rights, safety, and security of our users, the public, or Inchmeal;
 and in connection with a merger, acquisition, or sale of assets (we will notify you
 of any such change).
 
@@ -251,14 +251,14 @@ Contractual Clauses (and the UK Addendum) or an adequacy decision.
 
 ## 13. Children's privacy
 
-Molehill is not directed to children under **13**, and we do not knowingly collect
+Inchmeal is not directed to children under **13**, and we do not knowingly collect
 personal information from them. In the EEA and UK, if you are under **16** (or the
 age of digital consent where you live), you may use the Service only with the
 consent and involvement of a parent or guardian. If you believe a child has
 provided us personal information, contact **hello@molehills.app** and we will
 delete it.
 
-If a young person uses Molehill for schoolwork, remember that their photos and
+If a young person uses Inchmeal for schoolwork, remember that their photos and
 notes are processed as described in Section 5; a parent or guardian should decide
 whether that is appropriate.
 
@@ -286,8 +286,8 @@ after an update means you accept the revised policy.
 Questions, requests, or concerns about privacy?
 
 **Email:** hello@molehills.app
-**Post:** Gary Butler (d/b/a Molehill), 109885 S 4743 RD, Muldrow, OK 74948
+**Post:** Gary Butler (d/b/a Inchmeal), 109885 S 4743 RD, Muldrow, OK 74948
 
 ---
 
-*© 2026 Molehill. This policy covers molehills.app and the Molehill mobile app.*
+*© 2026 Inchmeal. This policy covers molehills.app and the Inchmeal mobile app.*

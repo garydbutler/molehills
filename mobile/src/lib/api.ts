@@ -1,6 +1,7 @@
 import { File } from "expo-file-system";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://molehills.vercel.app";
+import { API_URL } from "@/lib/site";
+import { loadAuthToken } from "@/lib/auth-token";
 
 export type PlanStep = {
   label: string;
@@ -36,6 +37,17 @@ export type ApiError = {
   error: string;
 };
 
+/* The three endpoints below each cost money server-side, so all of them are
+   authenticated. A missing token still sends the request — the server answers
+   401 and the existing error path surfaces "Sign in to continue." */
+async function authHeaders(): Promise<Record<string, string>> {
+  const token = await loadAuthToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 async function fileToBase64(uri: string): Promise<string> {
   const file = new File(uri);
   const base64 = file.base64Sync();
@@ -44,21 +56,15 @@ async function fileToBase64(uri: string): Promise<string> {
 
 export async function fetchPlan(
   photoUri: string | undefined,
-  title?: string,
-  space?: string,
   description?: string,
 ): Promise<PlanResponse> {
   const base64Image = photoUri ? await fileToBase64(photoUri) : undefined;
 
   const response = await fetch(`${API_URL}/api/plan`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: await authHeaders(),
     body: JSON.stringify({
       image: base64Image,
-      title: title || undefined,
-      space: space || undefined,
       description: description || undefined,
     }),
   });
@@ -83,9 +89,7 @@ export async function fetchEndState(
 
   const response = await fetch(`${API_URL}/api/end-state`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: await authHeaders(),
     body: JSON.stringify({
       image: base64Image,
       vision: vision || undefined,
@@ -134,9 +138,7 @@ export async function fetchRecapture(args: {
 
   const response = await fetch(`${API_URL}/api/recapture`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: await authHeaders(),
     body: JSON.stringify({
       nowImage,
       beforeImage,

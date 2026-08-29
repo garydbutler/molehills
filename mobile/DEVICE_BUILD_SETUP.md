@@ -1,6 +1,6 @@
-# Molehill — Installing the app on your iPhone (development build)
+# Inchmeal — Installing the app on your iPhone (development build)
 
-Setup guide for building Molehill and running it on your own iPhone using your
+Setup guide for building Inchmeal and running it on your own iPhone using your
 new Apple Developer Program account and EAS (Expo's cloud build service).
 
 Prepared 2026-08-27.
@@ -20,7 +20,7 @@ What's already set up in the project (nothing for you to do here):
 - `expo-dev-client` is installed.
 - `eas.json` has a `development` profile that produces a phone-installable build.
 - The project is linked to your Expo account: `@garydbutler/molehill`.
-- Bundle identifier: `app.molehills.mobile`.
+- Bundle identifier: `app.inchmeal.mobile`.
 
 You do **not** need a working USB cable for any of this. EAS builds in Apple's
 cloud and installs on your phone over Wi-Fi. Your iPhone (iPhone 16 Pro,
@@ -73,7 +73,7 @@ npx expo start --dev-client
 ```
 
 Open the app on your phone. It connects to the server over Wi-Fi (same network
-as the Mac) and loads Molehill. This is also where Google and Facebook sign-in
+as the Mac) and loads Inchmeal. This is also where Google and Facebook sign-in
 finally work, because the `molehill://` return link only resolves inside the
 real app, not in a browser.
 

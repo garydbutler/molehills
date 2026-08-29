@@ -3,6 +3,7 @@ import path from "node:path";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 type LegalDocumentProps = {
   fileName: "privacy-policy.md" | "terms-of-service.md";
@@ -26,7 +27,7 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
 
       <header className="legal-nav">
         <div className="container legal-nav-inner">
-          <Link className="brand" href="/" aria-label="Molehill home">
+          <Link className="brand" href="/" aria-label="Inchmeal home">
             <span className="brand-mark" aria-hidden="true">
               <svg viewBox="0 0 16 16" width="14" height="14">
                 <path
@@ -39,7 +40,7 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
                 />
               </svg>
             </span>
-            Molehill<span className="dot">.</span>
+            Inchmeal<span className="dot">.</span>
           </Link>
           <nav className="legal-links" aria-label="Legal pages">
             <Link href="/">Home</Link>
@@ -74,11 +75,11 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
 
       <footer className="legal-footer">
         <div className="container legal-footer-inner">
-          <span>© 2026 Molehill · MoleHills.app</span>
+          <span>© 2026 Inchmeal · MoleHills.app</span>
           <nav aria-label="Footer legal links">
             <Link href="/privacy-policy">Privacy</Link>
             <Link href="/terms-of-service">Terms</Link>
-            <a href="mailto:hello@molehills.app">Contact</a>
+            <a href={`mailto:${CONTACT_EMAIL}`}>Contact</a>
           </nav>
         </div>
       </footer>

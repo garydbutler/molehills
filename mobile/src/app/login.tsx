@@ -8,20 +8,21 @@ import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-nati
 import { Redirect } from "expo-router";
 import { useState, useCallback } from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
   Card,
   Field,
   Kicker,
+  Mascot,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
 import { useStore } from "@/store/app-store";
+import { API_URL, AUTH_REDIRECT_URI } from "@/lib/site";
+import { setAuthToken } from "@/lib/auth-token";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://molehills.vercel.app";
-const REDIRECT_URI = "molehill://auth";
+
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -49,7 +50,7 @@ export default function Login() {
 
     try {
       const authUrl = `${API_URL}/api/auth/mobile/start?provider=${provider}`;
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, REDIRECT_URI);
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, AUTH_REDIRECT_URI);
 
       if (result.type === "cancel" || result.type === "dismiss") {
         setLoading(null);
@@ -71,10 +72,13 @@ export default function Login() {
         if (token) {
           const payload = decodeJwtPayload(token);
           if (payload) {
+            // The API gate needs the token itself, not just its claims.
+            await setAuthToken(token);
             signIn({
               name: (payload.name as string) || (payload.email as string) || "User",
               email: (payload.email as string) || "",
               provider: (payload.provider as string) || provider,
+              sub: (payload.sub as string) || undefined,
             });
             return;
           }
@@ -104,14 +108,16 @@ export default function Login() {
   return (
     <View style={styles.page}>
       <View style={styles.hero}>
+        <Mascot pose="wave" height={88} style={styles.mascot} />
         <Kicker>A calmer way to get things done</Kicker>
         <Text style={styles.title}>
           Big things,{"\n"}
           finished <SerifEm>gently</SerifEm>.
         </Text>
         <Text style={styles.lead}>
-          Photo the mountain. See the end state. Three little steps a day —
-          never more.
+          Show Inchmeal where the thing stands — a photo, or one sentence. It
+          writes the plan and gives you three small steps a day, never a
+          fourth.
         </Text>
       </View>
 
@@ -175,7 +181,7 @@ export default function Login() {
       </Card>
 
       <Text style={styles.footer}>
-        Molehill · no guilt timers, streaks, or shame mechanics
+        Little and often · no streaks, timers, or guilt trips
       </Text>
     </View>
   );
@@ -190,6 +196,7 @@ const styles = StyleSheet.create({
     gap: 26,
   },
   hero: { gap: 14 },
+  mascot: { alignSelf: "flex-start", marginBottom: -2 },
   title: {
     fontFamily: fonts.sansExtra,
     fontSize: 42,

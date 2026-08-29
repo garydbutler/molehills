@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-
-const SHARE_URL = "https://molehills.app";
+import { SITE_URL as SHARE_URL } from "@/lib/site";
 const SHARE_TEXT =
-  "Big things, finished gently — Molehill turns any task that feels too big into three small steps a day.";
+  "Big things, finished gently — Inchmeal turns any task that feels too big into three small steps a day.";
 
 // ponytail: plain share-intent URLs, no SDK. Facebook ignores custom text and
 // pulls the OG tags from layout.tsx instead.

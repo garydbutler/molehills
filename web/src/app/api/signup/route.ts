@@ -9,12 +9,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function confirmationEmail(origin: string, token: string) {
   const url = `${origin}/verify?token=${token}`;
   return {
-    subject: "Confirm your spot on the Molehill waitlist",
+    subject: "Confirm your spot on the Inchmeal waitlist",
     html: `
       <div style="font-family:Georgia,'Times New Roman',serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#20403b;">
-        <p style="font-size:13px;letter-spacing:0.18em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;color:#8aa39a;margin:0 0 20px;">Molehill · Field notes on steady progress</p>
+        <p style="font-size:13px;letter-spacing:0.18em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;color:#8aa39a;margin:0 0 20px;">Inchmeal · Field notes on steady progress</p>
         <h1 style="font-weight:normal;font-size:24px;line-height:1.3;margin:0 0 16px;">Big things, finished <em>gently</em>.</h1>
-        <p style="font-size:15px;line-height:1.6;margin:0 0 28px;">Someone (hopefully you) left this address on the Molehill waitlist. Confirm it and you'll be among the first through the window — one quiet email at launch, nothing else, ever.</p>
+        <p style="font-size:15px;line-height:1.6;margin:0 0 28px;">Someone (hopefully you) left this address on the Inchmeal waitlist. Confirm it and you'll be among the first through the window — one quiet email at launch, nothing else, ever.</p>
         <a href="${url}" style="display:inline-block;background:#2e7266;color:#f2f1e4;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;padding:13px 28px;border-radius:999px;">Confirm my email</a>
         <p style="font-size:12px;line-height:1.6;color:#7d938b;margin:32px 0 0;">If you didn't sign up, you can ignore this — nothing happens without a confirm, and we won't email this address again.</p>
       </div>`,
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       const message = confirmationEmail(request.nextUrl.origin, token);
       await resend.emails.send({
         from:
-          process.env.RESEND_FROM ?? "Molehill <onboarding@resend.dev>",
+          process.env.RESEND_FROM ?? "Inchmeal <onboarding@resend.dev>",
         to: email,
         subject: message.subject,
         html: message.html,

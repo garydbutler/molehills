@@ -45,7 +45,7 @@ export default async function VerifyPage({
       }}
     >
       <div className="cta-box">
-        <span className="index-label">Molehill · Waitlist</span>
+        <span className="index-label">Inchmeal · Waitlist</span>
         <h1 className="display" style={{ marginTop: 18 }}>
           {state === "verified" && (
             <>
@@ -82,7 +82,7 @@ export default async function VerifyPage({
         </p>
         <p style={{ marginTop: 32 }}>
           <Link href="/" className="btn-primary">
-            Back to Molehill
+            Back to Inchmeal
           </Link>
         </p>
       </div>

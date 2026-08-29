@@ -18,7 +18,7 @@ export default function PhoneDemo() {
   const allDone = doneCount === initialTasks.length;
 
   return (
-    <div className="phone" role="group" aria-label="Interactive preview of the Molehill app showing today's three small tasks and a progress ring">
+    <div className="phone" role="group" aria-label="Interactive preview of the Inchmeal app showing today's three small tasks and a progress ring">
       <div className="screen">
         <div className="status-row">
           <span>9:41</span>

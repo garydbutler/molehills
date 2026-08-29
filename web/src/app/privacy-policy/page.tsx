@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LegalDocument from "@/components/LegalDocument";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Molehill",
-  description: "How Molehill collects, uses, and protects personal information.",
+  title: "Privacy Policy | Inchmeal",
+  description: "How Inchmeal collects, uses, and protects personal information.",
 };
 
 export default function PrivacyPolicyPage() {

@@ -12,6 +12,7 @@ import {
   DonePicture,
   Headline,
   Kicker,
+  Mascot,
   PrimaryButton,
   Ring,
   SerifEm,
@@ -54,6 +55,7 @@ export default function Today() {
           </Headline>
         </View>
         <Card style={styles.doneCard}>
+          <Mascot pose="sprout" height={92} />
           <Text style={styles.doneBody}>
             {saved.length > 0
               ? "You have projects waiting. Pick one from Journey when you're ready."
@@ -115,7 +117,7 @@ export default function Today() {
 
       {stats.restingUntilTomorrow ? (
         <Card style={styles.doneCard}>
-          <Text style={styles.doneGlyph}>{"❋"}</Text>
+          <Mascot pose="sprout" height={92} />
           <Text style={styles.doneTitle}>
             That&apos;s everything for today.
           </Text>
@@ -128,7 +130,7 @@ export default function Today() {
         </Card>
       ) : stats.complete ? (
         <Card style={styles.doneCard}>
-          <Text style={styles.doneGlyph}>{"✹"}</Text>
+          <Mascot pose="sprout" height={92} />
           <Text style={styles.doneTitle}>{active.title} is finished.</Text>
           <Link href={`/vision/${active.id}`} style={styles.visionLink}>
             See how it changed →
@@ -254,7 +256,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   doneCard: { alignItems: "center", gap: 8, paddingVertical: 30 },
-  doneGlyph: { fontSize: 34, color: colors.clay },
   doneTitle: {
     fontFamily: fonts.sansSemi,
     fontSize: 19,

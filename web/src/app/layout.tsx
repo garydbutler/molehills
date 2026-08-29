@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, IBM_Plex_Mono, Playfair_Display } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const serif = Playfair_Display({
@@ -28,26 +29,26 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://molehills.app"),
-  title: "ADHD-friendly app for tasks too big to start | Molehill",
+  metadataBase: new URL(SITE_URL),
+  title: "ADHD-friendly app for tasks too big to start | Inchmeal",
   description:
-    "Molehill turns a photo of whatever feels too big into a plan of small steps, then hands you three a day — never a fourth. Built for ADHD minds and anyone stuck.",
+    "Show Inchmeal the task that feels too big — a photo, or one sentence. It writes a plan of small steps and hands you three a day, never a fourth. Built for ADHD minds and anyone stuck.",
   openGraph: {
-    title: "Molehill — big things, finished gently",
+    title: "Inchmeal — little and often",
     description:
-      "Photograph the task that feels too big. Molehill turns it into three small steps a day.",
-    url: "https://molehills.app",
-    siteName: "Molehill",
+      "A photo, or one sentence, about the task that feels too big. Inchmeal turns it into three small steps a day.",
+    url: SITE_URL,
+    siteName: "Inchmeal",
     images: [
-      { url: "/og.png", width: 1200, height: 630, alt: "Molehill — big things, finished gently" },
+      { url: "/og.png", width: 1200, height: 630, alt: "Inchmeal — little and often" },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Molehill — big things, finished gently",
+    title: "Inchmeal — little and often",
     description:
-      "Photograph the task that feels too big. Molehill turns it into three small steps a day.",
+      "A photo, or one sentence, about the task that feels too big. Inchmeal turns it into three small steps a day.",
     images: ["/og.png"],
   },
 };

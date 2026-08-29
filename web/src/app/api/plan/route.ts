@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ const PLAN_SCHEMA = {
   required: ["title", "space", "vision", "steps"],
 } as const;
 
-const SYSTEM_PROMPT = `You are Molehill, an ADHD-friendly companion that breaks a project into a handful of small jobs a day.
+const SYSTEM_PROMPT = `You are Inchmeal, an ADHD-friendly companion that breaks a project into a handful of small jobs a day.
 
 A PROJECT is any piece of work someone wants finished: cleaning the kitchen, remodelling the bathroom, a history essay, a homework packet, chapter 4 of a book. Never call these "rooms" — a project is not always a place.
 
@@ -95,7 +96,7 @@ function corsHeaders(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": isAllowed ? origin : "",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
 
@@ -110,6 +111,10 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
   const headers = corsHeaders(origin);
+
+  // Every path below this line spends money. Authenticate first.
+  const auth = await requireUser(request, headers);
+  if (auth.error) return auth.error;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {

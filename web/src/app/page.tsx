@@ -3,14 +3,14 @@ import SiteNav from "@/components/SiteNav";
 import PhoneDemo from "@/components/PhoneDemo";
 import BeforeAfter from "@/components/BeforeAfter";
 import WaitlistForm from "@/components/WaitlistForm";
-import ShareLinks from "@/components/ShareLinks";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 const methodSteps = [
   {
     no: "Step 01",
     tag: "Capture",
-    title: "Take the photo",
-    body: "Photograph whatever you want to change, mess and all. Molehill reads the picture and writes a plan: a name for the project, one line describing what done looks like, and about 12 small steps sorted into days. Start it now or save it for later.",
+    title: "Show us where it stands",
+    body: "Photograph whatever you want to change, mess and all — or just write a sentence about it. Either way Inchmeal writes a plan: a name for the project, one line describing what done looks like, and about 12 small steps sorted into days. Start it now or save it for later.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <rect x="4" y="9" width="24" height="17" rx="3" />
@@ -46,7 +46,7 @@ const methodSteps = [
     no: "Step 04",
     tag: "Journey",
     title: "Return when ready",
-    body: "Your projects wait in the Journey tab until you come back to them. To finish a day you photograph the space again, and Molehill compares it with the last shot to check the work really happened. The before and after is your proof.",
+    body: "Your projects wait in the Journey tab until you come back to them. To finish a day you show what changed — photograph the space again, or say it in a sentence. Inchmeal closes the day on the change, not on a ticked box.",
     glyph: (
       <svg viewBox="0 0 32 32">
         <path d="M16 27V13" />
@@ -103,8 +103,8 @@ const spaces = [
     ),
   },
   {
-    title: "Any pictured goal",
-    body: "It doesn't have to be tidying. Describe a goal like finishing an essay or fixing up a bike, add a photo if you have one, and you get the same kind of plan.",
+    title: "Things with nothing to photograph",
+    body: "The essay. The tax return. The thing you'd rather nobody saw. Describe it in a sentence and you get the same plan — and you close each day by saying what changed.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <circle cx="13" cy="13" r="8" />
@@ -123,7 +123,7 @@ export default function Home() {
       </a>
 
       <div className="side-rail left" aria-hidden="true">
-        <span className="rail-text">Molehill · A field guide to finishing</span>
+        <span className="rail-text">Inchmeal · A field guide to finishing</span>
       </div>
       <div className="side-rail right" aria-hidden="true">
         <span className="rail-text">Est. 2026 · Vol. 01</span>
@@ -165,18 +165,19 @@ export default function Home() {
               </h1>
               <Reveal delay={80}>
                 <p className="hero-deck">
-                  Photograph whatever you&apos;re avoiding. Molehill turns it into
-                  a plan and gives you three small steps a day — never a fourth.
+                  Show Inchmeal where the thing stands — a photo, or one
+                  sentence. It writes the plan and gives you three small steps a
+                  day, never a fourth.
                 </p>
               </Reveal>
               <Reveal delay={150}>
                 <p className="lead">
                   The task that won&apos;t start usually isn&apos;t laziness — it&apos;s
                   not being able to see the finish line or the next step. So
-                  Molehill makes both: a picture of what done looks like, and
-                  three small steps to get there each day. When you think
-                  you&apos;re finished, you photograph it again, and it confirms the
-                  work is really there.
+                  Inchmeal makes both: a line describing what done looks like,
+                  and three small steps to get there each day. A day ends when
+                  something has actually changed — you photograph it, or you say
+                  what moved. Never a ticked box.
                 </p>
               </Reveal>
               <Reveal delay={230} className="hero-actions">
@@ -291,7 +292,7 @@ export default function Home() {
                   <span className="dot">.</span>
                 </h2>
                 <p className="body-copy" style={{ marginTop: 22 }}>
-                  Every other app rewards the streak. Molehill rewards
+                  Every other app rewards the streak. Inchmeal rewards
                   finishing — then stopping.
                 </p>
               </Reveal>
@@ -302,9 +303,10 @@ export default function Home() {
                   isn&apos;t obvious.
                 </p>
                 <p className="body-copy">
-                  So Molehill starts with something you can already do: point
-                  your camera at the problem. It reads the photo and writes a
-                  plan of about 12 steps, sorted into days, with a short note on
+                  So Inchmeal starts with something you can already do: point
+                  your camera at the problem, or write one honest sentence about
+                  it. Either way it writes a plan of about 12 steps, sorted into
+                  days, with a short note on
                   what finished looks like. Then it hands you the first three. On
                   a rough day you can ask for just one. The steps are small
                   enough to manage when you have nothing left in the tank, and
@@ -312,8 +314,8 @@ export default function Home() {
                   going usually comes back on its own.
                 </p>
                 <p className="pull-serif" style={{ marginTop: 26 }}>
-                  The mountain was never the problem. It just needed to be a
-                  molehill<span className="dot">.</span>
+                  The mountain was never the problem. It only ever needed to be
+                  taken little, and often<span className="dot">.</span>
                 </p>
               </Reveal>
             </div>
@@ -372,21 +374,23 @@ export default function Home() {
                     <div>
                       <h3>Don&apos;t tidy first</h3>
                       <p>
-                        The photo is supposed to be honest, so don&apos;t clean up
-                        for it. A messy room or a half-finished corner is exactly
-                        what Molehill wants to see. One tap turns it into a plan
-                        you can start now or come back to later.
+                        If you do use the camera, the photo is supposed to be
+                        honest — so don&apos;t clean up for it. A messy room or a
+                        half-finished corner is exactly what Inchmeal wants to
+                        see. One tap turns it into a plan you can start now or
+                        come back to later.
                       </p>
                     </div>
                   </Reveal>
                   <Reveal delay={120} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                     <span className="note-no">02</span>
                     <div>
-                      <h3>Skip the picture if you like</h3>
+                      <h3>Or skip the camera entirely</h3>
                       <p>
-                        The plan always describes the finished result in words.
-                        Generating an image of it is one optional tap, and
-                        skipping it changes nothing about the steps you get.
+                        Some work has nothing to photograph, and some of it is
+                        nobody else&apos;s business. Write a sentence instead and
+                        you get the same plan — then close each day by saying
+                        what changed. We never ask to see the work itself.
                       </p>
                     </div>
                   </Reveal>
@@ -410,10 +414,10 @@ export default function Home() {
         <section className="sec-pad" id="spaces">
           <div className="container">
             <div className="sec-head">
-              <span className="index-label">Where vision helps</span>
+              <span className="index-label">Where it helps</span>
               <Reveal>
                 <h2 className="display" style={{ marginTop: 18 }}>
-                  If you can photograph it, Molehill can <em>plan it</em>
+                  If you can describe it, Inchmeal can <em>plan it</em>
                   <span className="dot">.</span>
                 </h2>
               </Reveal>
@@ -481,7 +485,7 @@ export default function Home() {
               </blockquote>
             </Reveal>
             <Reveal delay={180}>
-              <div className="quote-attr">From the Molehill principles</div>
+              <div className="quote-attr">From the Inchmeal principles</div>
             </Reveal>
             <Reveal delay={270}>
               <div className="chip-row">
@@ -501,25 +505,19 @@ export default function Home() {
               </Reveal>
               <Reveal>
                 <h2 className="display" style={{ marginTop: 18 }}>
-                  Start with one <em>photo</em>
+                  One photo. Or one <em>sentence</em>
                   <span className="dot">.</span>
                 </h2>
               </Reveal>
               <Reveal delay={90}>
                 <p className="lead">
-                  We&apos;re building Molehill a little at a time, which feels
+                  We&apos;re building Inchmeal a little at a time, which feels
                   about right. Leave your email and we&apos;ll tell you the moment
                   it&apos;s ready to try.
                 </p>
               </Reveal>
               <Reveal delay={180}>
                 <WaitlistForm />
-              </Reveal>
-              <p className="cta-fine">
-One email when it launches. We won&apos;t use your address for anything else.
-              </p>
-              <Reveal delay={240}>
-                <ShareLinks />
               </Reveal>
             </div>
           </div>
@@ -543,11 +541,11 @@ One email when it launches. We won&apos;t use your address for anything else.
                     />
                   </svg>
                 </span>
-                Molehill<span className="dot">.</span>
+                Inchmeal<span className="dot">.</span>
               </a>
               <p>
-A companion for the tasks that feel too big to begin. Made for
-                people with ADHD.
+Little and often. A companion for the tasks that feel too big to
+                begin, made for people with ADHD.
               </p>
             </div>
             <div className="foot-col">
@@ -563,8 +561,8 @@ A companion for the tasks that feel too big to begin. Made for
               <h4>Studio</h4>
               <ul>
                 <li><a href="#principles">Principles</a></li>
-                <li><a href="#weight">Why Molehill exists</a></li>
-                <li><a href="mailto:hello@molehills.app">hello@molehills.app</a></li>
+                <li><a href="#weight">Why Inchmeal exists</a></li>
+                <li><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
               </ul>
             </div>
             <div className="foot-col">
@@ -589,7 +587,7 @@ A companion for the tasks that feel too big to begin. Made for
         </div>
         <div className="container">
           <div className="fine-print">
-            <span>© 2026 Molehill · MoleHills.app</span>
+            <span>© 2026 Inchmeal · MoleHills.app</span>
             <span>Illustrations drawn in the page</span>
             <span>Vol. 01</span>
           </div>

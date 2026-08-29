@@ -19,6 +19,7 @@
 */
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,7 @@ const RECAPTURE_SCHEMA = {
   required: ["verdict", "completedJobs", "progress", "message"],
 } as const;
 
-const SYSTEM_PROMPT = `You are Molehill's recapture check. Someone with ADHD has finished a day of work on a project and is showing you the project again instead of ticking a checkbox. Your job is to look honestly and kindly.
+const SYSTEM_PROMPT = `You are Inchmeal's recapture check. Someone with ADHD has finished a day of work on a project and is showing you the project again instead of ticking a checkbox. Your job is to look honestly and kindly.
 
 A project is any piece of work: a kitchen, a bathroom remodel, a history essay, a homework packet, a chapter of a book. Never call these "rooms".
 
@@ -74,7 +75,7 @@ HARD RULES:
 - Do not scold, do not moralise, do not mention streaks. There are no streaks.
 - "progress" reflects only visible reality. Do not inflate it to be encouraging.`;
 
-const WORDS_PROMPT = `You are Molehill's recapture check. Someone with ADHD has finished a day of work on a project. They cannot photograph it — it is writing, admin, study, a phone call, something private — so instead of ticking a checkbox they are telling you, in their own words, what changed.
+const WORDS_PROMPT = `You are Inchmeal's recapture check. Someone with ADHD has finished a day of work on a project. They cannot photograph it — it is writing, admin, study, a phone call, something private — so instead of ticking a checkbox they are telling you, in their own words, what changed.
 
 A project is any piece of work: a kitchen, a bathroom remodel, a history essay, a homework packet, a chapter of a book, a tax return. Never call these "rooms".
 
@@ -129,7 +130,7 @@ function corsHeaders(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": isAllowed ? origin : "",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
 
@@ -142,6 +143,10 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const headers = corsHeaders(request.headers.get("origin"));
+
+  // Every path below this line spends money. Authenticate first.
+  const auth = await requireUser(request, headers);
+  if (auth.error) return auth.error;
 
   let body: RecaptureBody;
   try {

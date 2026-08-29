@@ -1,4 +1,4 @@
-# Molehill — Web
+# Inchmeal — Web
 
 Next.js (App Router) marketing site for Squirrelz, ready to deploy to Vercel.
 

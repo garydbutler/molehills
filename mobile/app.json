@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Squirrelz",
+    "name": "Inchmeal",
     "slug": "molehill",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,15 +12,15 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.molehills.mobile",
+      "bundleIdentifier": "app.inchmeal.mobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "app.molehills",
+      "package": "app.inchmeal",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#e3ebdd",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -40,10 +40,11 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Molehill to access your photos so you can capture the spaces you want to transform.",
-          "cameraPermission": "Allow Molehill to use the camera so you can photograph the spaces you want to transform."
+          "photosPermission": "Allow Inchmeal to access your photos so you can show it where a project stands.",
+          "cameraPermission": "Allow Inchmeal to use the camera so you can photograph a project before and after."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "extra": {
       "router": {},

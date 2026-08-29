@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import ShareLinks from "@/components/ShareLinks";
 
 const subscribe = () => () => {};
 
@@ -43,9 +44,10 @@ export default function WaitlistForm() {
           </p>
         )}
         <p style={{ marginTop: 12 }}>
-          We&apos;ll email you once — the day Molehill&apos;s ready to try. Nothing
+          We&apos;ll email you once — the day Inchmeal&apos;s ready to try. Nothing
           before that.
         </p>
+        <ShareLinks />
       </div>
     );
   }
@@ -113,6 +115,11 @@ export default function WaitlistForm() {
           {msg}
         </p>
       </form>
+      <p className="cta-fine">
+        One email when it launches. We won&apos;t use your address for anything
+        else.
+      </p>
+      <ShareLinks />
     </>
   );
 }

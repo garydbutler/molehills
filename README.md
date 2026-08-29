@@ -1,4 +1,4 @@
-# Molehill
+# Inchmeal
 
 Big things, finished gently. An app for people with ADHD or anyone overwhelmed by big tasks: photograph a space or describe a goal, see the end state, and get small steps to get there — calmly.
 
@@ -9,7 +9,7 @@ Big things, finished gently. An app for people with ADHD or anyone overwhelmed b
 | `web/`    | Next.js marketing site — deploys to Vercel with Vercel Postgres (Neon). Hosts the landing page design and the early-access signup API. See `web/README.md`. |
 | `mobile/` | Expo app (SDK 57) with expo-router, TypeScript, and typed routes. Screens: home (`src/app/index.tsx`) and capture (`src/app/capture.tsx`). |
 
-The landing page in `web/` is the full Molehill design (ported from `web/references/tend-landing.html`). The calm sage/ivory palette is defined once as CSS variables in `web/src/app/globals.css` and mirrored in `mobile/src/theme/colors.ts`.
+The landing page in `web/` is the full Inchmeal design (ported from `web/references/tend-landing.html`). The calm sage/ivory palette is defined once as CSS variables in `web/src/app/globals.css` and mirrored in `mobile/src/theme/colors.ts`.
 
 ## Running locally
 

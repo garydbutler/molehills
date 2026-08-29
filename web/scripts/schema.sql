@@ -1,4 +1,4 @@
--- Starter schema for Molehill.
+-- Starter schema for Inchmeal.
 -- Apply with: npm run db:push   (from web/, with POSTGRES_URL set)
 -- All statements are idempotent.
 

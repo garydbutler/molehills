@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ function corsHeaders(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": isAllowed ? origin : "",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
 
@@ -39,6 +40,10 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
   const headers = corsHeaders(origin);
+
+  // Every path below this line spends money. Authenticate first.
+  const auth = await requireUser(request, headers);
+  if (auth.error) return auth.error;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {

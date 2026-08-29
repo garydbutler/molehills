@@ -1,12 +1,46 @@
+import { useEffect, useRef } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { colors } from "@/theme/colors";
 import { fontMap } from "@/theme/fonts";
 import { StoreProvider, useStore } from "@/store/app-store";
+import {
+  configurePurchases,
+  logInPurchases,
+  logOutPurchases,
+} from "@/lib/purchases";
 
 function Routes() {
   const { user } = useStore();
+  const identified = useRef<string | null>(null);
+
+  /* Configure once at startup — anonymously if nobody is signed in yet, so
+     the SDK is ready before the first paywall. Then bind purchases to the
+     account when we learn who it is. */
+  useEffect(() => {
+    configurePurchases();
+  }, []);
+
+  useEffect(() => {
+    // Fall back to email: some providers omit `sub`, and a stable-but-imperfect
+    // id still beats a per-device anonymous one for restoring a subscription.
+    const id = user?.sub || user?.email;
+
+    if (!user) {
+      if (identified.current) {
+        identified.current = null;
+        logOutPurchases();
+      }
+      return;
+    }
+
+    if (id && identified.current !== id) {
+      identified.current = id;
+      logInPurchases(id);
+    }
+  }, [user]);
+
   return (
     <Stack
       screenOptions={{
@@ -17,6 +51,7 @@ function Routes() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="vision/[id]" />
       <Stack.Screen name="login" />
+      <Stack.Screen name="paywall" options={{ presentation: "modal" }} />
     </Stack>
   );
 }

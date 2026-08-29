@@ -168,7 +168,7 @@ export default function Recapture() {
     if (permission.status !== "granted") {
       tell(
         "Permission needed",
-        "Molehill needs access to show the project again.",
+        "Inchmeal needs access to show the project again.",
       );
       return;
     }

@@ -22,3 +22,9 @@ dist/
 # os
 Thumbs.db
 .DS_Store
+
+# generated knowledge graph
+graphify-out/
+
+# full-res mascot source art (app ships the resized copies)
+mobile/assets/mascots/_originals/
