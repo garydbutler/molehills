@@ -1,5 +1,40 @@
 # Subscriptions setup (RevenueCat)
 
+## Server-side metering and entitlement
+
+The three AI routes are authenticated and metered. The rules live in
+[`web/src/lib/quota.ts`](../web/src/lib/quota.ts):
+
+| Limit | Value | Enforced |
+| --- | --- | --- |
+| Free plan generations | 3, lifetime | server |
+| Pro plan generations | 12 per rolling 30 days | server |
+| Recaptures | 3 per day | server |
+| End-state image retries | 3 per project | server |
+| Active projects | 3 free / 10 pro | client only — costs nothing to bypass |
+
+Both plan tiers are a `COUNT` over `plan_generations`, so nothing can drift.
+A plan is recorded only after the model returns one; a failed call is free.
+
+`users.is_pro` is written **only** by `/api/revenuecat/webhook`. No request
+path can raise it, and expiry is re-checked on read so a missed webhook cannot
+grant access forever. The webhook returns 503 when `REVENUECAT_WEBHOOK_SECRET`
+is unset — it fails closed, never open.
+
+Webhook is live: "Inchmeal entitlement sync", both Production and Sandbox, all
+apps, all events. Verified end to end — RevenueCat's own test event returned
+200, and `TEST` is ignored so it creates no row.
+
+To rotate the secret: generate a new one, `vercel env rm/add
+REVENUECAT_WEBHOOK_SECRET production`, redeploy, then update the Authorization
+header value on the webhook in RevenueCat. Both sides must match.
+
+Schema lives in `web/scripts/002-accounts-and-metering.sql`. Neon's HTTP
+driver rejects multi-statement queries, so apply it one statement at a time in
+the SQL editor. `vercel env pull` cannot fetch Secret-type vars — they come
+back as the literal string `[SENSITIVE]` — so `npm run db:push` needs a
+connection string pasted by hand from the Neon console.
+
 ## Status
 
 Verified working on the simulator against the live RevenueCat project using the
