@@ -54,6 +54,7 @@ export default function Vision() {
         project.vision,
         project.space,
         project.title,
+        project.id,
       );
       updateProject(project.id, { endStateImage: result.image });
       setShowEndState(true);

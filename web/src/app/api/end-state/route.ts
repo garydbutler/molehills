@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { requireUser } from "@/lib/require-user";
+import { findOrCreateUser, claimEndStateAttempt } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
 
   let body: {
     image?: string;
+    projectId?: string;
     vision?: string;
     space?: string;
     title?: string;
@@ -68,7 +70,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { image, vision, space, title } = body;
+  const { image, vision, space, title, projectId } = body;
+
+  const dbUser = await findOrCreateUser(auth.user);
+  const attempt = await claimEndStateAttempt(dbUser, projectId ?? "unknown");
+  if (!attempt.allowed) {
+    return NextResponse.json(
+      { error: attempt.reason, upgrade: attempt.upgrade },
+      { status: 429, headers },
+    );
+  }
+
 
   if (!image || typeof image !== "string") {
     return NextResponse.json(

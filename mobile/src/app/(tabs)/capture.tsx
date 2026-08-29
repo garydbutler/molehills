@@ -37,7 +37,7 @@ import {
   useStore,
   type Evidence,
 } from "@/store/app-store";
-import { fetchPlan } from "@/lib/api";
+import { ApiRefusal, fetchPlan } from "@/lib/api";
 import { FREE_PLAN_ALLOWANCE, useProAccess } from "@/lib/purchases";
 import { copyToDurableStorage } from "@/lib/photos";
 import { ask, tell } from "@/lib/dialog";
@@ -155,9 +155,10 @@ export default function Capture() {
     // A project can start from a photo, a sentence, or both — never neither.
     if (!photoUri && !typed) return;
 
-    /* Each plan is a paid vision-model call, so it is the one metered action.
-       Wait for the entitlement to load rather than risk showing a paywall to
-       someone who already subscribed. */
+    /* A local pre-check so the common case never costs a round trip. The
+       server is the real referee — this only saves a request, and is skipped
+       for subscribers so a just-completed purchase is never second-guessed
+       while the RevenueCat webhook is still in flight. */
     if (proReady && !pro && plansUsed >= FREE_PLAN_ALLOWANCE) {
       router.push("/paywall");
       return;
@@ -178,6 +179,20 @@ export default function Capture() {
       startProject(project.id);
       return;
     } catch (err) {
+      /* A refusal is an answer, not an outage. Falling through to the local
+         fallback here would hand out the thing we just declined to sell. */
+      if (ApiRefusal.is(err)) {
+        setLoading(false);
+        if (err.upgrade) {
+          router.push("/paywall");
+        } else {
+          tell(
+            err.status === 401 ? "Please sign in again" : "Not right now",
+            err.message,
+          );
+        }
+        return;
+      }
       console.warn("API plan failed, using fallback:", err);
     } finally {
       setLoading(false);

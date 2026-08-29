@@ -20,6 +20,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { requireUser } from "@/lib/require-user";
+import { findOrCreateUser, claimRecapture } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +115,7 @@ type RecaptureBody = {
   vision?: string;
   title?: string;
   description?: string;
+  day?: string;
   todayJobs?: string[];
   remainingJobs?: string[];
 };
@@ -155,6 +157,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Invalid request body" },
       { status: 400, headers },
+    );
+  }
+
+  const dbUser = await findOrCreateUser(auth.user);
+  const look = await claimRecapture(dbUser, body.day ?? new Date().toISOString().slice(0, 10));
+  if (!look.allowed) {
+    return NextResponse.json(
+      { error: look.reason, upgrade: look.upgrade },
+      { status: 429, headers },
     );
   }
 

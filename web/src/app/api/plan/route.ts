@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { requireUser } from "@/lib/require-user";
+import { findOrCreateUser, checkPlanQuota, recordPlanGeneration } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,17 @@ export async function POST(request: NextRequest) {
   const auth = await requireUser(request, headers);
   if (auth.error) return auth.error;
 
+  const dbUser = await findOrCreateUser(auth.user);
+  const quota = await checkPlanQuota(dbUser);
+  if (!quota.allowed) {
+    // 402 rather than 403: the client routes this to the paywall when
+    // `upgrade` says subscribing would actually fix it.
+    return NextResponse.json(
+      { error: quota.reason, upgrade: quota.upgrade },
+      { status: 402, headers },
+    );
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -206,6 +218,9 @@ export async function POST(request: NextRequest) {
         { status: 502, headers },
       );
     }
+
+    // Recorded only now: a failed generation must not cost the user a slot.
+    await recordPlanGeneration(dbUser);
 
     return NextResponse.json(plan, { headers });
   } catch (err) {

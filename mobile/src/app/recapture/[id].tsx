@@ -35,6 +35,7 @@ import {
 } from "@/components/ui";
 import {
   MAX_RECAPTURES_PER_DAY,
+  dayKey,
   projectStats,
   useStore,
   type RecaptureVerdict,
@@ -105,6 +106,7 @@ export default function Recapture() {
         title: project.title,
         vision: project.vision,
         description: project.description,
+        day: dayKey(),
         todayJobs: todayJobs.map((s) => s.label),
         remainingJobs: remainingJobs.map((s) => s.label),
       });
