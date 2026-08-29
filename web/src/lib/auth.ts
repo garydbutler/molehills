@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import Facebook from "next-auth/providers/facebook";
 import { SignJWT, jwtVerify } from "jose";
 
 function checkAuthSecrets() {
@@ -8,8 +7,6 @@ function checkAuthSecrets() {
   if (!process.env.AUTH_SECRET) missing.push("AUTH_SECRET");
   if (!process.env.GOOGLE_CLIENT_ID) missing.push("GOOGLE_CLIENT_ID");
   if (!process.env.GOOGLE_CLIENT_SECRET) missing.push("GOOGLE_CLIENT_SECRET");
-  if (!process.env.FACEBOOK_CLIENT_ID) missing.push("FACEBOOK_CLIENT_ID");
-  if (!process.env.FACEBOOK_CLIENT_SECRET) missing.push("FACEBOOK_CLIENT_SECRET");
   return missing;
 }
 
@@ -27,10 +24,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Facebook({
-      clientId: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
   ],
   session: {

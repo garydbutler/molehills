@@ -3,7 +3,9 @@ import { areAuthSecretsConfigured, getMissingSecrets, signIn } from "@/lib/auth"
 
 export const dynamic = "force-dynamic";
 
-const VALID_PROVIDERS = ["google", "facebook"] as const;
+/* Apple does not appear here: it uses the native sheet and posts its
+   identity token to /api/auth/apple/native instead of this browser flow. */
+const VALID_PROVIDERS = ["google"] as const;
 type Provider = (typeof VALID_PROVIDERS)[number];
 
 function corsHeaders(origin: string | null) {

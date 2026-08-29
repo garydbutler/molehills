@@ -6,8 +6,9 @@
 */
 import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -36,12 +37,12 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
-type OAuthProvider = "google" | "facebook";
+type OAuthProvider = "google";
 
 export default function Login() {
   const { user, signIn } = useStore();
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState<OAuthProvider | null>(null);
+  const [loading, setLoading] = useState<OAuthProvider | "apple" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleOAuth = useCallback(async (provider: OAuthProvider) => {
@@ -94,6 +95,72 @@ export default function Login() {
     }
   }, [signIn]);
 
+  /* Apple's sheet is iOS-only and absent on older versions, so the button is
+     rendered only where it can actually work. */
+  const [appleAvailable, setAppleAvailable] = useState(false);
+  useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAppleAvailable).catch(() => {});
+  }, []);
+
+  const handleApple = useCallback(async () => {
+    setError(null);
+    setLoading("apple");
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (!credential.identityToken) {
+        setError("Apple didn't return a sign-in token. Please try again.");
+        return;
+      }
+
+      /* Apple gives the name exactly once, on first authorisation. Send it
+         now or it is gone for good — every later sign-in returns only the id. */
+      const fullName = [
+        credential.fullName?.givenName,
+        credential.fullName?.familyName,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const res = await fetch(`${API_URL}/api/auth/apple/native`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identityToken: credential.identityToken,
+          fullName: fullName || undefined,
+        }),
+      });
+      const data = (await res.json()) as { token?: string; error?: string };
+      if (!res.ok || !data.token) {
+        setError(data.error || "Could not complete sign-in. Please try again.");
+        return;
+      }
+
+      const payload = decodeJwtPayload(data.token);
+      await setAuthToken(data.token);
+      signIn({
+        name:
+          (payload?.name as string) ||
+          (payload?.email as string) ||
+          "Friend",
+        email: (payload?.email as string) || "",
+        provider: "apple",
+        sub: (payload?.sub as string) || undefined,
+      });
+    } catch (e) {
+      // Tapping Cancel on Apple's sheet is a decision, not a failure.
+      if ((e as { code?: string }).code !== "ERR_REQUEST_CANCELED") {
+        setError("Could not complete sign-in. Please try again.");
+      }
+    } finally {
+      setLoading(null);
+    }
+  }, [signIn]);
+
   const handleEmailSignIn = useCallback(() => {
     signIn({
       name: email.trim().split("@")[0] || "Tester",
@@ -140,26 +207,25 @@ export default function Login() {
           <Text style={styles.oauthLabel}>Continue with Google</Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => handleOAuth("facebook")}
-          disabled={loading !== null}
-          style={({ pressed }) => [
-            styles.oauthBtn,
-            (pressed || loading === "facebook") && { opacity: 0.7 },
-          ]}
-        >
-          {loading === "facebook" ? (
-            <ActivityIndicator size="small" color="#3b5998" style={{ width: 22 }} />
-          ) : (
-            <Text style={[styles.oauthGlyph, { color: "#3b5998" }]}>f</Text>
-          )}
-          <Text style={styles.oauthLabel}>Continue with Facebook</Text>
-        </Pressable>
+        {appleAvailable && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={12}
+            style={styles.appleBtn}
+            onPress={handleApple}
+          />
+        )}
 
         {error && (
           <Text style={styles.errorText}>{error}</Text>
         )}
 
+{/* Local testing only. __DEV__ is compile-time false in release
+            builds, so this never ships. It mints no server token, so it
+            cannot reach the API either. */}
+        {__DEV__ && (
+          <>
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
           <Text style={styles.dividerText}>or</Text>
@@ -178,6 +244,8 @@ export default function Login() {
         <Text style={styles.note}>
           Email sign-in is for local testing only — it does not verify your address.
         </Text>
+          </>
+        )}
       </Card>
 
       <Text style={styles.footer}>
@@ -196,6 +264,7 @@ const styles = StyleSheet.create({
     gap: 26,
   },
   hero: { gap: 14 },
+  appleBtn: { height: 52, width: "100%" },
   mascot: { alignSelf: "flex-start", marginBottom: -2 },
   title: {
     fontFamily: fonts.sansExtra,

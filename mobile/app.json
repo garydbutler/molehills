@@ -15,7 +15,8 @@
       "bundleIdentifier": "app.inchmeal.mobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "app.inchmeal",
@@ -44,7 +45,8 @@
           "cameraPermission": "Allow Inchmeal to use the camera so you can photograph a project before and after."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "extra": {
       "router": {},
