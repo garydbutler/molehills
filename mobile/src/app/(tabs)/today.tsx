@@ -31,7 +31,7 @@ const DAYS = [
 ];
 
 export default function Today() {
-  const { todayProject, projects, markTired, user, signOut } = useStore();
+  const { todayProject, projects, markTired, user } = useStore();
   const router = useRouter();
   const dayName = DAYS[new Date().getDay()];
 
@@ -46,8 +46,8 @@ export default function Today() {
             <Kicker>
               {dayName} · signed in as {user?.name}
             </Kicker>
-            <Pressable onPress={signOut} hitSlop={8}>
-              <Text style={styles.signOut}>Sign out</Text>
+            <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
+              <Text style={styles.signOut}>Settings</Text>
             </Pressable>
           </View>
           <Headline>
@@ -75,8 +75,8 @@ export default function Today() {
           <Kicker>
             {dayName} · signed in as {user?.name}
           </Kicker>
-          <Pressable onPress={signOut} hitSlop={8}>
-            <Text style={styles.signOut}>Sign out</Text>
+          <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
+            <Text style={styles.signOut}>Settings</Text>
           </Pressable>
         </View>
         <Headline>

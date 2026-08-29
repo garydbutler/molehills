@@ -200,3 +200,16 @@ export async function fetchRecapture(args: {
 
   return response.json() as Promise<RecaptureResponse>;
 }
+
+/* Deletes the server-side account: identity and usage counters. The caller is
+   responsible for wiping local data — see wipeLocalData in the store. */
+export async function deleteAccount(): Promise<void> {
+  const response = await fetch(`${API_URL}/api/account`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as ApiError;
+    throw new Error(body.error || `Could not delete account (${response.status})`);
+  }
+}

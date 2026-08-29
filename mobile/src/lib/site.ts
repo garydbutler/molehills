@@ -16,3 +16,9 @@ export const API_URL =
    with Google and Facebook. Renaming it invalidates both, and no user ever
    sees it. */
 export const AUTH_REDIRECT_URI = "molehill://auth";
+
+/* The marketing site, which hosts the legal documents Apple requires to be
+   reachable from inside the app. */
+export const SITE_URL = "https://molehills.app";
+export const PRIVACY_URL = `${SITE_URL}/privacy-policy`;
+export const TERMS_URL = `${SITE_URL}/terms-of-service`;

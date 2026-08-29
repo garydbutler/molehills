@@ -138,6 +138,10 @@ type Store = {
      each one is a paid vision-model call. */
   plansUsed: number;
   recordPlanUsed: () => void;
+  /* Everything this device holds, gone. Used by account deletion — leaving
+     the projects behind would show the next person to sign in on this phone
+     someone else's work. */
+  wipeLocalData: () => Promise<void>;
   hydrated: boolean;
 };
 
@@ -449,6 +453,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = useCallback((u: User) => setUser(u), []);
   const recordPlanUsed = useCallback(() => setPlansUsed((n) => n + 1), []);
+  const wipeLocalData = useCallback(async () => {
+    setUser(null);
+    setProjects([]);
+    setPlansUsed(0);
+    await clearAuthToken();
+    await AsyncStorage.multiRemove([
+      STORAGE_KEYS.USER,
+      STORAGE_KEYS.PROJECTS,
+      STORAGE_KEYS.PLANS_USED,
+    ]).catch((e) => console.warn("Failed to clear local data:", e));
+  }, []);
+
   const signOut = useCallback(() => {
     setUser(null);
     // Leaving the token behind would keep the API callable after sign out.
@@ -620,6 +636,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       finishToday,
       plansUsed,
       recordPlanUsed,
+      wipeLocalData,
       hydrated,
     }),
     [
@@ -639,6 +656,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       finishToday,
       plansUsed,
       recordPlanUsed,
+      wipeLocalData,
       hydrated,
     ],
   );
