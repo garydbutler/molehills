@@ -73,9 +73,9 @@ npx expo start --dev-client
 ```
 
 Open the app on your phone. It connects to the server over Wi-Fi (same network
-as the Mac) and loads Inchmeal. This is also where Google and Facebook sign-in
-finally work, because the `molehill://` return link only resolves inside the
-real app, not in a browser.
+as the Mac) and loads Inchmeal. This is also where Google sign-in finally works,
+because the `molehill://` return link only resolves inside the real app, not in
+a browser. Sign in with Apple uses Apple's native sheet.
 
 ---
 
@@ -87,22 +87,15 @@ other testers, look at TestFlight (also covered by your paid membership).
 
 ---
 
-## OAuth: two console items still open
+## Authentication reference
 
-Google and Facebook sign-in run against the deployed backend. Google should
-work now that the client secret is fixed. Two Facebook items still need
-attention in the provider consoles before that login completes:
+Google sign-in runs through the deployed backend. Its authorized redirect URI
+is:
+`https://inchmeal.app/api/auth/callback/google`
 
-1. **Facebook app mode.** If the Facebook app is in "Development" mode, only
-   accounts with a role on the app can log in. Add your account as a tester at
-   developers.facebook.com (App Roles), or set the app to Live (needs a privacy
-   policy URL).
-2. **Redirect URI.** In Facebook Login → Settings, the "Valid OAuth Redirect
-   URIs" list must contain exactly:
-   `https://molehills.vercel.app/api/auth/callback/facebook`
-
-For reference, Google's authorized redirect URI is:
-`https://molehills.vercel.app/api/auth/callback/google`
+Sign in with Apple is native. The Expo config enables the Apple capability and
+the backend verifies the identity token; there is no browser callback URI to
+register for this flow.
 
 ---
 

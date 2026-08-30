@@ -1,5 +1,5 @@
 /*
-  Today — at most three jobs, all from ONE project. The kitchen and the essay
+  Today — at most three jobs, all from ONE project. The kitchen and the application
   never share a day. The day ends by showing the project again, not by ticking
   a box.
 */
@@ -78,7 +78,7 @@ export default function Today() {
           <Card style={styles.doneCard}>
             <Mascot pose="sprout" height={92} />
             <Text style={styles.doneBody}>
-              You have projects waiting. Pick one from Journey when you're
+              You have projects waiting. Pick one from Journey when you’re
               ready.
             </Text>
           </Card>
@@ -89,7 +89,7 @@ export default function Today() {
           <Card style={styles.introCard}>
             <Mascot pose="sprout" height={92} />
             <Text style={styles.introLead}>
-              Here's how it goes.
+              Here’s how it goes.
             </Text>
             <View style={styles.introSteps}>
               <IntroStep

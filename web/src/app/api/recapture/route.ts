@@ -55,7 +55,7 @@ const RECAPTURE_SCHEMA = {
 
 const SYSTEM_PROMPT = `You are Inchmeal's recapture check. Someone with ADHD has finished a day of work on a project and is showing you the project again instead of ticking a checkbox. Your job is to look honestly and kindly.
 
-A project is any piece of work: a kitchen, a bathroom remodel, a history essay, a homework packet, a chapter of a book. Never call these "rooms".
+A project is any piece of work: a kitchen, a bathroom remodel, a job application, a tax return, a chapter of a book. Never call these "rooms".
 
 You will get:
 - A "before" image of the project (sometimes absent, for written work started from a sentence)
@@ -78,7 +78,7 @@ HARD RULES:
 
 const WORDS_PROMPT = `You are Inchmeal's recapture check. Someone with ADHD has finished a day of work on a project. They cannot photograph it — it is writing, admin, study, a phone call, something private — so instead of ticking a checkbox they are telling you, in their own words, what changed.
 
-A project is any piece of work: a kitchen, a bathroom remodel, a history essay, a homework packet, a chapter of a book, a tax return. Never call these "rooms".
+A project is any piece of work: a kitchen, a bathroom remodel, a job application, a tax return, a chapter of a book, a business proposal. Never call these "rooms".
 
 You will get:
 - A description of what finished looks like

@@ -2,8 +2,8 @@
 
 **Inchmeal**
 
-**Last updated: 27 August 2026**
-**Effective: 27 August 2026**
+**Last updated: 29 August 2026**
+**Effective: 29 August 2026**
 
 ---
 
@@ -12,7 +12,7 @@
 These Terms of Service ("**Terms**") are a binding agreement between you and
 **Gary Butler**, doing business as **Inchmeal** ("Inchmeal", "we", "us", or
 "our"). They govern your use
-of **molehills.app** (the "**Website**") and the Inchmeal mobile app for iOS and
+of **inchmeal.app** (the "**Website**") and the Inchmeal mobile app for iOS and
 Android (the "**App**", and together with the Website, the "**Service**").
 
 By joining the waitlist, creating an account, or otherwise using the Service, you
@@ -23,11 +23,10 @@ not agree, please do not use the Service.
 
 ## 2. Who may use Inchmeal
 
-You must be at least **13 years old** to use the Service. If you are in the EEA or
-UK, you must be at least **16** (or the age of digital consent where you live) or
-have the consent and involvement of a parent or guardian. If you use the Service on
-behalf of someone else or an organisation, you confirm you are authorised to accept
-these Terms for them.
+You must be at least **18 years old** to create an account or use the App. By
+using the Service, you confirm that you are 18 or older. If you use the Service
+on behalf of an organisation, you also confirm that you are authorised to accept
+these Terms for it.
 
 ---
 
@@ -75,11 +74,11 @@ progress check, plan, or generated image as a statement of fact.
 
 ## 6. Your accounts
 
-When accounts are available, you sign in through **Google** or **Facebook**. You
+You sign in through **Google** or **Apple**. You
 are responsible for keeping access to your sign‑in account secure and for activity
 that happens under your Inchmeal account. Tell us at **hello@molehills.app** if you
 believe your account has been used without your permission. Your use of Google and
-Facebook sign‑in is also subject to their own terms.
+Apple sign‑in is also subject to their own terms.
 
 ---
 
@@ -137,12 +136,22 @@ features are provided on an "as is" basis and may change or end at any time.
 
 ---
 
-## 10. Fees
+## 10. Subscriptions and billing
 
-Inchmeal is currently offered free of charge. If we introduce paid features or
-subscriptions in the future, we will present the price and terms before you are
-charged, and any purchases made through the Apple App Store or Google Play will
-also be subject to those stores' billing terms.
+Inchmeal includes limited free use and offers auto-renewable monthly and annual
+subscriptions for additional access. The App shows the current price, billing
+period, and included features before you subscribe. Prices may vary by country,
+currency, taxes, and app store.
+
+Payment is charged to your Apple App Store or Google Play account when you
+confirm the purchase. A subscription renews automatically unless you cancel it
+through your store account at least 24 hours before the end of the current billing
+period. The store may charge the renewal within 24 hours before that period ends.
+You can manage or cancel a subscription in your app-store account settings.
+Deleting your Inchmeal account or removing the App does **not** cancel a
+subscription. Refunds and billing disputes are handled under the applicable app
+store's rules. We may change subscription prices or features with the notice and
+consent required by the store and applicable law.
 
 ---
 
@@ -159,9 +168,10 @@ works from the Service except as these Terms allow.
 
 ## 12. Third‑party services and the app stores
 
-The Service depends on third parties, including Google (AI and sign‑in), Facebook
-(sign‑in), and the Apple App Store and Google Play. Your use of those services is
-governed by their terms, and we are not responsible for them.
+The Service depends on third parties, including Google (AI and sign‑in), Apple
+(sign‑in and App Store services), RevenueCat (subscription management), and
+Google Play. Your use of those services is governed by their terms, and we are
+not responsible for them.
 
 **Apple‑specific terms.** If you use the App on an Apple device, you acknowledge
 that these Terms are between you and Inchmeal only, not Apple; that Apple has no
@@ -213,8 +223,9 @@ Terms or of anyone's rights.
 
 ## 16. Termination
 
-You may stop using the Service at any time and, when accounts exist, close your
-account. We may suspend or end your access if you break these Terms or if we
+You may stop using the Service at any time and close your account from Settings
+in the App. Account deletion does not cancel an app-store subscription. We may
+suspend or end your access if you break these Terms or if we
 reasonably need to protect the Service or other users. Sections that by their
 nature should survive termination (for example Sections 7, 13, 14, 15, and 18) will
 continue to apply.
@@ -260,4 +271,4 @@ of residence.
 
 ---
 
-*© 2026 Inchmeal. These Terms cover molehills.app and the Inchmeal mobile app.*
+*© 2026 Inchmeal. These Terms cover inchmeal.app and the Inchmeal mobile app.*

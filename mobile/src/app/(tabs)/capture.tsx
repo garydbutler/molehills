@@ -257,7 +257,7 @@ export default function Capture() {
           placeholder={
             photoUri
               ? "e.g. The boxes on the left are staying — it's the rest I can't face."
-              : "e.g. The history essay is due Friday and I have a title and nothing else."
+              : "e.g. The job application closes Friday and I’ve saved the listing, nothing else."
           }
           value={description}
           onChangeText={setDescription}

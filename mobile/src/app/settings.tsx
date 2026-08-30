@@ -24,7 +24,7 @@ import { Card, Headline, Kicker, SerifEm } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 import { deleteAccount } from "@/lib/api";
 import { restore, hasPro } from "@/lib/purchases";
-import { PRIVACY_URL, TERMS_URL } from "@/lib/site";
+import { PRIVACY_URL, SUPPORT_URL, TERMS_URL } from "@/lib/site";
 import { ask, tell } from "@/lib/dialog";
 
 export default function Settings() {
@@ -110,6 +110,11 @@ export default function Settings() {
         />
         <Row label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
         <Row label="Terms of service" onPress={() => Linking.openURL(TERMS_URL)} />
+        <Row
+          label="Help and support"
+          hint="Accounts, subscriptions, and contact information."
+          onPress={() => Linking.openURL(SUPPORT_URL)}
+        />
         <Row label="Sign out" onPress={handleSignOut} />
       </Card>
 

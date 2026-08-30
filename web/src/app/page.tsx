@@ -104,7 +104,7 @@ const spaces = [
   },
   {
     title: "Things with nothing to photograph",
-    body: "The essay. The tax return. The thing you'd rather nobody saw. Describe it in a sentence and you get the same plan — and you close each day by saying what changed.",
+    body: "The application. The tax return. The thing you'd rather nobody saw. Describe it in a sentence and you get the same plan — and you close each day by saying what changed.",
     glyph: (
       <svg viewBox="0 0 26 26">
         <circle cx="13" cy="13" r="8" />
@@ -570,6 +570,7 @@ Little and often. A companion for the tasks that feel too big to
               <ul>
                 <li><a href="/privacy-policy">Privacy</a></li>
                 <li><a href="/terms-of-service">Terms</a></li>
+                <li><a href="/support">Support</a></li>
                 <li><a href="#top">Accessibility</a></li>
               </ul>
             </div>
@@ -587,7 +588,7 @@ Little and often. A companion for the tasks that feel too big to
         </div>
         <div className="container">
           <div className="fine-print">
-            <span>© 2026 Inchmeal · MoleHills.app</span>
+            <span>© 2026 Inchmeal · Inchmeal.app</span>
             <span>Illustrations drawn in the page</span>
             <span>Vol. 01</span>
           </div>

@@ -3,21 +3,26 @@ import path from "node:path";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { CONTACT_EMAIL } from "@/lib/site";
 
 type LegalDocumentProps = {
-  fileName: "privacy-policy.md" | "terms-of-service.md";
+  fileName: "privacy-policy.md" | "terms-of-service.md" | "support.md";
 };
 
 function legalHref(href: string | undefined) {
   if (href === "./privacy-policy.md") return "/privacy-policy";
   if (href === "./terms-of-service.md") return "/terms-of-service";
+  if (href === "./support.md") return "/support";
   return href;
 }
 
 export default async function LegalDocument({ fileName }: LegalDocumentProps) {
   const source = await readFile(path.join(process.cwd(), "legal", fileName), "utf8");
-  const currentPage = fileName === "privacy-policy.md" ? "privacy" : "terms";
+  const currentPage =
+    fileName === "privacy-policy.md"
+      ? "privacy"
+      : fileName === "terms-of-service.md"
+        ? "terms"
+        : "support";
 
   return (
     <>
@@ -50,6 +55,9 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
             <Link href="/terms-of-service" aria-current={currentPage === "terms" ? "page" : undefined}>
               Terms
             </Link>
+            <Link href="/support" aria-current={currentPage === "support" ? "page" : undefined}>
+              Support
+            </Link>
           </nav>
         </div>
       </header>
@@ -75,11 +83,11 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
 
       <footer className="legal-footer">
         <div className="container legal-footer-inner">
-          <span>© 2026 Inchmeal · MoleHills.app</span>
+          <span>© 2026 Inchmeal · Inchmeal.app</span>
           <nav aria-label="Footer legal links">
             <Link href="/privacy-policy">Privacy</Link>
             <Link href="/terms-of-service">Terms</Link>
-            <a href={`mailto:${CONTACT_EMAIL}`}>Contact</a>
+            <Link href="/support">Support</Link>
           </nav>
         </div>
       </footer>

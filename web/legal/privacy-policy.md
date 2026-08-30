@@ -2,8 +2,8 @@
 
 **Inchmeal**
 
-**Last updated: 27 August 2026**
-**Effective: 27 August 2026**
+**Last updated: 29 August 2026**
+**Effective: 29 August 2026**
 
 ---
 
@@ -13,7 +13,7 @@ This Privacy Policy explains how **Gary Butler**, doing business as **Inchmeal**
 ("Inchmeal", "we", "us", or "our"), collects, uses, and shares personal
 information when you:
 
-- visit **molehills.app** and join the waitlist (the "**Website**"), and
+- visit **inchmeal.app** and join the waitlist (the "**Website**"), and
 - use the Inchmeal mobile app for iOS and Android (the "**App**").
 
 Together we call the Website and the App the "**Service**".
@@ -45,10 +45,11 @@ how it reaches us.
 
 - **Waitlist email address.** If you join the waitlist on the Website, we collect
   the email address you enter and a record of whether you confirmed it.
-- **Account information.** When the App launches with accounts, you sign in with
-  **Google** or **Facebook**. We receive from that provider your name, email
-  address, an account identifier, and (if provided) your profile image. We do not
-  receive or store your Google or Facebook password.
+- **Account information.** You sign in with **Google** or **Apple**. We receive
+  an account identifier and, when the provider makes them available, your name
+  and email address. We do not receive or store your Google or Apple password.
+  If a provider does not supply your name, you may enter one; that name is stored
+  only on your device.
 - **Project content.** When you use the App, you create "projects" — for example
   a photo of a room, a title, a description, an AI‑generated plan, and the steps
   in it.
@@ -67,6 +68,15 @@ how it reaches us.
   this to keep the Service running, secure, and debuggable.
 - **App diagnostics.** The App and the app stores may collect crash and
   performance data to help us fix problems.
+- **Account and usage records.** We keep the minimum server-side records needed
+  to operate accounts, enforce usage limits, and recognise paid access. These
+  include your provider account identifier, email address, sign-in provider,
+  account creation date, subscription status, and counts and timestamps for
+  certain feature uses. We do not use these records to build an advertising
+  profile.
+- **Purchase information.** When you subscribe, Apple or Google handles your
+  payment. We and our subscription provider, RevenueCat, receive transaction and
+  subscription status information, but not your full payment-card details.
 
 We do **not** currently use advertising trackers, and we do not build advertising
 profiles about you. If we add product analytics in the future, we will update this
@@ -108,13 +118,16 @@ verdict). This is what makes the core features work.
 
 - We send Google only what is needed for the request — for example the photo you
   captured and a short summary of the project's steps.
-- The processing is **transient**: our servers pass your input to Google, return
-  the result to your device, and do not store the photo or note afterward.
+- **Inchmeal's servers do not retain your photo or note** after returning the
+  result to your device. Google may retain prompts, uploaded files, and model
+  output for up to 55 days for abuse monitoring, policy enforcement, and legal
+  or regulatory requirements. Google states that content submitted through its
+  paid Gemini API is not used to improve its products unless the developer opts
+  in or deliberately shares it for that purpose.
 - Google's handling of data sent to its AI APIs is governed by **Google's terms
-  and privacy commitments for its AI/Gemini APIs**. In general, Google states that
-  data submitted through its paid Generative AI APIs is not used to train its
-  models; however, Google's terms control, and you should review them:
+  and privacy commitments for its AI/Gemini APIs**. You should review them:
   <https://ai.google.dev/gemini-api/terms> and
+  <https://ai.google.dev/gemini-api/docs/usage-policies> and
   <https://policies.google.com/privacy>.
 
 **Two things to keep in mind:**
@@ -167,11 +180,12 @@ the date above, these are:
 | Provider | Purpose | Data involved |
 | --- | --- | --- |
 | **Google LLC** | AI processing (Gemini) and "Sign in with Google" | Photos, notes, project details; account name, email, ID |
-| **Meta Platforms, Inc.** | "Sign in with Facebook" | Account name, email, ID |
+| **Apple Inc.** | "Sign in with Apple" and App Store distribution and billing | Account name, email, ID; transaction and subscription information; store diagnostics |
+| **RevenueCat, Inc.** | Subscription status, purchase restoration, and entitlement management | App account ID; transaction, receipt, and subscription information; device and technical information |
 | **Resend, Inc.** | Sending waitlist confirmation and launch emails | Email address |
 | **Vercel Inc.** | Website and API hosting | Server logs; data in transit |
-| **Neon, Inc.** | Database that stores the waitlist | Email address, confirmation status |
-| **Apple Inc. / Google LLC (app stores)** | Distributing the App; crash/diagnostic data | Device and diagnostic data per the store |
+| **Neon, Inc.** | Database for the waitlist and App account records | Email address, confirmation status, account ID, provider, usage counts, and subscription status |
+| **Google LLC (Google Play)** | Android App distribution and billing | Transaction, subscription, device, and diagnostic data per the store |
 
 We may also disclose information if required by law, to enforce our Terms, or to
 protect the rights, safety, and security of our users, the public, or Inchmeal;
@@ -187,13 +201,16 @@ This list can change as our providers do. We will keep this table current.
 - **Waitlist email:** until you ask us to delete it or a reasonable period after
   launch, whichever comes first. Unconfirmed signups may be deleted sooner.
 - **Photos and notes sent for AI processing:** not retained by us after the
-  request is answered (see Section 5). Google's retention is governed by Google's
-  API terms.
+  request is answered (see Section 5). Google may retain this content for up to
+  55 days for abuse monitoring and related purposes under its API terms.
 - **On‑device project content:** kept on your device until you delete it or remove
   the App. Clearing the App's data or uninstalling it removes this content from
   your device.
 - **Account information:** kept while your account is active and deleted within a
   reasonable period after you close it or ask us to.
+- **Usage and subscription records:** kept while your account is active and for
+  a reasonable period afterward where needed for billing, fraud prevention,
+  disputes, tax, accounting, or legal obligations.
 - **Server logs:** kept for a limited period for security and troubleshooting.
 
 ---
@@ -249,24 +266,18 @@ Contractual Clauses (and the UK Addendum) or an adequacy decision.
 
 ---
 
-## 13. Children's privacy
+## 13. Age requirement
 
-Inchmeal is not directed to children under **13**, and we do not knowingly collect
-personal information from them. In the EEA and UK, if you are under **16** (or the
-age of digital consent where you live), you may use the Service only with the
-consent and involvement of a parent or guardian. If you believe a child has
+Inchmeal is for adults aged **18 and over**. We do not knowingly allow anyone
+under 18 to create an account or use the App. If you believe someone under 18 has
 provided us personal information, contact **hello@molehills.app** and we will
-delete it.
-
-If a young person uses Inchmeal for schoolwork, remember that their photos and
-notes are processed as described in Section 5; a parent or guardian should decide
-whether that is appropriate.
+investigate and delete it where appropriate.
 
 ---
 
 ## 14. Third‑party links and services
 
-The Service relies on third parties (for example Google, Facebook, and the app
+The Service relies on third parties (for example Google, Apple, RevenueCat, and the app
 stores) and may link to other sites. Their handling of your information is governed
 by their own privacy policies, not this one. We encourage you to read them.
 
@@ -290,4 +301,4 @@ Questions, requests, or concerns about privacy?
 
 ---
 
-*© 2026 Inchmeal. This policy covers molehills.app and the Inchmeal mobile app.*
+*© 2026 Inchmeal. This policy covers inchmeal.app and the Inchmeal mobile app.*

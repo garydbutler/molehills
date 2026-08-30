@@ -42,7 +42,7 @@ export type Step = {
 
 /*
   A capture starts a PROJECT. Cleaning the kitchen, remodelling the bath, the
-  history essay, chapter 4 — all projects. Only one is "today"; the rest wait.
+  job application, chapter 4 — all projects. Only one is "today"; the rest wait.
 */
 export type ProjectStatus = "today" | "saved" | "paused" | "finished";
 

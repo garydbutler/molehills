@@ -1,10 +1,10 @@
 /*
-  Login — real OAuth via Auth.js on the Next.js backend. Google and Facebook
-  open a browser session; on success, the backend redirects back with a JWT.
+  Login — real authentication through the Next.js backend. Google opens a
+  browser session; Apple uses the native sign-in sheet. Both return a JWT.
   
   Email sign-in is local-only for quick prototype testing.
 */
-import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { Redirect } from "expo-router";
 import { useState, useCallback, useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
@@ -20,7 +20,7 @@ import {
   SerifEm,
 } from "@/components/ui";
 import { useStore } from "@/store/app-store";
-import { API_URL, AUTH_REDIRECT_URI } from "@/lib/site";
+import { API_URL, AUTH_REDIRECT_URI, PRIVACY_URL, TERMS_URL } from "@/lib/site";
 import { setAuthToken } from "@/lib/auth-token";
 
 
@@ -259,6 +259,18 @@ export default function Login() {
         )}
       </Card>
 
+      <Text style={styles.legalNote}>
+        Inchmeal is for adults 18 and over. By continuing, you agree to the{" "}
+        <Text style={styles.legalLink} onPress={() => Linking.openURL(TERMS_URL)}>
+          Terms
+        </Text>{" "}
+        and acknowledge the{" "}
+        <Text style={styles.legalLink} onPress={() => Linking.openURL(PRIVACY_URL)}>
+          Privacy Policy
+        </Text>
+        .
+      </Text>
+
       <Text style={styles.footer}>
         Little and often · no streaks, timers, or guilt trips
       </Text>
@@ -351,6 +363,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#fff5f5",
     borderRadius: 8,
+  },
+  legalNote: {
+    fontFamily: fonts.bodyLight,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.muted,
+    textAlign: "center",
+    paddingHorizontal: 10,
+  },
+  legalLink: {
+    fontFamily: fonts.bodySemi,
+    color: colors.accentInk,
+    textDecorationLine: "underline",
   },
   footer: {
     fontFamily: fonts.serifItalic,
