@@ -48,7 +48,10 @@ export default function Today() {
   const { todayProject, projects, markTired, user } = useStore();
   const router = useRouter();
   const dayName = DAYS[new Date().getDay()];
-  const firstName = user?.name?.trim().split(/\s+/)[0] ?? "there";
+  /* Whatever is stored — a full name, an email, or a relay address — reduce
+     it to one short greeting-sized word. */
+  const firstName =
+    user?.name?.trim().split("@")[0].split(/\s+/)[0] || "there";
 
   const active = todayProject;
   const saved = projects.filter((p) => p.status === "saved");
@@ -59,7 +62,7 @@ export default function Today() {
         <View style={styles.header}>
           <View style={styles.kickerRow}>
             <View style={styles.kickerFill}>
-              <Kicker>
+              <Kicker numberOfLines={1}>
                 {dayName} · {firstName}
               </Kicker>
             </View>
@@ -122,7 +125,7 @@ export default function Today() {
       <View style={styles.header}>
         <View style={styles.kickerRow}>
           <View style={styles.kickerFill}>
-            <Kicker>
+            <Kicker numberOfLines={1}>
               {dayName} · {firstName}
             </Kicker>
           </View>

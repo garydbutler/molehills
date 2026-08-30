@@ -89,8 +89,19 @@ export const kickerStyle: TextStyle = {
   color: colors.muted,
 };
 
-export function Kicker({ children }: { children: React.ReactNode }) {
-  return <Text style={kickerStyle}>{children}</Text>;
+export function Kicker({
+  children,
+  numberOfLines,
+}: {
+  children: React.ReactNode;
+  /* Clamp when the content is user-derived and could be any length. */
+  numberOfLines?: number;
+}) {
+  return (
+    <Text style={kickerStyle} numberOfLines={numberOfLines}>
+      {children}
+    </Text>
+  );
 }
 
 export function Headline({

@@ -143,9 +143,12 @@ export default function Login() {
       const payload = decodeJwtPayload(data.token);
       await setAuthToken(data.token);
       signIn({
+        /* Apple returns the name only on first authorisation, so a returning
+           user has none. The email's local part reads better as a greeting
+           than the whole address. */
         name:
           (payload?.name as string) ||
-          (payload?.email as string) ||
+          ((payload?.email as string) || "").split("@")[0] ||
           "Friend",
         email: (payload?.email as string) || "",
         provider: "apple",
