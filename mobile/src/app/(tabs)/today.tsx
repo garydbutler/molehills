@@ -30,10 +30,25 @@ const DAYS = [
   "Saturday",
 ];
 
+function IntroStep({ n, title, body }: { n: string; title: string; body: string }) {
+  return (
+    <View style={styles.introStep}>
+      <View style={styles.introNum}>
+        <Text style={styles.introNumText}>{n}</Text>
+      </View>
+      <View style={styles.introStepText}>
+        <Text style={styles.introStepTitle}>{title}</Text>
+        <Text style={styles.introStepBody}>{body}</Text>
+      </View>
+    </View>
+  );
+}
+
 export default function Today() {
   const { todayProject, projects, markTired, user } = useStore();
   const router = useRouter();
   const dayName = DAYS[new Date().getDay()];
+  const firstName = user?.name?.trim().split(/\s+/)[0] ?? "there";
 
   const active = todayProject;
   const saved = projects.filter((p) => p.status === "saved");
@@ -43,9 +58,11 @@ export default function Today() {
       <View style={styles.page}>
         <View style={styles.header}>
           <View style={styles.kickerRow}>
-            <Kicker>
-              {dayName} · signed in as {user?.name}
-            </Kicker>
+            <View style={styles.kickerFill}>
+              <Kicker>
+                {dayName} · {firstName}
+              </Kicker>
+            </View>
             <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
               <Text style={styles.signOut}>Settings</Text>
             </Pressable>
@@ -54,14 +71,46 @@ export default function Today() {
             Nothing on today<SerifEm>.</SerifEm>
           </Headline>
         </View>
-        <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
-          <Text style={styles.doneBody}>
-            {saved.length > 0
-              ? "You have projects waiting. Pick one from Journey when you're ready."
-              : "Capture something when you're ready to start."}
-          </Text>
-        </Card>
+        {saved.length > 0 ? (
+          <Card style={styles.doneCard}>
+            <Mascot pose="sprout" height={92} />
+            <Text style={styles.doneBody}>
+              You have projects waiting. Pick one from Journey when you're
+              ready.
+            </Text>
+          </Card>
+        ) : (
+          /* First run. Someone who has never used this has no idea what
+             "capture" means, and an empty screen with one line of text reads
+             as a dead end. Say what happens, in the order it happens. */
+          <Card style={styles.introCard}>
+            <Mascot pose="sprout" height={92} />
+            <Text style={styles.introLead}>
+              Here's how it goes.
+            </Text>
+            <View style={styles.introSteps}>
+              <IntroStep
+                n="1"
+                title="Show it to us"
+                body="Photograph the thing, mess and all — or just describe it in a sentence. No tidying first, ever."
+              />
+              <IntroStep
+                n="2"
+                title="We write the plan"
+                body="Twelve small jobs, each a few minutes. Not a lecture, not a system to maintain."
+              />
+              <IntroStep
+                n="3"
+                title="Three a day, never a fourth"
+                body="You'll see today's three and nothing else. Miss a day and nothing is lost — there are no streaks here."
+              />
+            </View>
+            <PrimaryButton
+              label="Start something"
+              onPress={() => router.push("/capture")}
+            />
+          </Card>
+        )}
       </View>
     );
   }
@@ -72,9 +121,11 @@ export default function Today() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
       <View style={styles.header}>
         <View style={styles.kickerRow}>
-          <Kicker>
-            {dayName} · signed in as {user?.name}
-          </Kicker>
+          <View style={styles.kickerFill}>
+            <Kicker>
+              {dayName} · {firstName}
+            </Kicker>
+          </View>
           <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
             <Text style={styles.signOut}>Settings</Text>
           </Pressable>
@@ -204,8 +255,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 12,
+  },
+  /* The day/name half yields; the Settings link never shrinks or wraps. */
+  kickerFill: { flex: 1, minWidth: 0 },
+  introCard: { alignItems: "center", gap: 18, paddingVertical: 26 },
+  introLead: {
+    fontFamily: fonts.serif,
+    fontSize: 21,
+    color: colors.ink,
+  },
+  introSteps: { gap: 18, alignSelf: "stretch" },
+  introStep: { flexDirection: "row", gap: 13, alignItems: "flex-start" },
+  introNum: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.tint,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  introNumText: {
+    fontFamily: fonts.sans,
+    fontSize: 13,
+    color: colors.accentInk,
+  },
+  introStepText: { flex: 1, gap: 3 },
+  introStepTitle: {
+    fontFamily: fonts.sansExtra,
+    fontSize: 16,
+    color: colors.ink,
+  },
+  introStepBody: {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.muted,
   },
   signOut: {
+    flexShrink: 0,
     fontFamily: fonts.mono,
     fontSize: 11,
     letterSpacing: 1.5,
