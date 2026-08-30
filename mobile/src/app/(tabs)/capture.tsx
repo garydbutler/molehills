@@ -1,5 +1,5 @@
 /*
-  Capture — "Show us where it stands". A photo, or one honest sentence.
+  Capture — "What feels too big?" A photo, or one honest sentence.
 
   There is no category picker and no title box on purpose. Both are decisions
   the user has to make before they get anything, and the plan already comes
@@ -23,7 +23,6 @@ import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
   Card,
-  Chip,
   Field,
   Headline,
   Kicker,
@@ -66,10 +65,10 @@ export default function Capture() {
   const [description, setDescription] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  // null = follow the photo. Set only when they choose for themselves.
-  const [evidencePick, setEvidencePick] = useState<Evidence | null>(null);
 
-  const evidence: Evidence = evidencePick ?? (photoUri ? "photo" : "words");
+  // Start as they began. This is only the default for later check-ins; the
+  // recapture screen always lets them use the other method that day.
+  const evidence: Evidence = photoUri ? "photo" : "words";
   const canBegin = !!photoUri || description.trim().length > 0;
 
   const pickFromLibrary = async () => {
@@ -216,7 +215,7 @@ export default function Capture() {
       <View style={styles.header}>
         <Kicker>Step 01 · Capture</Kicker>
         <Headline>
-          Show us where it <SerifEm>stands</SerifEm>.
+          What feels <SerifEm>too big</SerifEm>?
         </Headline>
         <Text style={styles.lead}>
           Photograph it, mess and all — or, if there is nothing to
@@ -267,27 +266,6 @@ export default function Capture() {
           {photoUri
             ? "The photo is enough on its own. Add a line only if it helps."
             : "A sentence or two is plenty. Inchmeal names the project and works out what kind of thing it is."}
-        </Text>
-
-        <Text style={[styles.label, { marginTop: 8 }]}>
-          How will you show me it got done?
-        </Text>
-        <View style={styles.chips}>
-          <Chip
-            label="A photo"
-            active={evidence === "photo"}
-            onPress={() => setEvidencePick("photo")}
-          />
-          <Chip
-            label="A sentence"
-            active={evidence === "words"}
-            onPress={() => setEvidencePick("words")}
-          />
-        </View>
-        <Text style={styles.evidenceHint}>
-          {evidence === "photo"
-            ? "At the end of a day you'll photograph it again — that's what marks the jobs done, not a checkbox."
-            : "At the end of a day you'll say what changed, in a sentence. For work that's private or has nothing to photograph — we never ask to see the work itself."}
         </Text>
 
         {loading ? (
@@ -342,12 +320,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: colors.muted,
   },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 6,
-  },
   inputHint: {
     fontFamily: fonts.bodyLight,
     fontSize: 13,
@@ -361,14 +333,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: colors.muted,
     textAlign: "center",
-  },
-  evidenceHint: {
-    fontFamily: fonts.serifItalic,
-    fontSize: 13.5,
-    lineHeight: 20,
-    color: colors.muted,
-    marginTop: -2,
-    marginBottom: 4,
   },
   captureButtons: {
     flexDirection: "row",

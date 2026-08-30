@@ -4,12 +4,12 @@
 
   A checkbox believes you meant to do it. This doesn't.
 
-  Two ways to show it, decided per project at capture:
+  Two ways to show it, defaulted per project from how it began:
     - photo: point the camera at it again
     - words: say what changed, in your own words
 
-  The words path is for work that can't be photographed, which is usually
-  also the private work. It asks what moved — never for the work itself.
+  Either can be used for a particular day without changing the project's
+  default. The words path asks what moved — never for the work itself.
 */
 import { useState } from "react";
 import {
@@ -38,6 +38,7 @@ import {
   dayKey,
   projectStats,
   useStore,
+  type Evidence,
   type RecaptureVerdict,
 } from "@/store/app-store";
 import { copyToDurableStorage } from "@/lib/photos";
@@ -66,6 +67,9 @@ export default function Recapture() {
   const [looking, setLooking] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [note, setNote] = useState("");
+  const [evidenceOverride, setEvidenceOverride] = useState<Evidence | null>(
+    null,
+  );
 
   const project = projects.find((p) => p.id === id);
 
@@ -78,7 +82,7 @@ export default function Recapture() {
   }
 
   const stats = projectStats(project);
-  const inWords = project.evidence === "words";
+  const inWords = (evidenceOverride ?? project.evidence) === "words";
 
   const goBack = () =>
     router.canGoBack() ? router.back() : router.replace("/today");
@@ -360,6 +364,13 @@ export default function Recapture() {
             onPress={sayIt}
             disabled={note.trim().length === 0}
           />
+          <Pressable
+            onPress={() => setEvidenceOverride("photo")}
+            hitSlop={8}
+            style={styles.switchMode}
+          >
+            <Text style={styles.switchModeLabel}>Show a photo instead</Text>
+          </Pressable>
         </View>
       ) : (
         <View style={styles.actions}>
@@ -372,6 +383,15 @@ export default function Recapture() {
             variant="outline"
             onPress={() => look("library")}
           />
+          <Pressable
+            onPress={() => setEvidenceOverride("words")}
+            hitSlop={8}
+            style={styles.switchMode}
+          >
+            <Text style={styles.switchModeLabel}>
+              Can&apos;t photograph this? Tell me what changed.
+            </Text>
+          </Pressable>
         </View>
       )}
 
@@ -418,6 +438,17 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   actions: { gap: 10 },
+  switchMode: {
+    alignSelf: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+  switchModeLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 14.5,
+    color: colors.accentInk,
+    textAlign: "center",
+  },
   privacyNote: {
     fontFamily: fonts.serifItalic,
     fontSize: 13.5,

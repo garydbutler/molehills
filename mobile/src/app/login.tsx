@@ -40,7 +40,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 type OAuthProvider = "google";
 
 export default function Login() {
-  const { user, signIn } = useStore();
+  const { user, signIn, namePromptHandled, hydrated } = useStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState<OAuthProvider | "apple" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +152,10 @@ export default function Login() {
           "Friend",
         email: (payload?.email as string) || "",
         provider: "apple",
-        sub: (payload?.sub as string) || undefined,
+        // The verified token carries the same Apple subject. Keep the native
+        // credential as a fallback so local name storage always has its
+        // stable per-user key, even if decoding the app JWT ever fails.
+        sub: (payload?.sub as string) || credential.user,
       });
     } catch (e) {
       // Tapping Cancel on Apple's sheet is a decision, not a failure.
@@ -173,7 +176,12 @@ export default function Login() {
   }, [email, signIn]);
 
   // All hooks are above this line — the redirect must not gate any of them.
-  if (user) return <Redirect href="/today" />;
+  /* Wait for hydration, or a returning user gets asked their name again for
+     the split second before storage loads. */
+  if (user && hydrated) {
+    return <Redirect href={namePromptHandled ? "/today" : "/name"} />;
+  }
+  if (user) return null;
 
   return (
     <View style={styles.page}>

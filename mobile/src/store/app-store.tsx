@@ -19,6 +19,7 @@ const STORAGE_KEYS = {
   USER: "molehill:user",
   PROJECTS: "molehill:projects",
   PLANS_USED: "molehill:plansUsed",
+  NAME_RESPONSES: "molehill:nameResponses",
 } as const;
 
 function validatePhotoUri(uri: string | undefined): string | undefined {
@@ -119,6 +120,17 @@ export type User = {
   sub?: string;
 };
 
+type NameResponses = Record<string, string | null>;
+
+/* Apple's `sub` is the stable user id that survives later authorisations
+   where Apple no longer returns a name. The provider prefix prevents ids from
+   different OAuth systems colliding; email is only for the local tester. */
+function userIdentityKey(user: User | null): string | null {
+  if (!user) return null;
+  const id = user.sub?.trim() || user.email.trim().toLowerCase();
+  return id ? `${user.provider}:${id}` : null;
+}
+
 type Store = {
   user: User | null;
   signIn: (user: User) => void;
@@ -142,6 +154,11 @@ type Store = {
      the projects behind would show the next person to sign in on this phone
      someone else's work. */
   wipeLocalData: () => Promise<void>;
+  /* Apple hands over a name only on first authorisation, so the locally
+     handled prompt is scoped to Apple's stable user id. */
+  namePromptHandled: boolean;
+  setDisplayName: (name: string) => void;
+  skipNamePrompt: () => void;
   hydrated: boolean;
 };
 
@@ -382,19 +399,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [plansUsed, setPlansUsed] = useState(0);
+  const [nameResponses, setNameResponses] = useState<NameResponses>({});
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const [storedUser, storedProjects, storedPlansUsed] = await Promise.all([
+        const [storedUser, storedProjects, storedPlansUsed, storedNameResponses] =
+          await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.USER),
           AsyncStorage.getItem(STORAGE_KEYS.PROJECTS),
           AsyncStorage.getItem(STORAGE_KEYS.PLANS_USED),
+          AsyncStorage.getItem(STORAGE_KEYS.NAME_RESPONSES),
         ]);
 
+        const responses: NameResponses = storedNameResponses
+          ? JSON.parse(storedNameResponses)
+          : {};
+        setNameResponses(responses);
+
         if (storedUser) {
-          setUser(JSON.parse(storedUser));
+          const parsedUser: User | null = JSON.parse(storedUser);
+          const key = userIdentityKey(parsedUser);
+          const savedName = key ? responses[key] : undefined;
+          setUser(
+            parsedUser && typeof savedName === "string"
+              ? { ...parsedUser, name: savedName }
+              : parsedUser,
+          );
         }
 
         const used = Number(storedPlansUsed);
@@ -451,17 +483,60 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     );
   }, [plansUsed, hydrated]);
 
-  const signIn = useCallback((u: User) => setUser(u), []);
+  useEffect(() => {
+    if (!hydrated) return;
+    AsyncStorage.setItem(
+      STORAGE_KEYS.NAME_RESPONSES,
+      JSON.stringify(nameResponses),
+    ).catch((e) => console.warn("Failed to persist name responses:", e));
+  }, [nameResponses, hydrated]);
+
+  const signIn = useCallback(
+    (u: User) => {
+      const key = userIdentityKey(u);
+      const savedName = key ? nameResponses[key] : undefined;
+      setUser(typeof savedName === "string" ? { ...u, name: savedName } : u);
+    },
+    [nameResponses],
+  );
   const recordPlanUsed = useCallback(() => setPlansUsed((n) => n + 1), []);
+
+  const namePromptHandled = useMemo(() => {
+    const key = userIdentityKey(user);
+    return Boolean(
+      key && Object.prototype.hasOwnProperty.call(nameResponses, key),
+    );
+  }, [nameResponses, user]);
+
+  const setDisplayName = useCallback(
+    (name: string) => {
+      const trimmed = name.trim();
+      const key = userIdentityKey(user);
+      if (!trimmed || !key) return;
+      setUser((u) => (u ? { ...u, name: trimmed } : u));
+      setNameResponses((responses) => ({ ...responses, [key]: trimmed }));
+    },
+    [user],
+  );
+
+  /* Skipping is a real answer. We never ask again — being nagged for a name
+     by a tool that promises no guilt would be its own small betrayal. */
+  const skipNamePrompt = useCallback(() => {
+    const key = userIdentityKey(user);
+    if (!key) return;
+    setNameResponses((responses) => ({ ...responses, [key]: null }));
+  }, [user]);
   const wipeLocalData = useCallback(async () => {
     setUser(null);
     setProjects([]);
     setPlansUsed(0);
+    setNameResponses({});
     await clearAuthToken();
     await AsyncStorage.multiRemove([
       STORAGE_KEYS.USER,
       STORAGE_KEYS.PROJECTS,
       STORAGE_KEYS.PLANS_USED,
+      STORAGE_KEYS.NAME_RESPONSES,
     ]).catch((e) => console.warn("Failed to clear local data:", e));
   }, []);
 
@@ -637,6 +712,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       plansUsed,
       recordPlanUsed,
       wipeLocalData,
+      namePromptHandled,
+      setDisplayName,
+      skipNamePrompt,
       hydrated,
     }),
     [
@@ -657,6 +735,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       plansUsed,
       recordPlanUsed,
       wipeLocalData,
+      namePromptHandled,
+      setDisplayName,
+      skipNamePrompt,
       hydrated,
     ],
   );

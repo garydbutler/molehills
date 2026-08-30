@@ -96,6 +96,13 @@ export default function Settings() {
 
       <Card style={styles.panel}>
         <Row
+          label="Your name"
+          hint={user?.name ? `We call you ${user.name}` : "Tell us what to call you"}
+          onPress={() =>
+            router.push({ pathname: "/name", params: { source: "settings" } })
+          }
+        />
+        <Row
           label="Restore purchases"
           hint="Already subscribed? Bring it back on this device."
           onPress={handleRestore}
