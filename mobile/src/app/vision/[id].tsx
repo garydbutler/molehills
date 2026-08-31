@@ -2,7 +2,7 @@
   Vision — "See the end state". Shows the captured photo, AI-generated plan,
   and optionally generates a photoreal tidy version of the space.
 */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -13,12 +13,13 @@ import {
   Image,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import { Card, Kicker, Mascot, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
-import { tell } from "@/lib/dialog";
+import { ask, tell } from "@/lib/dialog";
 
 const ORDINALS = ["Day one", "Day two", "Day three", "Day four", "Day five"];
 
@@ -26,10 +27,19 @@ export default function Vision() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { projects, toggleStep, updateProject, setTodayProject } = useStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const project = projects.find((p) => p.id === id);
 
   const [generatingEndState, setGeneratingEndState] = useState(false);
   const [showEndState, setShowEndState] = useState(false);
+  const projectId = project?.id;
+  const pendingKind = project?.pendingCheckpoint?.kind;
+
+  useEffect(() => {
+    if (projectId && pendingKind) {
+      router.push(`/recapture/${projectId}?kind=${pendingKind}`);
+    }
+  }, [projectId, pendingKind, router]);
 
   if (!project) {
     return (
@@ -56,7 +66,10 @@ export default function Vision() {
         project.title,
         project.id,
       );
-      updateProject(project.id, { endStateImage: result.image });
+      updateProject(project.id, {
+        endStateImage: result.image,
+        endStateImageMimeType: result.mimeType,
+      });
       setShowEndState(true);
     } catch (err) {
       console.warn("End state generation failed:", err);
@@ -82,8 +95,28 @@ export default function Vision() {
     (p) => p.id !== project.id && !projectStats(p).complete,
   );
 
+  const handleToggle = async (stepId: string, done: boolean) => {
+    if (done) {
+      const wasLogged = (project.recaptures ?? []).some((entry) =>
+        entry.completedStepIds?.includes(stepId),
+      );
+      if (wasLogged || project.status === "finished") {
+        const choice = await ask(
+          "Mark this job unfinished?",
+          "Its progress log will stay as a record of what you reported at the time.",
+          ["Mark unfinished", "Never mind"],
+        );
+        if (choice !== 0) return;
+      }
+    }
+    toggleStep(project.id, stepId);
+  };
+
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={[styles.page, { paddingTop: Math.max(60, insets.top + 24) }]}
+    >
       <Pressable
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/today"))}
         style={styles.back}
@@ -119,11 +152,12 @@ export default function Vision() {
       <Card style={styles.visionCard}>
         {displayingEndState && project.endStateImage ? (
           <Image
-            source={{ uri: `data:image/png;base64,${project.endStateImage}` }}
+            source={{ uri: `data:${project.endStateImageMimeType ?? "image/png"};base64,${project.endStateImage}` }}
+            resizeMode="cover"
             style={styles.visionPhoto}
           />
         ) : project.photoUri ? (
-          <Image source={{ uri: project.photoUri }} style={styles.visionPhoto} />
+          <Image source={{ uri: project.photoUri }} resizeMode="cover" style={styles.visionPhoto} />
         ) : (
           <Mascot pose="sprout" height={62} />
         )}
@@ -168,10 +202,33 @@ export default function Vision() {
             to go
           </Text>
           <Text style={styles.progressMeta}>
-            Three little steps a day — never more.
+            Three little steps a day — or keep going when you have momentum.
           </Text>
         </View>
       </View>
+
+      {project.pendingCheckpoint ? (
+        <Card style={styles.checkpointCard}>
+          <Text style={styles.checkpointTitle}>Finish your check-in</Text>
+          <Text style={styles.checkpointBody}>
+            Your jobs are checked. Add a photo or note to close this checkpoint.
+          </Text>
+          <PrimaryButton
+            label="Continue check-in"
+            onPress={() =>
+              router.push(
+                `/recapture/${project.id}?kind=${project.pendingCheckpoint?.kind}`,
+              )
+            }
+          />
+        </Card>
+      ) : (project.completedSinceLog ?? 0) > 0 ? (
+        <PrimaryButton
+          label={`Log today’s progress · ${project.completedSinceLog} ${project.completedSinceLog === 1 ? "job" : "jobs"}`}
+          variant="outline"
+          onPress={() => router.push(`/recapture/${project.id}?kind=optional`)}
+        />
+      ) : null}
 
       {days.map((d) => (
         <View key={d} style={styles.dayBlock}>
@@ -181,7 +238,7 @@ export default function Vision() {
             .map((st) => (
               <Pressable
                 key={st.id}
-                onPress={() => toggleStep(project.id, st.id)}
+                onPress={() => handleToggle(st.id, st.done)}
                 style={({ pressed }) => [
                   styles.stepRow,
                   pressed && { opacity: 0.6 },
@@ -198,11 +255,53 @@ export default function Vision() {
             ))}
         </View>
       ))}
+
+      {(project.recaptures ?? []).length > 0 ? (
+        <View style={styles.timeline}>
+          <Text style={styles.timelineTitle}>Progress log</Text>
+          {[...(project.recaptures ?? [])]
+            .reverse()
+            .map((entry) => (
+              <Card key={entry.id} style={styles.timelineEntry}>
+                <Text style={styles.timelineDate}>
+                  {new Date(entry.at).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </Text>
+                {entry.photoUri ? (
+                  <Image
+                    source={{ uri: entry.photoUri }}
+                    resizeMode="cover"
+                    style={styles.timelinePhoto}
+                  />
+                ) : null}
+                {entry.note ? (
+                  <Text style={styles.timelineNote}>{entry.note}</Text>
+                ) : null}
+                <Text style={styles.timelineFeedback}>
+                  {entry.message ?? "Having a look…"}
+                </Text>
+              </Card>
+            ))}
+        </View>
+      ) : null}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  checkpointCard: { gap: 9 },
+  checkpointTitle: { fontFamily: fonts.sansSemi, fontSize: 17, color: colors.ink },
+  checkpointBody: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: colors.inkSoft },
+  timeline: { gap: 10, marginTop: 4 },
+  timelineTitle: { fontFamily: fonts.sansSemi, fontSize: 19, color: colors.ink },
+  timelineEntry: { gap: 9 },
+  timelineDate: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1.2, color: colors.muted },
+  timelinePhoto: { width: "100%", height: 180, borderRadius: 12, backgroundColor: colors.tintDeep },
+  timelineNote: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: colors.ink },
+  timelineFeedback: { fontFamily: fonts.serifItalic, fontSize: 14.5, lineHeight: 21, color: colors.inkSoft },
   finishedCard: { alignItems: "center", gap: 10, paddingVertical: 26 },
   finishedTitle: {
     fontFamily: fonts.sansSemi,

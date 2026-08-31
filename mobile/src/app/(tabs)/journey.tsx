@@ -10,7 +10,8 @@ import {
   View,
   Image,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -18,6 +19,7 @@ import {
   Card,
   Headline,
   Kicker,
+  PrimaryButton,
   Ring,
   SerifEm,
 } from "@/components/ui";
@@ -26,6 +28,8 @@ import { ask } from "@/lib/dialog";
 
 export default function Journey() {
   const { projects, todayProject, setTodayProject } = useStore();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const finished = projects.filter((p) => projectStats(p).complete);
   const active = projects.filter((p) => !projectStats(p).complete);
@@ -52,7 +56,7 @@ export default function Journey() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={styles.page}
+      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
     >
       <View style={styles.header}>
         <Kicker>Step 04 · Journey</Kicker>
@@ -63,12 +67,16 @@ export default function Journey() {
 
       {active.map((p) => {
         const s = projectStats(p);
+        const latestEntry = [...(p.recaptures ?? [])]
+          .reverse()
+          .find((entry) => entry.photoUri || entry.note);
+        const latestPhoto = latestEntry?.photoUri ?? p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
           <Link href={`/vision/${p.id}`} asChild>
             <Card style={styles.projectRow}>
-              {p.photoUri ? (
-                <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
+              {latestPhoto ? (
+                <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
               ) : (
                 <Ring pct={s.pct} size={72} stroke={6} />
               )}
@@ -79,6 +87,11 @@ export default function Journey() {
                   {s.daysIn === 1 ? "day" : "days"} shown
                 </Text>
                 <Text style={styles.projectVision}>{p.vision}</Text>
+                {(p.recaptures ?? []).length > 0 ? (
+                  <Text style={styles.updateCount}>
+                    {(p.recaptures ?? []).length} progress {p.recaptures?.length === 1 ? "update" : "updates"}
+                  </Text>
+                ) : null}
               </View>
               <Text style={styles.chevron}>→</Text>
             </Card>
@@ -90,12 +103,30 @@ export default function Journey() {
               <Text style={styles.switchLink}>Make this today&apos;s project</Text>
             </Pressable>
           )}
+          {p.pendingCheckpoint ? (
+            <Pressable
+              onPress={() =>
+                router.push(
+                  `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
+                )
+              }
+              hitSlop={8}
+            >
+              <Text style={styles.logLink}>Finish your check-in →</Text>
+            </Pressable>
+          ) : (p.completedSinceLog ?? 0) > 0 ? (
+            <PrimaryButton
+              label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
+              variant="outline"
+              onPress={() => router.push(`/recapture/${p.id}?kind=optional`)}
+            />
+          ) : null}
           {p.photoUri && p.endStateImage ? (
             <Card>
               <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
               <BeforeAfter
                 before={p.photoUri}
-                after={`data:image/png;base64,${p.endStateImage}`}
+                after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
               />
             </Card>
           ) : null}
@@ -105,12 +136,15 @@ export default function Journey() {
 
       {finished.map((p) => {
         const s = projectStats(p);
+        const latestPhoto = [...(p.recaptures ?? [])]
+          .reverse()
+          .find((entry) => entry.photoUri)?.photoUri ?? p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
           <Link href={`/vision/${p.id}`} asChild>
-            <Card style={[styles.projectRow, styles.finishedRow]}>
-              {p.photoUri ? (
-                <Image source={{ uri: p.photoUri }} style={styles.projectThumb} />
+            <Card style={StyleSheet.flatten([styles.projectRow, styles.finishedRow])}>
+              {latestPhoto ? (
+                <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
               ) : (
                 <Ring pct={100} size={72} stroke={6} />
               )}
@@ -128,7 +162,7 @@ export default function Journey() {
               <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
               <BeforeAfter
                 before={p.photoUri}
-                after={`data:image/png;base64,${p.endStateImage}`}
+                after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
               />
             </Card>
           ) : null}
@@ -163,6 +197,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodySemi,
     fontSize: 13.5,
     color: colors.muted,
+    paddingLeft: 4,
+  },
+  logLink: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 14,
+    color: colors.accentInk,
     paddingLeft: 4,
   },
   revealCaption: {
@@ -202,6 +242,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.serifItalic,
     fontSize: 13.5,
     color: colors.inkSoft,
+  },
+  updateCount: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 12.5,
+    color: colors.accentInk,
   },
   finishedLabel: {
     fontFamily: fonts.bodySemi,

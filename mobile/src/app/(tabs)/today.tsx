@@ -3,8 +3,10 @@
   never share a day. The day ends by showing the project again, not by ticking
   a box.
 */
+import { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { Link, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
@@ -45,8 +47,9 @@ function IntroStep({ n, title, body }: { n: string; title: string; body: string 
 }
 
 export default function Today() {
-  const { todayProject, projects, markTired, user } = useStore();
+  const { todayProject, projects, markTired, toggleStep, user } = useStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const dayName = DAYS[new Date().getDay()];
   /* Whatever is stored — a full name, an email, or a relay address — reduce
      it to one short greeting-sized word. */
@@ -55,6 +58,14 @@ export default function Today() {
 
   const active = todayProject;
   const saved = projects.filter((p) => p.status === "saved");
+  const activeId = active?.id;
+  const pendingKind = active?.pendingCheckpoint?.kind;
+
+  useEffect(() => {
+    if (activeId && pendingKind) {
+      router.push(`/recapture/${activeId}?kind=${pendingKind}`);
+    }
+  }, [activeId, pendingKind, router]);
 
   if (!active) {
     return (
@@ -119,9 +130,15 @@ export default function Today() {
   }
 
   const stats = projectStats(active);
+  const latestCheckpointPhoto = [...(active.recaptures ?? [])]
+    .reverse()
+    .find((entry) => entry.photoUri)?.photoUri;
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
+    >
       <View style={styles.header}>
         <View style={styles.kickerRow}>
           <View style={styles.kickerFill}>
@@ -134,7 +151,11 @@ export default function Today() {
           </Pressable>
         </View>
         <Headline>
-          {stats.restingUntilTomorrow ? (
+          {stats.pendingCheckpoint ? (
+            <>
+              Checkpoint time<SerifEm>.</SerifEm>
+            </>
+          ) : stats.restingUntilTomorrow ? (
             <>
               Done for today<SerifEm>.</SerifEm>
             </>
@@ -154,22 +175,52 @@ export default function Today() {
       {active.endStateImage || active.photoUri ? (
         <Card style={styles.pictureCard}>
           <DonePicture
-            before={active.photoUri}
+            before={latestCheckpointPhoto ?? active.photoUri}
             done={
               active.endStateImage
-                ? `data:image/png;base64,${active.endStateImage}`
+                ? `data:${active.endStateImageMimeType ?? "image/png"};base64,${active.endStateImage}`
                 : undefined
             }
             progress={active.progress ?? 0}
             height={180}
           />
           <Text style={styles.pictureMeta}>
-            {Math.round((active.progress ?? 0) * 100)}% of the way there
+            {latestCheckpointPhoto ? "Latest check-in" : `${Math.round((active.progress ?? 0) * 100)}% of the way there`}
           </Text>
         </Card>
       ) : null}
 
-      {stats.restingUntilTomorrow ? (
+      {!stats.pendingCheckpoint && (active.completedSinceLog ?? 0) > 0 ? (
+        <Card style={styles.logProgressCard}>
+          <Text style={styles.logProgressTitle}>Pause for a quick look.</Text>
+          <Text style={styles.logProgressBody}>
+            Add a photo or note so you can see this progress later.
+          </Text>
+          <PrimaryButton
+            label={`Log today’s progress · ${active.completedSinceLog} ${active.completedSinceLog === 1 ? "job" : "jobs"}`}
+            variant="outline"
+            onPress={() => router.push(`/recapture/${active.id}?kind=optional`)}
+          />
+        </Card>
+      ) : null}
+
+      {stats.pendingCheckpoint ? (
+        <Card style={styles.doneCard}>
+          <Mascot pose="sprout" height={92} />
+          <Text style={styles.doneTitle}>One last little thing.</Text>
+          <Text style={styles.doneBody}>
+            Add a photo or note to close out this checkpoint.
+          </Text>
+          <PrimaryButton
+            label="Finish your check-in"
+            onPress={() =>
+              router.push(
+                `/recapture/${active.id}?kind=${stats.pendingCheckpoint?.kind}`,
+              )
+            }
+          />
+        </Card>
+      ) : stats.restingUntilTomorrow ? (
         <Card style={styles.doneCard}>
           <Mascot pose="sprout" height={92} />
           <Text style={styles.doneTitle}>
@@ -197,8 +248,8 @@ export default function Today() {
             <View style={styles.progressText}>
               <Text style={styles.progressTitle}>{active.title}</Text>
               <Text style={styles.progressMeta}>
-                {stats.todaySteps.length}{" "}
-                {stats.todaySteps.length === 1 ? "job" : "jobs"} today · about{" "}
+                {stats.todayRemaining.length}{" "}
+                {stats.todayRemaining.length === 1 ? "job" : "jobs"} left today · about{" "}
                 {stats.todayMinutes} min
               </Text>
               <Text style={styles.progressMeta}>
@@ -216,16 +267,11 @@ export default function Today() {
                 key={s.id}
                 label={s.label}
                 meta={`${s.minutes} min`}
-                done={false}
-                onPress={() => router.push(`/recapture/${active.id}`)}
+                done={s.done}
+                onPress={() => toggleStep(active.id, s.id)}
               />
             ))}
           </View>
-
-          <PrimaryButton
-            label="I think I'm done for today"
-            onPress={() => router.push(`/recapture/${active.id}`)}
-          />
 
           {!stats.tired ? (
             <Pressable onPress={() => markTired(active.id)} hitSlop={8}>
@@ -254,6 +300,18 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   header: { gap: 2 },
+  logProgressCard: { gap: 12 },
+  logProgressTitle: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 18,
+    color: colors.ink,
+  },
+  logProgressBody: {
+    fontFamily: fonts.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.inkSoft,
+  },
   kickerRow: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -1,4 +1,5 @@
 import { File } from "expo-file-system";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
 import { API_URL } from "@/lib/site";
 import { loadAuthToken } from "@/lib/auth-token";
@@ -20,16 +21,8 @@ export type EndStateResponse = {
   mimeType: string;
 };
 
-export type RecaptureVerdict =
-  | "progress"
-  | "leap"
-  | "no_change"
-  | "wrong_project";
-
 export type RecaptureResponse = {
-  verdict: RecaptureVerdict;
-  completedJobs: number[];
-  progress: number; // 0-100
+  assessment: "visible_progress" | "not_obvious";
   message: string;
 };
 
@@ -79,6 +72,24 @@ async function fileToBase64(uri: string): Promise<string> {
   const file = new File(uri);
   const base64 = file.base64Sync();
   return base64;
+}
+
+/*
+  Camera files can be several megabytes; sending both before and now as base64
+  used to overflow the request before the route could answer. Keep the durable
+  local original, but create a small JPEG solely for AI feedback transport.
+*/
+async function imageToFeedbackBase64(uri: string): Promise<string> {
+  const context = ImageManipulator.manipulate(uri);
+  context.resize({ width: 1280, height: null });
+  const rendered = await context.renderAsync();
+  const result = await rendered.saveAsync({
+    base64: true,
+    compress: 0.65,
+    format: SaveFormat.JPEG,
+  });
+  if (!result.base64) throw new Error("Could not prepare progress photo");
+  return result.base64;
 }
 
 export async function fetchPlan(
@@ -146,11 +157,10 @@ export async function fetchEndState(
   Recapture — show the project again instead of ticking a box. Cheap
   text+vision call; deliberately never generates an image.
 
-  Show it with a photo (nowPhotoUri) or with a sentence (note). Never both —
-  a project that can be photographed doesn't need the words, and one that
-  can't must never be asked for a picture of private work.
+  A checkpoint can include a photo, a sentence, or both. The response is
+  encouragement only; checked tasks have already been saved locally.
 */
-export async function fetchRecapture(args: {
+export async function fetchProgressFeedback(args: {
   nowPhotoUri?: string;
   note?: string;
   beforePhotoUri?: string;
@@ -160,16 +170,15 @@ export async function fetchRecapture(args: {
   /* The user's local day, so the server's daily ceiling lines up with the
      count the app shows them. */
   day: string;
-  todayJobs: string[];
-  remainingJobs: string[];
+  completedJobs: string[];
 }): Promise<RecaptureResponse> {
   const [nowImage, beforeImage] = await Promise.all([
     args.nowPhotoUri
-      ? fileToBase64(args.nowPhotoUri)
+      ? imageToFeedbackBase64(args.nowPhotoUri)
       : Promise.resolve(undefined),
     // The "before" is only ever context for a photo comparison.
     args.nowPhotoUri && args.beforePhotoUri
-      ? fileToBase64(args.beforePhotoUri).catch(() => undefined)
+      ? imageToFeedbackBase64(args.beforePhotoUri).catch(() => undefined)
       : Promise.resolve(undefined),
   ]);
 
@@ -184,8 +193,7 @@ export async function fetchRecapture(args: {
       title: args.title || undefined,
       vision: args.vision || undefined,
       description: args.description || undefined,
-      todayJobs: args.todayJobs,
-      remainingJobs: args.remainingJobs,
+      completedJobs: args.completedJobs,
     }),
   });
 

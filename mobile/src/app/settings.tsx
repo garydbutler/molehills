@@ -94,6 +94,20 @@ export default function Settings() {
         ) : null}
       </View>
 
+      <Card style={styles.definitionCard}>
+        <View style={styles.definitionTermRow}>
+          <Text style={styles.definitionTerm}>Inchmeal</Text>
+          <Text style={styles.definitionPart}>adverb</Text>
+        </View>
+        <Text style={styles.definitionMeaning}>
+          Inch by inch; little by little.
+        </Text>
+        <Text style={styles.definitionNote}>
+          Here, it means turning something too big to start into small steps
+          you can actually finish.
+        </Text>
+      </Card>
+
       <Card style={styles.panel}>
         <Row
           label="Your name"
@@ -170,6 +184,35 @@ const styles = StyleSheet.create({
   page: { padding: 24, paddingTop: 72, gap: 22, paddingBottom: 60 },
   header: { gap: 10 },
   lead: { fontFamily: fonts.sans, fontSize: 15, color: colors.muted },
+  definitionCard: { gap: 5 },
+  definitionTermRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 9,
+  },
+  definitionTerm: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 22,
+    color: colors.ink,
+  },
+  definitionPart: {
+    fontFamily: fonts.monoMedium,
+    fontSize: 9.5,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    color: colors.muted,
+  },
+  definitionMeaning: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 16,
+    color: colors.ink,
+  },
+  definitionNote: {
+    fontFamily: fonts.bodyLight,
+    fontSize: 14,
+    lineHeight: 21,
+    color: colors.inkSoft,
+  },
   panel: { gap: 2, paddingVertical: 6 },
   row: {
     flexDirection: "row",

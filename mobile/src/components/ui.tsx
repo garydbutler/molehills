@@ -442,10 +442,10 @@ export function BeforeAfter({
       }}
       {...pan.panHandlers}
     >
-      <Image source={{ uri: after }} style={{ width, height }} />
+      <Image source={{ uri: after }} resizeMode="cover" style={{ width, height }} />
 
       <View style={[revealStyles.beforeClip, { width: x, height }]}>
-        <Image source={{ uri: before }} style={{ width, height }} />
+        <Image source={{ uri: before }} resizeMode="cover" style={{ width, height }} />
       </View>
 
       <View style={[revealStyles.handle, { left: x - 1, height }]} />
@@ -535,11 +535,12 @@ export function DonePicture({
   return (
     <View style={[doneStyles.frame, { height }]}>
       {before ? (
-        <Image source={{ uri: before }} style={doneStyles.layer} />
+        <Image source={{ uri: before }} resizeMode="cover" style={doneStyles.layer} />
       ) : null}
       {done ? (
         <Image
           source={{ uri: done }}
+          resizeMode="cover"
           style={[doneStyles.layer, { opacity: before ? clamped : 1 }]}
         />
       ) : null}

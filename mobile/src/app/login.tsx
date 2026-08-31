@@ -4,7 +4,15 @@
   
   Email sign-in is local-only for quick prototype testing.
 */
-import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Redirect } from "expo-router";
 import { useState, useCallback, useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
@@ -184,7 +192,11 @@ export default function Login() {
   if (user) return null;
 
   return (
-    <View style={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.hero}>
         <Mascot pose="wave" height={88} style={styles.mascot} />
         <Kicker>A calmer way to get things done</Kicker>
@@ -197,6 +209,13 @@ export default function Login() {
           writes the plan and gives you three small steps a day, never a
           fourth.
         </Text>
+        <View style={styles.definition}>
+          <Text style={styles.definitionTitle}>Why “Inchmeal”?</Text>
+          <Text style={styles.definitionBody}>
+            It means little by little—making progress one manageable step at a
+            time.
+          </Text>
+        </View>
       </View>
 
       <Card style={styles.panel}>
@@ -274,13 +293,14 @@ export default function Login() {
       <Text style={styles.footer}>
         Little and often · no streaks, timers, or guilt trips
       </Text>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.paper },
   page: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: colors.paper,
     padding: 24,
     paddingTop: 72,
@@ -302,6 +322,24 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     color: colors.inkSoft,
     maxWidth: 340,
+  },
+  definition: {
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+    paddingTop: 13,
+    gap: 4,
+    maxWidth: 340,
+  },
+  definitionTitle: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 15,
+    color: colors.ink,
+  },
+  definitionBody: {
+    fontFamily: fonts.bodyLight,
+    fontSize: 14,
+    lineHeight: 21,
+    color: colors.inkSoft,
   },
   panel: { gap: 12 },
   panelTitle: {
