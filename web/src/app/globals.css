@@ -296,6 +296,44 @@ h2.display { font-size: clamp(34px, 4.4vw, 56px); }
   max-width: 42ch;
   text-wrap: balance;
 }
+.name-definition {
+  max-width: 54ch;
+  padding: 17px 0 18px;
+  border-top: 1px dotted var(--line);
+  border-bottom: 1px dotted var(--line);
+}
+.name-definition-term {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--ink);
+}
+.name-definition-term strong {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-style: italic;
+  font-weight: 500;
+}
+.name-definition-term span {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.name-definition-meaning {
+  margin-top: 5px;
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.name-definition-note {
+  margin-top: 6px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
 
 .hero { padding: 88px 0 96px; }
 .hero-grid {

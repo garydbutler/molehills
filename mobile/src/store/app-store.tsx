@@ -14,6 +14,12 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File } from "expo-file-system";
 import { clearAuthToken } from "@/lib/auth-token";
+import {
+  LOCAL_FEEDBACK,
+  checkpointAfterStep,
+  currentDayStepIds,
+} from "@/lib/progress-checkpoints";
+import { deleteStoredPhoto } from "@/lib/photos";
 
 const STORAGE_KEYS = {
   USER: "molehill:user",
@@ -52,6 +58,8 @@ export type RecaptureVerdict =
   | "no_change" // nothing moved, or we can't tell
   | "wrong_project"; // that's a picture of something else
 
+export type CheckpointKind = "day" | "project" | "optional";
+
 export type Recapture = {
   id: string;
   day: string; // local YYYY-MM-DD
@@ -61,6 +69,9 @@ export type Recapture = {
   verdict: RecaptureVerdict;
   progress: number; // 0..1 — how filled the done picture is after this look
   message?: string;
+  kind?: CheckpointKind;
+  completedStepIds?: string[];
+  feedbackSource?: "pending" | "ai" | "local";
 };
 
 /*
@@ -83,6 +94,7 @@ export type Project = {
   evidence: Evidence; // how this project gets shown at the end of a day
   photoUri?: string; // URI of the captured "before" photo
   endStateImage?: string; // base64 of the AI-generated done picture
+  endStateImageMimeType?: string;
   createdAt: number;
   steps: Step[];
 
@@ -95,6 +107,10 @@ export type Project = {
   failuresToday?: number; // consecutive unreadable looks — unlocks manual fallback
   tiredDay?: string; // day they told us they were exhausted
   recaptures?: Recapture[];
+  todayPlanDay?: string;
+  todayStepIds?: string[];
+  pendingCheckpoint?: { kind: "day" | "project"; day: string };
+  completedSinceLog?: number;
 };
 
 /* Ten looks per project per day is plenty; a stuck retry loop must not run up
@@ -143,9 +159,13 @@ type Store = {
   setTodayProject: (projectId: string) => void;
   saveForLater: (projectId: string) => void;
   markTired: (projectId: string) => void;
-  claimRecaptureAttempt: (projectId: string) => boolean;
-  applyRecapture: (projectId: string, result: RecaptureResult) => void;
-  finishToday: (projectId: string) => void;
+  saveProgressLog: (projectId: string, result: ProgressLogResult) => void;
+  updateProgressFeedback: (
+    projectId: string,
+    logId: string,
+    message: string,
+    source: "ai" | "local",
+  ) => void;
   /* Plans generated on this install, ever. The only metered thing in the app —
      each one is a paid vision-model call. */
   plansUsed: number;
@@ -169,6 +189,14 @@ export type RecaptureResult = {
   photoUri?: string;
   note?: string;
   message?: string;
+};
+
+export type ProgressLogResult = {
+  id: string;
+  kind: CheckpointKind;
+  photoUri?: string;
+  note?: string;
+  completedStepIds: string[];
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -366,13 +394,21 @@ export function projectStats(p: Project) {
 
   // A tired day gets ONE job — the smallest real one, never an invented
   // thirty-second job.
-  const offered = tired
-    ? [...remaining].sort((a, b) => a.minutes - b.minutes).slice(0, 1)
-    : remaining.slice(0, 3);
-
-  const todaySteps = restingUntilTomorrow ? [] : offered;
-  const todayMinutes = todaySteps.reduce((sum, s) => sum + s.minutes, 0);
+  const plannedIds = currentDayStepIds({
+    steps: p.steps,
+    today,
+    plannedDay: p.todayPlanDay,
+    plannedIds: p.todayStepIds,
+    size: tired ? 1 : 3,
+  });
+  const planned = plannedIds
+    .map((id) => p.steps.find((step) => step.id === id))
+    .filter((step): step is Step => !!step);
+  const todaySteps = restingUntilTomorrow ? [] : planned;
+  const todayRemaining = todaySteps.filter((step) => !step.done);
+  const todayMinutes = todayRemaining.reduce((sum, s) => sum + s.minutes, 0);
   const attemptsToday = p.attemptsDay === today ? (p.attempts ?? 0) : 0;
+  const allTasksDone = remaining.length === 0;
 
   return {
     total,
@@ -380,11 +416,16 @@ export function projectStats(p: Project) {
     pct,
     daysIn,
     todaySteps,
-    todayDone: Math.max(0, (tired ? 1 : 3) - todaySteps.length),
+    todayRemaining,
+    todayDone: todaySteps.filter((step) => step.done).length,
+    todayPlanComplete:
+      todaySteps.length > 0 && todaySteps.every((step) => step.done),
     todayMinutes,
     tired,
     restingUntilTomorrow,
-    complete: remaining.length === 0,
+    allTasksDone,
+    complete: allTasksDone && p.status === "finished",
+    pendingCheckpoint: p.pendingCheckpoint,
     attemptsToday,
     attemptsLeft: Math.max(0, MAX_RECAPTURES_PER_DAY - attemptsToday),
     canRecapture: attemptsToday < MAX_RECAPTURES_PER_DAY,
@@ -437,6 +478,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           const validated = parsed.map((p) => ({
             ...p,
             photoUri: validatePhotoUri(p.photoUri),
+            recaptures: (p.recaptures ?? []).map((entry) => ({
+              ...entry,
+              photoUri: validatePhotoUri(entry.photoUri),
+            })),
             // Projects stored before recapture landed have no status/progress.
             status: p.status ?? "saved",
             progress: p.progress ?? 0,
@@ -527,6 +572,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setNameResponses((responses) => ({ ...responses, [key]: null }));
   }, [user]);
   const wipeLocalData = useCallback(async () => {
+    for (const project of projects) {
+      if (project.photoUri) deleteStoredPhoto(project.photoUri);
+      for (const entry of project.recaptures ?? []) {
+        if (entry.photoUri) deleteStoredPhoto(entry.photoUri);
+      }
+    }
     setUser(null);
     setProjects([]);
     setPlansUsed(0);
@@ -538,7 +589,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       STORAGE_KEYS.PLANS_USED,
       STORAGE_KEYS.NAME_RESPONSES,
     ]).catch((e) => console.warn("Failed to clear local data:", e));
-  }, []);
+  }, [projects]);
 
   const signOut = useCallback(() => {
     setUser(null);
@@ -558,17 +609,55 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [],
   );
   const toggleStep = useCallback((projectId: string, stepId: string) => {
+    const today = dayKey();
     setProjects((prev) =>
-      prev.map((p) =>
-        p.id !== projectId
-          ? p
-          : {
-              ...p,
-              steps: p.steps.map((s) =>
-                s.id === stepId ? { ...s, done: !s.done } : s,
-              ),
-            },
-      ),
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const target = p.steps.find((step) => step.id === stepId);
+        if (!target) return p;
+
+        const plannedIds = currentDayStepIds({
+          steps: p.steps,
+          today,
+          plannedDay: p.todayPlanDay,
+          plannedIds: p.todayStepIds,
+          size: p.tiredDay === today ? 1 : 3,
+        });
+        const markingDone = !target.done;
+        const steps = p.steps.map((step) =>
+          step.id === stepId ? { ...step, done: markingDone } : step,
+        );
+        const allTasksDone = steps.every((step) => step.done);
+        const dayComplete = steps
+          .filter((step) => step.dayIndex === target.dayIndex)
+          .every((step) => step.done);
+
+        const pendingCheckpoint = checkpointAfterStep({
+          markingDone,
+          allTasksDone,
+          dayComplete,
+          today,
+          existing: p.pendingCheckpoint,
+        });
+
+        return {
+          ...p,
+          steps,
+          todayPlanDay: today,
+          todayStepIds: plannedIds,
+          pendingCheckpoint,
+          completedSinceLog: Math.max(
+            0,
+            (p.completedSinceLog ?? 0) + (markingDone ? 1 : -1),
+          ),
+          progress:
+            steps.filter((step) => step.done).length / Math.max(1, steps.length),
+          status:
+            !markingDone && p.status === "finished"
+              ? ("paused" as const)
+              : p.status,
+        };
+      }),
     );
   }, []);
 
@@ -598,95 +687,92 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  /* Returns false when today's looks are spent, so a retry loop can't bill. */
-  const claimRecaptureAttempt = useCallback((projectId: string) => {
-    const today = dayKey();
-    let allowed = false;
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        const used = p.attemptsDay === today ? (p.attempts ?? 0) : 0;
-        if (used >= MAX_RECAPTURES_PER_DAY) return p;
-        allowed = true;
-        return { ...p, attemptsDay: today, attempts: used + 1 };
-      }),
-    );
-    return allowed;
-  }, []);
-
-  const applyRecapture = useCallback(
-    (projectId: string, result: RecaptureResult) => {
+  const saveProgressLog = useCallback(
+    (projectId: string, result: ProgressLogResult) => {
       const today = dayKey();
+      const finishing = result.kind === "project";
+      if (finishing) {
+        const project = projects.find((item) => item.id === projectId);
+        for (const entry of project?.recaptures ?? []) {
+          if (
+            entry.photoUri &&
+            entry.photoUri !== project?.photoUri &&
+            entry.photoUri !== result.photoUri
+          ) {
+            deleteStoredPhoto(entry.photoUri);
+          }
+        }
+      }
+
       setProjects((prev) =>
         prev.map((p) => {
           if (p.id !== projectId) return p;
-
-          const moved =
-            result.verdict === "progress" || result.verdict === "leap";
-
           const entry: Recapture = {
-            id: nextId(),
+            id: result.id,
             day: today,
             at: Date.now(),
             photoUri: result.photoUri,
             note: result.note,
-            verdict: result.verdict,
-            progress: result.progress,
-            message: result.message,
+            verdict: "progress",
+            progress:
+              p.steps.filter((step) => step.done).length /
+              Math.max(1, p.steps.length),
+            kind: result.kind,
+            completedStepIds: result.completedStepIds,
+            feedbackSource: "pending",
+            message: LOCAL_FEEDBACK,
           };
-
-          const steps = moved
-            ? p.steps.map((s) =>
-                result.completedStepIds.includes(s.id) ? { ...s, done: true } : s,
-              )
-            : p.steps;
-
-          const allDone = steps.every((s) => s.done);
-
+          const allDone = p.steps.every((step) => step.done);
+          const olderEntries = (p.recaptures ?? []).map((old) =>
+            finishing && old.photoUri ? { ...old, photoUri: undefined } : old,
+          );
           return {
             ...p,
-            steps,
-            // The done picture only ever fills in — a bad photo never takes
-            // ground back.
-            progress: moved ? Math.max(p.progress ?? 0, result.progress) : (p.progress ?? 0),
-            // A failed look does NOT end the day; they can try again.
-            lastRecaptureDay: moved ? today : p.lastRecaptureDay,
-            failuresToday: moved ? 0 : (p.failuresToday ?? 0) + 1,
-            status: allDone ? ("finished" as const) : p.status,
-            recaptures: [...(p.recaptures ?? []), entry],
+            progress:
+              p.steps.filter((step) => step.done).length /
+              Math.max(1, p.steps.length),
+            lastRecaptureDay:
+              result.kind === "day" || result.kind === "project"
+                ? today
+                : p.lastRecaptureDay,
+            pendingCheckpoint: undefined,
+            completedSinceLog: 0,
+            status:
+              result.kind === "project" && allDone
+                ? ("finished" as const)
+                : p.status,
+            recaptures: [...olderEntries, entry],
           };
         }),
       );
     },
-    [],
+    [projects],
   );
 
-  /* Manual fallback — only reachable after repeated unreadable looks. */
-  const finishToday = useCallback((projectId: string) => {
-    const today = dayKey();
+  const updateProgressFeedback = useCallback(
+    (
+      projectId: string,
+      logId: string,
+      message: string,
+      source: "ai" | "local",
+    ) => {
     setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id !== projectId) return p;
-        const stats = projectStats(p);
-        const ids = stats.todaySteps.map((s) => s.id);
-        const steps = p.steps.map((s) =>
-          ids.includes(s.id) ? { ...s, done: true } : s,
-        );
-        const allDone = steps.every((s) => s.done);
-        return {
-          ...p,
-          steps,
-          lastRecaptureDay: today,
-          failuresToday: 0,
-          progress: Math.max(
-            p.progress ?? 0,
-            steps.filter((s) => s.done).length / Math.max(1, steps.length),
-          ),
-          status: allDone ? ("finished" as const) : p.status,
-        };
-      }),
+      prev.map((p) =>
+        p.id !== projectId
+          ? p
+          : {
+              ...p,
+              recaptures: (p.recaptures ?? []).map((entry) =>
+                entry.id === logId
+                  ? { ...entry, message, feedbackSource: source }
+                  : entry,
+              ),
+            },
+      ),
     );
-  }, []);
+    },
+    [],
+  );
 
   const todayProject = useMemo(
     () => projects.find((p) => p.status === "today") ?? null,
@@ -706,9 +792,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTodayProject,
       saveForLater,
       markTired,
-      claimRecaptureAttempt,
-      applyRecapture,
-      finishToday,
+      saveProgressLog,
+      updateProgressFeedback,
       plansUsed,
       recordPlanUsed,
       wipeLocalData,
@@ -729,9 +814,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTodayProject,
       saveForLater,
       markTired,
-      claimRecaptureAttempt,
-      applyRecapture,
-      finishToday,
+      saveProgressLog,
+      updateProgressFeedback,
       plansUsed,
       recordPlanUsed,
       wipeLocalData,

@@ -23,3 +23,12 @@ export async function copyToDurableStorage(cacheUri: string): Promise<string> {
 
   return destFile.uri;
 }
+
+export function deleteStoredPhoto(uri: string): void {
+  try {
+    const file = new File(uri);
+    if (file.exists) file.delete();
+  } catch (error) {
+    console.warn("Failed to remove old progress photo:", error);
+  }
+}

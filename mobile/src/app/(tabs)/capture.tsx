@@ -17,6 +17,7 @@ import {
   Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/theme/colors";
@@ -62,6 +63,7 @@ export default function Capture() {
   } = useStore();
   const { pro, ready: proReady } = useProAccess();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [description, setDescription] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -209,7 +211,7 @@ export default function Capture() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={styles.page}
+      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>

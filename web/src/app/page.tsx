@@ -170,6 +170,21 @@ export default function Home() {
                   day, never a fourth.
                 </p>
               </Reveal>
+              <Reveal delay={115}>
+                <aside className="name-definition" aria-label="Meaning of Inchmeal">
+                  <p className="name-definition-term">
+                    <strong>Inchmeal</strong>
+                    <span>adverb</span>
+                  </p>
+                  <p className="name-definition-meaning">
+                    Inch by inch; little by little.
+                  </p>
+                  <p className="name-definition-note">
+                    Here, it means turning something too big to start into
+                    small steps you can actually finish.
+                  </p>
+                </aside>
+              </Reveal>
               <Reveal delay={150}>
                 <p className="lead">
                   The task that won&apos;t start usually isn&apos;t laziness — it&apos;s
