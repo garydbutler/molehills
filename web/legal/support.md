@@ -9,7 +9,7 @@ Please include:
 
 - what you were trying to do;
 - the exact message you saw, if there was one;
-- your iPhone or iPad model and iOS version; and
+- your device model and operating system version; and
 - the version of Inchmeal shown in your device settings.
 
 Please do **not** email passwords, payment-card details, private project photos,
@@ -31,10 +31,15 @@ App on that device. Account deletion does not cancel an app-store subscription.
 If you already subscribed but the App appears locked, open **Settings → Restore
 purchases** while signed in with the same app-store account used to subscribe.
 
-Subscriptions are billed and managed by Apple or Google. To change or cancel an
-Apple subscription, open the iPhone or iPad **Settings** app, tap your name, then
-tap **Subscriptions**. Billing questions and refund requests are handled by the
-app store where the purchase was made.
+Subscriptions are billed and managed by Apple or Google:
+
+- On iPhone or iPad, open **Settings**, tap your name, then tap
+  **Subscriptions**.
+- On Android, open the **Google Play Store**, tap your profile picture, then tap
+  **Payments & subscriptions → Subscriptions**.
+
+Billing questions and refund requests are handled by the app store where the
+purchase was made.
 
 ## Privacy and age requirement
 

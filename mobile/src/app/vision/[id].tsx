@@ -19,13 +19,13 @@ import { fonts } from "@/theme/fonts";
 import { Card, Kicker, Mascot, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
-import { ask, tell } from "@/lib/dialog";
+import { tell } from "@/lib/dialog";
 
 const ORDINALS = ["Day one", "Day two", "Day three", "Day four", "Day five"];
 
 export default function Vision() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, toggleStep, updateProject, setTodayProject } = useStore();
+  const { projects, updateProject, setTodayProject } = useStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const project = projects.find((p) => p.id === id);
@@ -95,23 +95,6 @@ export default function Vision() {
     (p) => p.id !== project.id && !projectStats(p).complete,
   );
 
-  const handleToggle = async (stepId: string, done: boolean) => {
-    if (done) {
-      const wasLogged = (project.recaptures ?? []).some((entry) =>
-        entry.completedStepIds?.includes(stepId),
-      );
-      if (wasLogged || project.status === "finished") {
-        const choice = await ask(
-          "Mark this job unfinished?",
-          "Its progress log will stay as a record of what you reported at the time.",
-          ["Mark unfinished", "Never mind"],
-        );
-        if (choice !== 0) return;
-      }
-    }
-    toggleStep(project.id, stepId);
-  };
-
   return (
     <ScrollView
       style={styles.scroll}
@@ -158,9 +141,11 @@ export default function Vision() {
           />
         ) : project.photoUri ? (
           <Image source={{ uri: project.photoUri }} resizeMode="cover" style={styles.visionPhoto} />
-        ) : (
+        ) : !s.complete ? (
+          // The finished card above already carries the mascot — a second one
+          // right below it just reads as a doubled logo.
           <Mascot pose="sprout" height={62} />
-        )}
+        ) : null}
         <Kicker>
           {displayingEndState ? "The calm version" : "Your vision"}
         </Kicker>
@@ -192,6 +177,16 @@ export default function Vision() {
           </View>
         )}
       </Card>
+
+      {!s.complete ? (
+        <PrimaryButton
+          label="Start today’s three →"
+          onPress={() => {
+            setTodayProject(project.id);
+            router.replace("/today");
+          }}
+        />
+      ) : null}
 
       <View style={styles.progressRow}>
         <Ring pct={s.pct} size={92} />
@@ -236,22 +231,19 @@ export default function Vision() {
           {project.steps
             .filter((st) => st.dayIndex === d)
             .map((st) => (
-              <Pressable
-                key={st.id}
-                onPress={() => handleToggle(st.id, st.done)}
-                style={({ pressed }) => [
-                  styles.stepRow,
-                  pressed && { opacity: 0.6 },
-                ]}
-              >
-                <View style={[styles.box, st.done && styles.boxDone]}>
-                  {st.done && <Text style={styles.check}>{"\u2713"}</Text>}
-                </View>
+              <View key={st.id} style={styles.stepRow}>
+                {st.done ? (
+                  <View style={[styles.box, styles.boxDone]}>
+                    <Text style={styles.check}>{"\u2713"}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.bullet} />
+                )}
                 <Text style={[styles.stepLabel, st.done && styles.stepDone]}>
                   {st.label}
                 </Text>
                 <Text style={styles.minutes}>{st.minutes} min</Text>
-              </Pressable>
+              </View>
             ))}
         </View>
       ))}
@@ -431,6 +423,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   boxDone: { backgroundColor: colors.accentInk },
+  bullet: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.line,
+    marginHorizontal: 9,
+  },
   check: {
     color: colors.bone,
     fontSize: 14,

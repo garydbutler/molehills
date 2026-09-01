@@ -29,21 +29,7 @@ import {
 } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 import { API_URL, AUTH_REDIRECT_URI, PRIVACY_URL, TERMS_URL } from "@/lib/site";
-import { setAuthToken } from "@/lib/auth-token";
-
-
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = parts[1];
-    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
+import { setAuthToken, decodeJwtPayload } from "@/lib/auth-token";
 
 type OAuthProvider = "google";
 
