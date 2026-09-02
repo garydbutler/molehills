@@ -551,6 +551,8 @@ h2.display { font-size: clamp(34px, 4.4vw, 56px); }
   gap: 12px;
   min-height: 596px;
 }
+.screen-shot { padding: 0; min-height: 0; gap: 0; }
+.screen-shot img { display: block; width: 100%; height: auto; }
 .status-row {
   display: flex;
   justify-content: space-between;
