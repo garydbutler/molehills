@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 export default function SiteNav() {
@@ -38,16 +39,13 @@ export default function SiteNav() {
             aria-describedby="brand-definition"
           >
             <span className="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 16 16" width="14" height="14">
-                <path
-                  d="M2.5 12.5 L6.5 5.5 L9 9.5 L11 6.5 L13.5 12.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Image
+                src="/images/mascots/inchworm-measuring-tape-site-palette.png"
+                alt=""
+                width={48}
+                height={48}
+                priority
+              />
             </span>
             <span className="brand-lockup">
               <span className="brand-name">

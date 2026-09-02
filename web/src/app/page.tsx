@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import SiteNav from "@/components/SiteNav";
 import PhoneDemo from "@/components/PhoneDemo";
@@ -500,6 +501,14 @@ export default function Home() {
         <section className="cta-panel sec-pad" id="waitlist">
           <div className="container">
             <div className="cta-box">
+              <Reveal variant="scale" className="cta-mascot">
+                <Image
+                  src="/images/mascots/inchworm-sprout-site-palette.png"
+                  alt=""
+                  width={156}
+                  height={156}
+                />
+              </Reveal>
               <Reveal as="span" className="index-label">
                 Early access
               </Reveal>
@@ -530,16 +539,12 @@ export default function Home() {
             <div className="foot-brand">
               <a className="brand on-dark" href="#top">
                 <span className="brand-mark" aria-hidden="true">
-                  <svg viewBox="0 0 16 16" width="14" height="14">
-                    <path
-                      d="M2.5 12.5 L6.5 5.5 L9 9.5 L11 6.5 L13.5 12.5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <Image
+                    src="/images/mascots/inchworm-measuring-tape-site-palette.png"
+                    alt=""
+                    width={48}
+                    height={48}
+                  />
                 </span>
                 Inchmeal<span className="dot">.</span>
               </a>
