@@ -11,7 +11,7 @@ Connect.
 | Privacy Policy URL | `https://inchmeal.app/privacy-policy` |
 | Support URL | `https://inchmeal.app/support` |
 | Marketing URL | `https://inchmeal.app` |
-| Support email | `hello@molehills.app` |
+| Support email | `support@inchmeal.app` |
 
 Publish the web changes before submitting so Apple can open all three URLs
 without signing in.

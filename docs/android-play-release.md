@@ -70,7 +70,7 @@ Suggested listing and policy values:
 - Target audience: **Adults / 18 and over**
 - Privacy policy: `https://inchmeal.app/privacy-policy`
 - Support: `https://inchmeal.app/support`
-- Support email: `hello@molehills.app`
+- Support email: `support@inchmeal.app`
 
 Prepare at least a 512 × 512 app icon, a 1024 × 500 feature graphic, two phone
 screenshots, a short description, and a full description. Complete App access,

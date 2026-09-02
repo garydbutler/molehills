@@ -1,6 +1,6 @@
 # Inchmeal Support
 
-Need a hand? Email **hello@molehills.app** and tell us what happened. We read
+Need a hand? Email **support@inchmeal.app** and tell us what happened. We read
 every message and will reply as soon as we can.
 
 ## Help us help you
@@ -45,9 +45,9 @@ purchase was made.
 
 Inchmeal is for adults aged **18 and over**. Read our [Privacy
 Policy](./privacy-policy.md) to learn what the App processes, or email
-**hello@molehills.app** with a privacy request.
+**support@inchmeal.app** with a privacy request.
 
 ---
 
-**Support email:** hello@molehills.app
+**Support email:** support@inchmeal.app
 **Developer:** Gary Butler, doing business as Inchmeal

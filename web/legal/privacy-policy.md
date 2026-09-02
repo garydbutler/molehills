@@ -21,7 +21,7 @@ Together we call the Website and the App the "**Service**".
 For people in the European Economic Area ("EEA"), the United Kingdom ("UK"), or
 other regions with similar laws, **Gary Butler (d/b/a Inchmeal)** is the "data
 controller" of your personal information. You can reach us at
-**hello@molehills.app** (postal address: 109885 S 4743 RD, Muldrow, OK 74948).
+**contact@inchmeal.app** (postal address: 109885 S 4743 RD, Muldrow, OK 74948).
 
 ---
 
@@ -149,7 +149,7 @@ If you join the waitlist, we will use your email address **only** to:
 2. send you one email when Inchmeal is ready to try.
 
 We will not sell it, rent it, or use it for unrelated marketing. You can ask us to
-delete your address at any time by emailing **hello@molehills.app**, and every
+delete your address at any time by emailing **contact@inchmeal.app**, and every
 launch email will include an unsubscribe option.
 
 ---
@@ -239,7 +239,7 @@ your personal information:
 - **Data portability** — receive your information in a portable format.
 - **Not be discriminated against** for exercising these rights.
 
-To exercise any of these, email **hello@molehills.app**. We will respond within
+To exercise any of these, email **contact@inchmeal.app**. We will respond within
 the time required by applicable law. Because much of your content is stored only on
 your device, you can also exercise many of these rights directly — by editing or
 deleting projects in the App, or removing the App.
@@ -270,7 +270,7 @@ Contractual Clauses (and the UK Addendum) or an adequacy decision.
 
 Inchmeal is for adults aged **18 and over**. We do not knowingly allow anyone
 under 18 to create an account or use the App. If you believe someone under 18 has
-provided us personal information, contact **hello@molehills.app** and we will
+provided us personal information, email **contact@inchmeal.app** and we will
 investigate and delete it where appropriate.
 
 ---
@@ -296,7 +296,7 @@ after an update means you accept the revised policy.
 
 Questions, requests, or concerns about privacy?
 
-**Email:** hello@molehills.app
+**Email:** contact@inchmeal.app
 **Post:** Gary Butler (d/b/a Inchmeal), 109885 S 4743 RD, Muldrow, OK 74948
 
 ---

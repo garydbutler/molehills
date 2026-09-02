@@ -6,4 +6,4 @@
 // Move to env only if a deploy ever needs a different domain than the source.
 
 export const SITE_URL = "https://inchmeal.app";
-export const CONTACT_EMAIL = "hello@molehills.app";
+export const CONTACT_EMAIL = "contact@inchmeal.app";

@@ -23,4 +23,4 @@ export const SITE_URL = "https://inchmeal.app";
 export const PRIVACY_URL = `${SITE_URL}/privacy-policy`;
 export const TERMS_URL = `${SITE_URL}/terms-of-service`;
 export const SUPPORT_URL = `${SITE_URL}/support`;
-export const FEEDBACK_EMAIL = "hello@molehills.app";
+export const FEEDBACK_EMAIL = "support@inchmeal.app";

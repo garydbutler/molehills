@@ -76,7 +76,7 @@ progress check, plan, or generated image as a statement of fact.
 
 You sign in through **Google** or **Apple**. You
 are responsible for keeping access to your sign‑in account secure and for activity
-that happens under your Inchmeal account. Tell us at **hello@molehills.app** if you
+that happens under your Inchmeal account. Tell us at **contact@inchmeal.app** if you
 believe your account has been used without your permission. Your use of Google and
 Apple sign‑in is also subject to their own terms.
 
@@ -266,7 +266,7 @@ of residence.
 
 ## 20. Contact us
 
-**Email:** hello@molehills.app
+**Email:** contact@inchmeal.app
 **Post:** Gary Butler (d/b/a Inchmeal), 109885 S 4743 RD, Muldrow, OK 74948
 
 ---

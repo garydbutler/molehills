@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       const message = confirmationEmail(request.nextUrl.origin, token);
       await resend.emails.send({
         from:
-          process.env.RESEND_FROM ?? "Inchmeal <onboarding@resend.dev>",
+          process.env.RESEND_FROM ?? "Inchmeal <noreply@inchmeal.app>",
         to: email,
         subject: message.subject,
         html: message.html,
