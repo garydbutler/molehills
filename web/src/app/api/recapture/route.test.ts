@@ -6,7 +6,7 @@
   Run with:  npx tsx src/app/api/recapture/route.test.ts
 */
 import assert from "node:assert";
-import { pickCheckpointMessage } from "./route";
+import { pickCheckpointMessage } from "../../../lib/checkpoint-message";
 
 // A normal, specific model sentence is passed straight through.
 assert.equal(

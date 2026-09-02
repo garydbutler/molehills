@@ -70,6 +70,12 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="vision/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

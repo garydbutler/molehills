@@ -442,19 +442,24 @@ export function BeforeAfter({
       }}
       {...pan.panHandlers}
     >
-      <Image source={{ uri: after }} resizeMode="cover" style={{ width, height }} />
+      {/* ponytail: every child is pointerEvents="none" so the touch target is
+         always the frame — otherwise locationX flips between subviews mid-drag
+         and the handle jitters. */}
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        <Image source={{ uri: after }} resizeMode="cover" style={{ width, height }} />
+      </View>
 
-      <View style={[revealStyles.beforeClip, { width: x, height }]}>
+      <View pointerEvents="none" style={[revealStyles.beforeClip, { width: x, height }]}>
         <Image source={{ uri: before }} resizeMode="cover" style={{ width, height }} />
       </View>
 
-      <View style={[revealStyles.handle, { left: x - 1, height }]} />
-      <View style={[revealStyles.grip, { left: x - 15, top: height / 2 - 15 }]}>
+      <View pointerEvents="none" style={[revealStyles.handle, { left: x - 1, height }]} />
+      <View pointerEvents="none" style={[revealStyles.grip, { left: x - 15, top: height / 2 - 15 }]}>
         <Text style={revealStyles.gripLabel}>‹ ›</Text>
       </View>
 
-      <Text style={[revealStyles.tag, revealStyles.tagLeft]}>BEFORE</Text>
-      <Text style={[revealStyles.tag, revealStyles.tagRight]}>AFTER</Text>
+      <Text pointerEvents="none" style={[revealStyles.tag, revealStyles.tagLeft]}>BEFORE</Text>
+      <Text pointerEvents="none" style={[revealStyles.tag, revealStyles.tagRight]}>AFTER</Text>
     </View>
   );
 }

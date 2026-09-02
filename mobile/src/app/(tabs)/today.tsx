@@ -133,6 +133,9 @@ export default function Today() {
   const latestCheckpointPhoto = [...(active.recaptures ?? [])]
     .reverse()
     .find((entry) => entry.photoUri)?.photoUri;
+  /* When the day is over the screen is just a recap — give the photo and the
+     mascot card less room so it fits without a scroll. */
+  const dayOver = stats.restingUntilTomorrow || stats.complete;
 
   return (
     <ScrollView
@@ -182,7 +185,7 @@ export default function Today() {
                 : undefined
             }
             progress={active.progress ?? 0}
-            height={180}
+            height={dayOver ? 140 : 180}
           />
           <Text style={styles.pictureMeta}>
             {latestCheckpointPhoto ? "Latest check-in" : `${Math.round((active.progress ?? 0) * 100)}% of the way there`}
@@ -222,7 +225,7 @@ export default function Today() {
         </Card>
       ) : stats.restingUntilTomorrow ? (
         <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
+          <Mascot pose="sprout" height={60} />
           <Text style={styles.doneTitle}>
             That&apos;s everything for today.
           </Text>
@@ -235,7 +238,7 @@ export default function Today() {
         </Card>
       ) : stats.complete ? (
         <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
+          <Mascot pose="sprout" height={60} />
           <Text style={styles.doneTitle}>{active.title} is finished.</Text>
           <Link href={`/vision/${active.id}`} style={styles.visionLink}>
             See how it changed →
@@ -404,7 +407,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 10,
   },
-  doneCard: { alignItems: "center", gap: 8, paddingVertical: 30 },
+  doneCard: { alignItems: "center", gap: 8, paddingVertical: 18 },
   doneTitle: {
     fontFamily: fonts.sansSemi,
     fontSize: 19,

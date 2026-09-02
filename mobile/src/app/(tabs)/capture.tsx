@@ -137,7 +137,7 @@ export default function Capture() {
   const startProject = (projectId: string) => {
     if (!todayProject || todayProject.id === projectId) {
       setTodayProject(projectId);
-      router.replace(`/vision/${projectId}`);
+      router.replace(`/vision/${projectId}?fresh=1`);
       return;
     }
 
@@ -147,7 +147,7 @@ export default function Capture() {
       ["Work on it now", "Save for later"],
     ).then((choice) => {
       if (choice === 0) setTodayProject(projectId);
-      router.replace(`/vision/${projectId}`);
+      router.replace(`/vision/${projectId}?fresh=1`);
     });
   };
 

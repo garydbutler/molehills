@@ -2,9 +2,10 @@
   Vision — "See the end state". Shows the captured photo, AI-generated plan,
   and optionally generates a photoreal tidy version of the space.
 */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   StyleSheet,
   Text,
   View,
@@ -12,7 +13,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
@@ -20,20 +21,37 @@ import { Card, Kicker, Mascot, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
 import { tell } from "@/lib/dialog";
+import { FEEDBACK_EMAIL } from "@/lib/site";
 
 const ORDINALS = ["Day one", "Day two", "Day three", "Day four", "Day five"];
 
 export default function Vision() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, updateProject, setTodayProject } = useStore();
+  const { id, fresh } = useLocalSearchParams<{ id: string; fresh?: string }>();
+  const { projects, updateProject, setTodayProject, toggleStep } = useStore();
+  // ponytail: the plan is read-only only on the just-created preview; from
+  // Journey the same screen is where jobs get checked off.
+  const readOnly = fresh === "1";
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const project = projects.find((p) => p.id === id);
 
   const [generatingEndState, setGeneratingEndState] = useState(false);
   const [showEndState, setShowEndState] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const projectId = project?.id;
   const pendingKind = project?.pendingCheckpoint?.kind;
+
+  /* Vision is a hidden tab route, so its ScrollView stays mounted while the
+     user visits Journey. A project detail should still open at its beginning. */
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return;
+      const frame = requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      });
+      return () => cancelAnimationFrame(frame);
+    }, [id]),
+  );
 
   useEffect(() => {
     if (projectId && pendingKind) {
@@ -88,6 +106,39 @@ export default function Vision() {
 
   const hasEndState = !!project.endStateImage;
   const displayingEndState = showEndState && hasEndState;
+  const canStartToday =
+    !s.complete &&
+    !s.restingUntilTomorrow &&
+    !s.todayPlanComplete &&
+    !s.pendingCheckpoint;
+
+  const reportIncorrectVision = async () => {
+    const subject = encodeURIComponent("Incorrect Inchmeal vision result");
+    const body = encodeURIComponent(
+      [
+        "What did Inchmeal get wrong?",
+        "",
+        "",
+        "---",
+        `Project: ${project.title}`,
+        `Vision: ${project.vision}`,
+        `Detected space: ${project.space}`,
+        `Plan: ${project.steps.map((step) => step.label).join("; ")}`,
+        "",
+        "Please remove anything above that you do not want to share.",
+      ].join("\n"),
+    );
+    const url = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      tell(
+        "Email feedback",
+        `Send what looked wrong to ${FEEDBACK_EMAIL}. Please do not include anything private.`,
+      );
+    }
+  };
 
   // Finishing is celebrated once, quietly. We never auto-start the next
   // project — that is a cousin of a streak. We ask.
@@ -97,11 +148,12 @@ export default function Vision() {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.scroll}
       contentContainerStyle={[styles.page, { paddingTop: Math.max(60, insets.top + 24) }]}
     >
       <Pressable
-        onPress={() => (router.canGoBack() ? router.back() : router.replace("/today"))}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/journey"))}
         style={styles.back}
       >
         <Text style={styles.backLabel}>← Back</Text>
@@ -178,9 +230,24 @@ export default function Vision() {
         )}
       </Card>
 
-      {!s.complete ? (
+      <View style={styles.aiNote}>
+        <Text style={styles.aiNoteText}>
+          AI can misread photos and descriptions. Check this vision and plan
+          before you act on it.
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={reportIncorrectVision}
+          style={styles.feedbackButton}
+        >
+          <Text style={styles.feedbackLabel}>Report an incorrect result →</Text>
+        </Pressable>
+      </View>
+
+      {canStartToday ? (
         <PrimaryButton
-          label="Start today’s three →"
+          label={s.todayDone > 0 ? "Continue today’s jobs →" : "Start today’s three →"}
           onPress={() => {
             setTodayProject(project.id);
             router.replace("/today");
@@ -231,19 +298,26 @@ export default function Vision() {
           {project.steps
             .filter((st) => st.dayIndex === d)
             .map((st) => (
-              <View key={st.id} style={styles.stepRow}>
+              <Pressable
+                key={st.id}
+                disabled={readOnly}
+                onPress={() => toggleStep(project.id, st.id)}
+                style={styles.stepRow}
+              >
                 {st.done ? (
                   <View style={[styles.box, styles.boxDone]}>
                     <Text style={styles.check}>{"\u2713"}</Text>
                   </View>
-                ) : (
+                ) : readOnly ? (
                   <View style={styles.bullet} />
+                ) : (
+                  <View style={styles.box} />
                 )}
                 <Text style={[styles.stepLabel, st.done && styles.stepDone]}>
                   {st.label}
                 </Text>
                 <Text style={styles.minutes}>{st.minutes} min</Text>
-              </View>
+              </Pressable>
             ))}
         </View>
       ))}
@@ -355,6 +429,26 @@ const styles = StyleSheet.create({
   endStateActions: {
     marginTop: 10,
     width: "100%",
+  },
+  aiNote: {
+    gap: 7,
+    paddingHorizontal: 4,
+  },
+  aiNoteText: {
+    fontFamily: fonts.body,
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: colors.muted,
+  },
+  feedbackButton: {
+    alignSelf: "flex-start",
+    minHeight: 48,
+    justifyContent: "center",
+  },
+  feedbackLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 14,
+    color: colors.accentInk,
   },
   generatingContainer: {
     flexDirection: "row",

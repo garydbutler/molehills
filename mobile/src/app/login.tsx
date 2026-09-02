@@ -185,6 +185,13 @@ export default function Login() {
     >
       <View style={styles.hero}>
         <Mascot pose="wave" height={88} style={styles.mascot} />
+        <View style={styles.definition}>
+          <View style={styles.definitionTermRow}>
+            <Text style={styles.definitionTerm}>Inchmeal</Text>
+            <Text style={styles.definitionPart}>adverb</Text>
+          </View>
+          <Text style={styles.definitionBody}>Inch by inch; little by little.</Text>
+        </View>
         <Kicker>A calmer way to get things done</Kicker>
         <Text style={styles.title}>
           Big things,{"\n"}
@@ -195,13 +202,6 @@ export default function Login() {
           writes the plan and gives you three small steps a day, never a
           fourth.
         </Text>
-        <View style={styles.definition}>
-          <Text style={styles.definitionTitle}>Why “Inchmeal”?</Text>
-          <Text style={styles.definitionBody}>
-            It means little by little—making progress one manageable step at a
-            time.
-          </Text>
-        </View>
       </View>
 
       <Card style={styles.panel}>
@@ -310,21 +310,28 @@ const styles = StyleSheet.create({
     maxWidth: 340,
   },
   definition: {
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    paddingTop: 13,
-    gap: 4,
+    gap: 3,
     maxWidth: 340,
   },
-  definitionTitle: {
-    fontFamily: fonts.sansSemi,
-    fontSize: 15,
+  definitionTermRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  definitionTerm: {
+    fontFamily: fonts.sansExtra,
+    fontSize: 22,
     color: colors.ink,
   },
+  definitionPart: {
+    fontFamily: fonts.serifItalic,
+    fontSize: 13,
+    color: colors.muted,
+  },
   definitionBody: {
-    fontFamily: fonts.bodyLight,
+    fontFamily: fonts.serifItalic,
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 20,
     color: colors.inkSoft,
   },
   panel: { gap: 12 },

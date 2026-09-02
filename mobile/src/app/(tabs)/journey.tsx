@@ -73,63 +73,69 @@ export default function Journey() {
         const latestPhoto = latestEntry?.photoUri ?? p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
-          <Link href={`/vision/${p.id}`} asChild>
-            <Card style={styles.projectRow}>
-              {latestPhoto ? (
-                <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
-              ) : (
-                <Ring pct={s.pct} size={72} stroke={6} />
-              )}
-              <View style={styles.projectText}>
-                <Text style={styles.projectTitle}>{p.title}</Text>
-                <Text style={styles.projectMeta}>
-                  {s.done} of {s.total} jobs · {s.daysIn}{" "}
-                  {s.daysIn === 1 ? "day" : "days"} shown
-                </Text>
-                <Text style={styles.projectVision}>{p.vision}</Text>
-                {(p.recaptures ?? []).length > 0 ? (
-                  <Text style={styles.updateCount}>
-                    {(p.recaptures ?? []).length} progress {p.recaptures?.length === 1 ? "update" : "updates"}
-                  </Text>
-                ) : null}
-              </View>
-              <Text style={styles.chevron}>→</Text>
-            </Card>
-          </Link>
-          {p.id === todayProject?.id ? (
-            <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
-          ) : (
-            <Pressable onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
-              <Text style={styles.switchLink}>Make this today&apos;s project</Text>
-            </Pressable>
-          )}
-          {p.pendingCheckpoint ? (
-            <Pressable
-              onPress={() =>
-                router.push(
-                  `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
-                )
-              }
-              hitSlop={8}
-            >
-              <Text style={styles.logLink}>Finish your check-in →</Text>
-            </Pressable>
-          ) : (p.completedSinceLog ?? 0) > 0 ? (
-            <PrimaryButton
-              label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
-              variant="outline"
-              onPress={() => router.push(`/recapture/${p.id}?kind=optional`)}
-            />
-          ) : null}
-          {p.photoUri && p.endStateImage ? (
-            <Card>
-              <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
-              <BeforeAfter
-                before={p.photoUri}
-                after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
+            <Link href={`/vision/${p.id}`} asChild>
+              <Pressable>
+                <Card style={styles.projectRow}>
+                  {latestPhoto ? (
+                    <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
+                  ) : (
+                    <Ring pct={s.pct} size={72} stroke={6} />
+                  )}
+                  <View style={styles.projectText}>
+                    <Text style={styles.projectTitle}>{p.title}</Text>
+                    <Text style={styles.projectMeta}>
+                      {s.done} of {s.total} jobs · {s.daysIn}{" "}
+                      {s.daysIn === 1 ? "day" : "days"} shown
+                    </Text>
+                    <Text style={styles.projectVision}>{p.vision}</Text>
+                    <Text style={styles.visionAction}>
+                      Open vision &amp; full plan
+                    </Text>
+                    {(p.recaptures ?? []).length > 0 ? (
+                      <Text style={styles.updateCount}>
+                        {(p.recaptures ?? []).length} progress{" "}
+                        {p.recaptures?.length === 1 ? "update" : "updates"}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Text style={styles.chevron}>→</Text>
+                </Card>
+              </Pressable>
+            </Link>
+            {p.id === todayProject?.id ? (
+              <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
+            ) : (
+              <Pressable onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
+                <Text style={styles.switchLink}>Make this today&apos;s project</Text>
+              </Pressable>
+            )}
+            {p.pendingCheckpoint ? (
+              <Pressable
+                onPress={() =>
+                  router.push(
+                    `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
+                  )
+                }
+                hitSlop={8}
+              >
+                <Text style={styles.logLink}>Finish your check-in →</Text>
+              </Pressable>
+            ) : (p.completedSinceLog ?? 0) > 0 ? (
+              <PrimaryButton
+                label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
+                variant="outline"
+                onPress={() => router.push(`/recapture/${p.id}?kind=optional`)}
               />
-            </Card>
-          ) : null}
+            ) : null}
+            {p.photoUri && p.endStateImage ? (
+              <Card>
+                <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
+                <BeforeAfter
+                  before={p.photoUri}
+                  after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
+                />
+              </Card>
+            ) : null}
           </View>
         );
       })}
@@ -141,31 +147,41 @@ export default function Journey() {
           .find((entry) => entry.photoUri)?.photoUri ?? p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
-          <Link href={`/vision/${p.id}`} asChild>
-            <Card style={StyleSheet.flatten([styles.projectRow, styles.finishedRow])}>
-              {latestPhoto ? (
-                <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
-              ) : (
-                <Ring pct={100} size={72} stroke={6} />
-              )}
-              <View style={styles.projectText}>
-                <Text style={styles.projectTitle}>{p.title}</Text>
-                <Text style={styles.finishedLabel}>
-                  Finished · {s.total} tiny visits
-                </Text>
-              </View>
-              <Text style={styles.chevron}>→</Text>
-            </Card>
-          </Link>
-          {p.photoUri && p.endStateImage ? (
-            <Card>
-              <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
-              <BeforeAfter
-                before={p.photoUri}
-                after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
-              />
-            </Card>
-          ) : null}
+            <Link href={`/vision/${p.id}`} asChild>
+              <Pressable>
+                <Card
+                  style={StyleSheet.flatten([
+                    styles.projectRow,
+                    styles.finishedRow,
+                  ])}
+                >
+                  {latestPhoto ? (
+                    <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
+                  ) : (
+                    <Ring pct={100} size={72} stroke={6} />
+                  )}
+                  <View style={styles.projectText}>
+                    <Text style={styles.projectTitle}>{p.title}</Text>
+                    <Text style={styles.finishedLabel}>
+                      Finished · {s.total} tiny visits
+                    </Text>
+                    <Text style={styles.visionAction}>
+                      Open vision &amp; full plan
+                    </Text>
+                  </View>
+                  <Text style={styles.chevron}>→</Text>
+                </Card>
+              </Pressable>
+            </Link>
+            {p.photoUri && p.endStateImage ? (
+              <Card>
+                <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
+                <BeforeAfter
+                  before={p.photoUri}
+                  after={`data:${p.endStateImageMimeType ?? "image/png"};base64,${p.endStateImage}`}
+                />
+              </Card>
+            ) : null}
           </View>
         );
       })}
@@ -242,6 +258,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.serifItalic,
     fontSize: 13.5,
     color: colors.inkSoft,
+  },
+  visionAction: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 13,
+    color: colors.accentInk,
+    marginTop: 2,
   },
   updateCount: {
     fontFamily: fonts.bodySemi,

@@ -49,7 +49,6 @@ function Routes() {
       }}
     >
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="vision/[id]" />
       <Stack.Screen name="login" />
       <Stack.Screen name="auth" />
       <Stack.Screen name="name" />
