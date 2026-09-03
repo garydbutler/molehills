@@ -50,14 +50,16 @@ export async function POST(request: NextRequest) {
   const token = crypto.randomUUID().replace(/-/g, "");
 
   let alreadyVerified = false;
+  let isNewSignup = false;
   try {
     const result = await sql`
       INSERT INTO early_access_signups (email, confirmation_token)
       VALUES (${email}, ${token})
       ON CONFLICT (email) DO UPDATE SET confirmation_token = ${token}
-      RETURNING verified_at
+      RETURNING verified_at, (xmax = 0) AS inserted
     `;
     alreadyVerified = result.rows[0]?.verified_at != null;
+    isNewSignup = result.rows[0]?.inserted === true;
   } catch {
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
@@ -74,13 +76,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const resend = new Resend(apiKey);
+  const from = process.env.RESEND_FROM ?? "Inchmeal <noreply@inchmeal.app>";
+
   if (!alreadyVerified) {
     try {
-      const resend = new Resend(apiKey);
       const message = confirmationEmail(request.nextUrl.origin, token);
       await resend.emails.send({
-        from:
-          process.env.RESEND_FROM ?? "Inchmeal <noreply@inchmeal.app>",
+        from,
         to: email,
         subject: message.subject,
         html: message.html,
@@ -91,6 +94,21 @@ export async function POST(request: NextRequest) {
         { ok: true, emailed: false },
         { status: 201 },
       );
+    }
+  }
+
+  // ponytail: hardcoded owner address — deliberate, per request. A miss here
+  // must never fail the signup, so it's fire-and-forget.
+  if (isNewSignup) {
+    try {
+      await resend.emails.send({
+        from,
+        to: "garydbutler@gmail.com",
+        subject: `New waitlist signup: ${email}`,
+        text: `${email} just joined the Inchmeal waitlist (not yet confirmed).`,
+      });
+    } catch (e) {
+      console.warn("Waitlist owner notification failed:", e);
     }
   }
 
