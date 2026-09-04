@@ -30,6 +30,12 @@ const GRANTING = new Set([
    end of the period it was paid for. */
 const REVOKING = new Set(["EXPIRATION", "REFUND", "SUBSCRIPTION_PAUSED"]);
 
+/* A real account id, not the anonymous one RevenueCat mints per device before
+   sign-in. Transfer lists carry both. */
+function isAccountId(id: string): boolean {
+  return !!id && !id.startsWith("$RCAnonymousID:");
+}
+
 export async function POST(request: NextRequest) {
   const secret = process.env.REVENUECAT_WEBHOOK_SECRET;
   if (!secret) {
@@ -46,6 +52,8 @@ export async function POST(request: NextRequest) {
       type?: string;
       app_user_id?: string;
       expiration_at_ms?: number | null;
+      transferred_from?: string[];
+      transferred_to?: string[];
     };
   };
   try {
@@ -59,20 +67,81 @@ export async function POST(request: NextRequest) {
   // app_user_id is what the app passed to Purchases.logIn — our OAuth subject.
   const appUserId = event?.app_user_id;
 
-  if (!type || !appUserId) {
-    return NextResponse.json({ error: "Missing event type or app_user_id" }, { status: 400 });
+  if (!type) {
+    return NextResponse.json({ error: "Missing event type" }, { status: 400 });
+  }
+
+  /*
+    TRANSFER is the one event with no `app_user_id`: it names a `transferred_from`
+    and a `transferred_to` instead, because the subscription just moved between
+    identities — someone who bought while signed in with Google, then signed in
+    with Apple. Entitlement here is keyed by identity, so it has to move too, or
+    the new identity is a paying customer the server has never heard of and the
+    old one keeps access it no longer owns.
+
+    This used to fall through to the guard above and answer 400, which made
+    RevenueCat retry six times and then give up — the transfer silently lost.
+  */
+  if (type === "TRANSFER") {
+    const from = (event?.transferred_from ?? []).filter(isAccountId);
+    const to = (event?.transferred_to ?? []).filter(isAccountId);
+
+    // Carry the real expiry across rather than inventing one; the event itself
+    // carries no expiration_at_ms.
+    let expiresAt: string | null = null;
+    let wasPro = false;
+    for (const sub of from) {
+      const { rows } = await sql`
+        SELECT is_pro, pro_expires_at FROM users WHERE sub = ${sub}
+      `;
+      if (rows[0]?.is_pro) {
+        wasPro = true;
+        expiresAt = rows[0].pro_expires_at
+          ? new Date(rows[0].pro_expires_at as string).toISOString()
+          : null;
+        break;
+      }
+    }
+
+    for (const sub of to) {
+      await sql`
+        INSERT INTO users (sub, is_pro, pro_expires_at, rc_updated_at)
+        VALUES (${sub}, ${wasPro}, ${expiresAt}, now())
+        ON CONFLICT (sub) DO UPDATE
+          SET is_pro = ${wasPro},
+              pro_expires_at = ${expiresAt},
+              rc_updated_at = now()
+      `;
+    }
+
+    // The old identity no longer holds the receipt.
+    for (const sub of from) {
+      await sql`
+        UPDATE users SET is_pro = false, pro_expires_at = null, rc_updated_at = now()
+        WHERE sub = ${sub}
+      `;
+    }
+
+    return NextResponse.json({ ok: true, type, moved: to.length, pro: wasPro });
+  }
+
+  if (!appUserId) {
+    // Well-formed but not something we act on. 200, because a 4xx here makes
+    // RevenueCat retry and eventually disable the webhook.
+    return NextResponse.json({ ok: true, ignored: `${type} without app_user_id` });
   }
 
   // Anonymous RevenueCat ids belong to a device that never signed in, so there
   // is no account to credit. Acknowledge so RevenueCat stops retrying.
-  if (appUserId.startsWith("$RCAnonymousID:")) {
+  if (!isAccountId(appUserId)) {
     return NextResponse.json({ ok: true, ignored: "anonymous" });
   }
 
   const grants = GRANTING.has(type);
   const revokes = REVOKING.has(type);
   if (!grants && !revokes) {
-    // TRANSFER, BILLING_ISSUE, CANCELLATION and friends: nothing to change.
+    // BILLING_ISSUE, CANCELLATION and friends: access is unchanged until it
+    // actually lapses, and EXPIRATION will say so when it does.
     return NextResponse.json({ ok: true, ignored: type });
   }
 

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Inchmeal**
+**Unbig**
 
 **Last updated: 29 August 2026**
 **Effective: 29 August 2026**
@@ -9,29 +9,29 @@
 
 ## 1. Who we are
 
-This Privacy Policy explains how **Gary Butler**, doing business as **Inchmeal**
-("Inchmeal", "we", "us", or "our"), collects, uses, and shares personal
+This Privacy Policy explains how **Gary Butler**, doing business as **Unbig**
+("Unbig", "we", "us", or "our"), collects, uses, and shares personal
 information when you:
 
-- visit **inchmeal.app** and join the waitlist (the "**Website**"), and
-- use the Inchmeal mobile app for iOS and Android (the "**App**").
+- visit **unbig.app** and join the waitlist (the "**Website**"), and
+- use the Unbig mobile app for iOS and Android (the "**App**").
 
 Together we call the Website and the App the "**Service**".
 
 For people in the European Economic Area ("EEA"), the United Kingdom ("UK"), or
-other regions with similar laws, **Gary Butler (d/b/a Inchmeal)** is the "data
+other regions with similar laws, **Gary Butler (d/b/a Unbig)** is the "data
 controller" of your personal information. You can reach us at
-**hello@molehills.app** (postal address: 109885 S 4743 RD, Muldrow, OK 74948).
+**contact@unbig.app** (postal address: 109885 S 4743 RD, Muldrow, OK 74948).
 
 ---
 
-## 2. A note on what Inchmeal is — and isn't
+## 2. A note on what Unbig is — and isn't
 
-Inchmeal is a productivity companion designed to be friendly to people with ADHD
+Unbig is a productivity companion designed to be friendly to people with ADHD
 and to anyone facing a task that feels too big to start. **It is not a medical
 device, and it does not diagnose, treat, or provide advice about ADHD or any
 other health condition.** We do not require, ask for, or knowingly collect any
-medical diagnosis. Using Inchmeal is not evidence of any health condition, and we
+medical diagnosis. Using Unbig is not evidence of any health condition, and we
 do not treat your use of the Service as health information.
 
 ---
@@ -58,7 +58,7 @@ how it reaches us.
 - **Notes.** For projects you cannot photograph, you may instead type a short note
   describing what changed. **Please do not paste the underlying work itself** (for
   example, the text of a dissertation, a legal filing, or a private message) —
-  Inchmeal only needs a sentence about what moved, not the work.
+  Unbig only needs a sentence about what moved, not the work.
 
 ### 3.2 Information created when you use the Service
 
@@ -118,7 +118,7 @@ verdict). This is what makes the core features work.
 
 - We send Google only what is needed for the request — for example the photo you
   captured and a short summary of the project's steps.
-- **Inchmeal's servers do not retain your photo or note** after returning the
+- **Unbig's servers do not retain your photo or note** after returning the
   result to your device. Google may retain prompts, uploaded files, and model
   output for up to 55 days for abuse monitoring, policy enforcement, and legal
   or regulatory requirements. Google states that content submitted through its
@@ -146,10 +146,10 @@ verdict). This is what makes the core features work.
 If you join the waitlist, we will use your email address **only** to:
 
 1. send you one email asking you to confirm your address (double opt‑in), and
-2. send you one email when Inchmeal is ready to try.
+2. send you one email when Unbig is ready to try.
 
 We will not sell it, rent it, or use it for unrelated marketing. You can ask us to
-delete your address at any time by emailing **hello@molehills.app**, and every
+delete your address at any time by emailing **contact@unbig.app**, and every
 launch email will include an unsubscribe option.
 
 ---
@@ -174,7 +174,7 @@ happened.
 ## 8. When we share information
 
 We do not sell your personal information. We share it only with the service
-providers ("subprocessors") that help us run Inchmeal, and only as needed. As of
+providers ("subprocessors") that help us run Unbig, and only as needed. As of
 the date above, these are:
 
 | Provider | Purpose | Data involved |
@@ -188,7 +188,7 @@ the date above, these are:
 | **Google LLC (Google Play)** | Android App distribution and billing | Transaction, subscription, device, and diagnostic data per the store |
 
 We may also disclose information if required by law, to enforce our Terms, or to
-protect the rights, safety, and security of our users, the public, or Inchmeal;
+protect the rights, safety, and security of our users, the public, or Unbig;
 and in connection with a merger, acquisition, or sale of assets (we will notify you
 of any such change).
 
@@ -239,7 +239,7 @@ your personal information:
 - **Data portability** — receive your information in a portable format.
 - **Not be discriminated against** for exercising these rights.
 
-To exercise any of these, email **hello@molehills.app**. We will respond within
+To exercise any of these, email **contact@unbig.app**. We will respond within
 the time required by applicable law. Because much of your content is stored only on
 your device, you can also exercise many of these rights directly — by editing or
 deleting projects in the App, or removing the App.
@@ -268,9 +268,9 @@ Contractual Clauses (and the UK Addendum) or an adequacy decision.
 
 ## 13. Age requirement
 
-Inchmeal is for adults aged **18 and over**. We do not knowingly allow anyone
+Unbig is for adults aged **18 and over**. We do not knowingly allow anyone
 under 18 to create an account or use the App. If you believe someone under 18 has
-provided us personal information, contact **hello@molehills.app** and we will
+provided us personal information, email **contact@unbig.app** and we will
 investigate and delete it where appropriate.
 
 ---
@@ -296,9 +296,9 @@ after an update means you accept the revised policy.
 
 Questions, requests, or concerns about privacy?
 
-**Email:** hello@molehills.app
-**Post:** Gary Butler (d/b/a Inchmeal), 109885 S 4743 RD, Muldrow, OK 74948
+**Email:** contact@unbig.app
+**Post:** Gary Butler (d/b/a Unbig), 109885 S 4743 RD, Muldrow, OK 74948
 
 ---
 
-*© 2026 Inchmeal. This policy covers inchmeal.app and the Inchmeal mobile app.*
+*© 2026 Unbig. This policy covers unbig.app and the Unbig mobile app.*

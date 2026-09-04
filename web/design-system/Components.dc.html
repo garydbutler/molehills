@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --paper: oklch(0.975 0.008 85); --paper-deep: oklch(0.945 0.014 86);
+      --surface: oklch(0.993 0.004 90); --tint: oklch(0.926 0.022 293);
+      --tint-deep: oklch(0.845 0.045 292); --ink: oklch(0.265 0.075 285);
+      --ink-soft: oklch(0.375 0.072 285); --muted: oklch(0.505 0.055 285);
+      --faint: oklch(0.545 0.045 285); --line: oklch(0.265 0.075 285 / 0.16);
+      --line-soft: oklch(0.265 0.075 285 / 0.08); --accent: oklch(0.565 0.19 285);
+      --accent-hover: oklch(0.50 0.195 285); --accent-ink: oklch(0.48 0.185 285);
+      --clay: oklch(0.72 0.115 45); --bone: oklch(0.955 0.014 88);
+      --dusk: oklch(0.285 0.08 285); --dusk-mute: oklch(0.735 0.045 288);
+      --serif: 'Caveat', cursive; --sans: 'Montserrat', system-ui, sans-serif;
+      --body: 'Nunito Sans', system-ui, sans-serif; --mono: 'IBM Plex Mono', Menlo, monospace;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--body); color: var(--ink-soft); background: var(--paper); }
+    .sheet { position: relative; width: 1240px; min-height: 2160px; background: var(--paper); padding: 72px; }
+    .sheet::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.16  0 0 0 0 0.21  0 0 0 0.055 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      background-size: 240px 240px; mix-blend-mode: multiply;
+    }
+    .sheet > * { position: relative; z-index: 1; }
+    a { color: var(--accent-ink); text-decoration: none; } a:hover { color: var(--accent-hover); }
+
+    .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); display: inline-flex; align-items: center; gap: 12px; }
+    .eyebrow::before { content: ''; width: 26px; height: 1px; background: var(--clay); display: inline-block; }
+    .page-title { font-family: var(--sans); font-weight: 800; font-size: 46px; letter-spacing: -0.03em; color: var(--ink); margin: 16px 0 0; }
+
+    .block { margin-top: 56px; }
+    .block-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px dotted var(--line); padding-bottom: 12px; margin-bottom: 26px; }
+    .block-title { font-family: var(--sans); font-weight: 700; font-size: 22px; letter-spacing: -0.015em; color: var(--ink); }
+    .block-meta { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+
+    /* Buttons */
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: 15.5px; font-weight: 600; color: var(--paper); background: var(--accent); border: 1px solid var(--accent); padding: 16px 30px; border-radius: 999px; cursor: pointer; }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); font-size: 15px; font-weight: 500; color: var(--ink-soft); background: transparent; border: 1px solid var(--line); padding: 15px 26px; border-radius: 999px; cursor: pointer; }
+    .nav-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--paper); background: var(--accent); padding: 11px 22px; border-radius: 999px; border: 1px solid var(--accent); }
+    .btn-note { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); flex-basis: 100%; margin-top: 4px; }
+
+    /* Chips */
+    .chip { font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--ink-soft); border: 1px dotted var(--line); background: var(--surface); border-radius: 999px; padding: 12px 22px; }
+    .chip i { color: var(--clay); font-style: normal; margin-right: 8px; }
+    .hero-chip { display: inline-flex; align-items: center; gap: 9px; font-family: var(--body); font-size: 14.5px; font-weight: 500; color: var(--ink-soft); }
+    .chip-icon { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto; }
+    .chip-grow { background: oklch(0.90 0.055 148); color: oklch(0.44 0.09 150); }
+    .chip-focus { background: oklch(0.90 0.050 250); color: oklch(0.46 0.12 255); }
+    .chip-momentum { background: oklch(0.92 0.060 85); color: oklch(0.52 0.11 70); }
+    .chip-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Input */
+    .waitlist-row { display: flex; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px; max-width: 520px; }
+    .waitlist-row input { flex: 1; min-width: 0; border: none; background: transparent; font-family: var(--sans); font-size: 15.5px; color: var(--ink); padding: 12px 10px 12px 20px; }
+    .waitlist-row input::placeholder { color: var(--faint); }
+    .waitlist-row .btn-primary { padding: 13px 26px; font-size: 14.5px; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px; max-width: 720px; }
+    .method-step { background: var(--surface); border: 1px solid var(--line-soft); padding: 26px 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+    .step-no { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+    .step-glyph { width: 64px; height: 64px; border-radius: 50%; background: var(--tint); display: flex; align-items: center; justify-content: center; }
+    .step-glyph svg { width: 32px; height: 32px; stroke: var(--ink); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .method-step h3 { font-family: var(--sans); font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
+    .method-step p { font-size: 14.5px; line-height: 1.6; color: var(--muted); margin: 0; }
+
+    .space-tile { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 18px; padding: 22px 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .space-glyph { width: 46px; height: 46px; border-radius: 12px; background: var(--tint); display: flex; align-items: center; justify-content: center; }
+    .space-glyph svg { width: 26px; height: 26px; stroke: var(--ink); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .space-tile h3 { font-family: var(--sans); font-size: 15.5px; font-weight: 700; line-height: 1.3; margin: 0; color: var(--ink); }
+    .space-tile p { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; max-width: 720px; }
+
+    /* Task rows */
+    .tasks { list-style: none; display: flex; flex-direction: column; gap: 9px; max-width: 380px; margin: 0; padding: 0; }
+    .task { display: flex; align-items: center; gap: 11px; background: var(--paper); border: 1px solid var(--line-soft); border-radius: 16px; padding: 11px 13px; }
+    .task-check { position: relative; width: 26px; height: 26px; flex: none; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); display: flex; align-items: center; justify-content: center; }
+    .task-check svg { width: 13px; height: 13px; stroke: var(--surface); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+    .task.done .task-check { background: var(--accent); border-color: var(--accent); }
+    .task.done .task-check svg { opacity: 1; }
+    .task-text b { display: block; font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .task-text span { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .task.done .task-text b { color: var(--muted); text-decoration: line-through; }
+
+    /* index label + eyebrow demo */
+    .index-label { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); display: inline-flex; align-items: center; gap: 12px; }
+    .index-label::before { content: ''; width: 26px; height: 1px; background: var(--clay); display: inline-block; }
+    .display-demo { font-family: var(--sans); font-weight: 800; font-size: 40px; letter-spacing: -0.03em; line-height: 1.04; color: var(--ink); margin-top: 14px; }
+    .display-demo em { font-style: normal; font-weight: 700; color: var(--accent); text-decoration: underline; text-decoration-color: var(--tint-deep); text-decoration-thickness: 0.06em; text-underline-offset: 0.14em; }
+
+    /* nav */
+    .nav { background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px; padding: 18px 26px; display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 900px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--sans); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; color: var(--ink); }
+    .brand-mark { width: 40px; height: 40px; border-radius: 11px; background: var(--tint); display: inline-flex; align-items: center; justify-content: center; }
+    .brand-mark svg { width: 22px; height: 22px; stroke: var(--accent-ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .brand .dot { color: var(--clay); }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--ink-soft); border-bottom: 1px solid transparent; padding-bottom: 2px; }
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div class="eyebrow">Unbig · Design System</div>
+  <h1 class="page-title">Components</h1>
+
+  <!-- BUTTONS -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Buttons</div><div class="block-meta">pill · Montserrat 600 · lift on hover</div></div>
+    <div class="row">
+      <button class="btn-primary">Join the waitlist
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <button class="btn-ghost">See how it works</button>
+      <span class="nav-cta">Get the app</span>
+      <div class="btn-note">Primary — accent fill · Ghost — hairline outline · Nav CTA — compact accent (min 44px hit target)</div>
+    </div>
+  </div>
+
+  <!-- CHIPS -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Chips &amp; tags</div><div class="block-meta">pill · dotted or tinted</div></div>
+    <div class="row" style="gap: 22px;">
+      <span class="hero-chip"><span class="chip-icon chip-grow"><svg viewBox="0 0 24 24"><path d="M12 20V10M12 10c0-3 2-5 5-5M12 10c0-3-2-5-5-5"/></svg></span>Grows with you</span>
+      <span class="hero-chip"><span class="chip-icon chip-focus"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg></span>One thing at a time</span>
+      <span class="hero-chip"><span class="chip-icon chip-momentum"><svg viewBox="0 0 24 24"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg></span>Momentum, not pressure</span>
+    </div>
+    <div class="row" style="margin-top: 20px;">
+      <span class="chip"><i>—</i>No streaks</span>
+      <span class="chip"><i>—</i>No timers</span>
+      <span class="chip"><i>—</i>No guilt</span>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Waitlist input</div><div class="block-meta">inline field + button in one pill</div></div>
+    <div class="waitlist-row">
+      <input type="email" placeholder="you@example.com" value="">
+      <button class="btn-primary">Notify me</button>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Cards</div><div class="block-meta">square method steps · rounded space tiles</div></div>
+    <div class="cards">
+      <div class="method-step">
+        <div class="step-no"><span>01</span><span>——</span></div>
+        <div class="step-glyph"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M7 9l3 3 5-5"/></svg></div>
+        <h3>Show it the big thing</h3>
+        <p>A photo of the mess, or one sentence. That's the whole input.</p>
+      </div>
+      <div class="method-step">
+        <div class="step-no"><span>02</span><span>——</span></div>
+        <div class="step-glyph"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg></div>
+        <h3>Get a plan of small steps</h3>
+        <p>Unbig breaks it into pieces small enough to actually begin.</p>
+      </div>
+    </div>
+    <div class="tiles" style="margin-top: 22px;">
+      <div class="space-tile"><div class="space-glyph"><svg viewBox="0 0 24 24"><path d="M3 12l2-2 4 4 8-8 4 4"/><path d="M3 20h18"/></svg></div><h3>Kitchen</h3><p>One counter at a time.</p></div>
+      <div class="space-tile"><div class="space-glyph"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16"/></svg></div><h3>Inbox</h3><p>Reply, archive, done.</p></div>
+      <div class="space-tile"><div class="space-glyph"><svg viewBox="0 0 24 24"><path d="M12 3l8 4-8 4-8-4 8-4zM4 12l8 4 8-4"/></svg></div><h3>Garage</h3><p>Shelf by shelf.</p></div>
+    </div>
+  </div>
+
+  <!-- TASK ROWS -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Task rows</div><div class="block-meta">the three-a-day list · default &amp; done</div></div>
+    <ul class="tasks">
+      <li class="task"><span class="task-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-11"/></svg></span><span class="task-text"><b>Clear the top of the desk</b><span>Step 1 of 3</span></span></li>
+      <li class="task done"><span class="task-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-11"/></svg></span><span class="task-text"><b>Sort the mail pile</b><span>Done</span></span></li>
+      <li class="task"><span class="task-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-11"/></svg></span><span class="task-text"><b>Wipe the counter</b><span>Step 3 of 3</span></span></li>
+    </ul>
+  </div>
+
+  <!-- SECTION HEADERS -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Section header</div><div class="block-meta">mono index label + clay rule → display with accent</div></div>
+    <div class="index-label">02 — The method</div>
+    <div class="display-demo">Big things, made <em>small enough</em> to start.</div>
+  </div>
+
+  <!-- NAV -->
+  <div class="block">
+    <div class="block-head"><div class="block-title">Navigation bar</div><div class="block-meta">wordmark · links · one CTA</div></div>
+    <div class="nav">
+      <span class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M4 20c0-6 3.5-9 8-9s8 3 8 9"/><path d="M12 11V4M9 6l3-2 3 2"/></svg></span>Unbig<span class="dot">.</span></span>
+      <span class="nav-links"><a>How it works</a><a>The method</a><a>Spaces</a></span>
+      <span class="nav-cta">Get the app</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

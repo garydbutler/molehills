@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@600;700&family=Nunito+Sans:wght@300;400;600&display=swap');
+    body { margin: 0; background: #211C4E; font-family: 'Nunito Sans', system-ui, sans-serif; }
+    a { color: #C9C2EE; text-decoration: none; transition: color .18s; }
+    a:hover { color: #FFFFFF; }
+    input { font-family: 'Nunito Sans', system-ui, sans-serif; }
+    input::placeholder { color: #9C95CF; }
+    .cta-btn { transition: background .18s; }
+    .cta-btn:hover { background: #8471F0; }
+  </style>
+</helmet>
+<div style="width: 1280px; background: #211C4E; color: #F8F5EF; box-sizing: border-box;">
+  <div style="max-width: 1128px; margin: 0 auto; padding: 64px 76px 40px; box-sizing: border-box;">
+
+    <!-- CTA banner -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 56px; flex-wrap: wrap;">
+      <div style="max-width: 460px;">
+        <p style="margin: 0 0 10px; font-family: 'Caveat', cursive; font-size: 23px; line-height: 1; color: #B8B2DE; transform: rotate(-2deg);">Little and often.</p>
+        <h2 style="margin: 0; font-size: 34px; line-height: 1.12; font-weight: 300; letter-spacing: -.02em; text-wrap: balance;">One photo. Or one sentence. We&#39;ll do the rest.</h2>
+      </div>
+      <div style="flex: 1 1 380px; min-width: 300px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="email" placeholder="you@example.com" style="flex: 1 1 200px; min-width: 200px; padding: 14px 18px; border-radius: 999px; border: 1px solid rgba(248,245,239,.25); background: rgba(248,245,239,.06); font-size: 16px; color: #F8F5EF; outline: none; box-sizing: border-box;">
+          <button class="cta-btn" style="padding: 14px 24px; border-radius: 999px; border: none; background: #6D5BE3; color: #FFFFFF; font-size: 16px; font-weight: 600; font-family: 'Nunito Sans', system-ui, sans-serif; cursor: pointer;">Get early access</button>
+        </div>
+        <p style="margin: 12px 4px 0; font-size: 13.5px; line-height: 1.5; color: #9C95CF;">One email when it launches. We won&#39;t use your address for anything else.</p>
+      </div>
+    </div>
+
+    <!-- divider -->
+    <div style="height: 1px; background: rgba(248,245,239,.14); margin: 40px 0 28px;"></div>
+
+    <!-- footer row -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; flex-wrap: wrap;">
+      <div style="max-width: 300px;">
+        <p style="margin: 0; font-family: 'Montserrat', system-ui, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -.01em; color: #F8F5EF;">Unbig</p>
+        <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.55; color: #B8B2DE;">Make big things small enough to start.</p>
+      </div>
+      <div style="display: flex; gap: 56px; flex-wrap: wrap; font-size: 14.5px;">
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <a href="#method">How it works</a>
+          <a href="#app">The app</a>
+          <a href="#spaces">Where it helps</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <a href="#principles">Principles</a>
+          <a href="#weight">Why Unbig exists</a>
+          <a href="mailto:hello@unbig.app">hello@unbig.app</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <a href="/privacy-policy">Privacy</a>
+          <a href="/terms-of-service">Terms</a>
+          <a href="/support">Support</a>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin: 28px 0 0; font-size: 13px; color: #756FA0;">&copy; 2026 Unbig &middot; unbig.app &middot; formerly Inchmeal</p>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

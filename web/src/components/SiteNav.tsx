@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 export default function SiteNav() {
@@ -31,20 +32,29 @@ export default function SiteNav() {
     >
       <div className="container">
         <div className="nav-inner">
-          <a className="brand" href="#top">
+          <a
+            className="brand"
+            href="#top"
+            aria-label="UNBIG home"
+            aria-describedby="brand-definition"
+          >
             <span className="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 16 16" width="14" height="14">
-                <path
-                  d="M2.5 12.5 L6.5 5.5 L9 9.5 L11 6.5 L13.5 12.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Image
+                src="/images/mascots/inchworm-measuring-tape-site-palette.png"
+                alt=""
+                width={48}
+                height={48}
+                priority
+              />
             </span>
-            Inchmeal<span className="dot">.</span>
+            <span className="brand-lockup">
+              <span className="brand-name">
+                UNBIG<span className="dot">.</span>
+              </span>
+              <span className="brand-definition" id="brand-definition">
+                <span>verb</span> to make a big thing small enough to start
+              </span>
+            </span>
           </a>
           <div className="nav-links">
             <a href="#method">How it works</a>
@@ -52,8 +62,9 @@ export default function SiteNav() {
             <a href="#spaces">Where it helps</a>
             <a href="#principles">Principles</a>
           </div>
-          <a className="nav-cta" href="#waitlist">
-            Join the waitlist
+          <a className="nav-cta" href="#waitlist" aria-label="Join the waitlist">
+            <span className="nav-cta-full">Join the waitlist</span>
+            <span className="nav-cta-short" aria-hidden="true">Join</span>
           </a>
         </div>
       </div>

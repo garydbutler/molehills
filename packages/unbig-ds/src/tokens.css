@@ -1,0 +1,36 @@
+/*
+  Unbig design tokens — the single source of truth for the design system's
+  palette and type stack. Every component references these via var(--unbig-*).
+  Values are lifted verbatim from the Unbig web app (globals.css).
+*/
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Grounds */
+  --unbig-paper: oklch(0.975 0.008 85);
+  --unbig-paper-deep: oklch(0.945 0.014 86);
+  --unbig-surface: oklch(0.993 0.004 90);
+  --unbig-bone: oklch(0.955 0.014 88);
+  --unbig-tint: oklch(0.926 0.022 293);
+  --unbig-tint-deep: oklch(0.845 0.045 292);
+  /* Ink */
+  --unbig-ink: oklch(0.265 0.075 285);
+  --unbig-ink-soft: oklch(0.375 0.072 285);
+  --unbig-muted: oklch(0.505 0.055 285);
+  --unbig-faint: oklch(0.545 0.045 285);
+  --unbig-line: oklch(0.265 0.075 285 / 0.16);
+  --unbig-line-soft: oklch(0.265 0.075 285 / 0.08);
+  /* Accents + dark */
+  --unbig-accent: oklch(0.565 0.19 285);
+  --unbig-accent-hover: oklch(0.50 0.195 285);
+  --unbig-accent-ink: oklch(0.48 0.185 285);
+  --unbig-clay: oklch(0.72 0.115 45);
+  --unbig-danger: oklch(0.52 0.17 27);
+  --unbig-dusk: oklch(0.285 0.08 285);
+  --unbig-dusk-mute: oklch(0.735 0.045 288);
+  /* Type */
+  --unbig-sans: 'Montserrat', 'Avenir Next', system-ui, sans-serif;
+  --unbig-serif: 'Caveat', 'Segoe Script', cursive;
+  --unbig-body: 'Nunito Sans', -apple-system, system-ui, sans-serif;
+  --unbig-mono: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+}

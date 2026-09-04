@@ -7,6 +7,9 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "environment": "development"
     },
     "development-simulator": {
@@ -24,6 +27,10 @@
   },
   "submit": {
     "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
       "ios": {
         "appleId": "garydbutler@gmail.com",
         "ascAppId": "6806639112",

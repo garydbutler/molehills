@@ -7,7 +7,6 @@
 import {
   ActivityIndicator,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,31 +18,19 @@ import * as WebBrowser from "expo-web-browser";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { radii } from "@/theme/tokens";
 import {
+  BrandLogo,
   Card,
   Field,
   Kicker,
-  Mascot,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 import { API_URL, AUTH_REDIRECT_URI, PRIVACY_URL, TERMS_URL } from "@/lib/site";
-import { setAuthToken } from "@/lib/auth-token";
-
-
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = parts[1];
-    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
+import { setAuthToken, decodeJwtPayload } from "@/lib/auth-token";
 
 type OAuthProvider = "google";
 
@@ -198,36 +185,26 @@ export default function Login() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.hero}>
-        <Mascot pose="wave" height={88} style={styles.mascot} />
+        <BrandLogo style={styles.logo} />
         <Kicker>A calmer way to get things done</Kicker>
         <Text style={styles.title}>
           Big things,{"\n"}
           finished <SerifEm>gently</SerifEm>.
         </Text>
         <Text style={styles.lead}>
-          Show Inchmeal where the thing stands — a photo, or one sentence. It
+          Show unbig where the thing stands — a photo, or one sentence. It
           writes the plan and gives you three small steps a day, never a
           fourth.
         </Text>
-        <View style={styles.definition}>
-          <Text style={styles.definitionTitle}>Why “Inchmeal”?</Text>
-          <Text style={styles.definitionBody}>
-            It means little by little—making progress one manageable step at a
-            time.
-          </Text>
-        </View>
       </View>
 
       <Card style={styles.panel}>
         <Text style={styles.panelTitle}>Sign in</Text>
 
-        <Pressable
+        <Press
           onPress={() => handleOAuth("google")}
           disabled={loading !== null}
-          style={({ pressed }) => [
-            styles.oauthBtn,
-            (pressed || loading === "google") && { opacity: 0.7 },
-          ]}
+          style={styles.oauthBtn}
         >
           {loading === "google" ? (
             <ActivityIndicator size="small" color={colors.accentInk} style={{ width: 22 }} />
@@ -235,7 +212,7 @@ export default function Login() {
             <Text style={styles.oauthGlyph}>G</Text>
           )}
           <Text style={styles.oauthLabel}>Continue with Google</Text>
-        </Pressable>
+        </Press>
 
         {appleAvailable && (
           <AppleAuthentication.AppleAuthenticationButton
@@ -279,7 +256,7 @@ export default function Login() {
       </Card>
 
       <Text style={styles.legalNote}>
-        Inchmeal is for adults 18 and over. By continuing, you agree to the{" "}
+        unbig is for adults 18 and over. By continuing, you agree to the{" "}
         <Text style={styles.legalLink} onPress={() => Linking.openURL(TERMS_URL)}>
           Terms
         </Text>{" "}
@@ -303,12 +280,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: colors.paper,
     padding: 24,
-    paddingTop: 72,
-    gap: 26,
+    paddingTop: 56,
+    gap: 20,
   },
-  hero: { gap: 14 },
+  hero: { gap: 16 },
   appleBtn: { height: 52, width: "100%" },
-  mascot: { alignSelf: "flex-start", marginBottom: -2 },
+  logo: { alignSelf: "flex-start", width: "72%", maxWidth: 288, marginBottom: 6 },
+  /* The sign-in headline is the one place the display step is allowed to run
+     larger than 34 — it sits alone under the wordmark with nothing to rank
+     against. Tracking tightens with the size, per DESIGN.md. */
   title: {
     fontFamily: fonts.sansExtra,
     fontSize: 42,
@@ -318,30 +298,15 @@ const styles = StyleSheet.create({
   },
   lead: {
     fontFamily: fonts.bodyLight,
-    fontSize: 16.5,
+    fontSize: 17,
     lineHeight: 25,
     color: colors.inkSoft,
     maxWidth: 340,
   },
-  definition: {
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    paddingTop: 13,
-    gap: 4,
-    maxWidth: 340,
-  },
-  definitionTitle: {
-    fontFamily: fonts.sansSemi,
-    fontSize: 15,
-    color: colors.ink,
-  },
-  definitionBody: {
-    fontFamily: fonts.bodyLight,
-    fontSize: 14,
-    lineHeight: 21,
-    color: colors.inkSoft,
-  },
-  panel: { gap: 12 },
+  // Float the sign-in card toward the bottom so hero + card span the full
+  // height instead of clumping under the notch. Collapses to 0 when the
+  // content is tall enough to scroll (e.g. the dev-only email block).
+  panel: { gap: 12, marginTop: "auto" },
   panelTitle: {
     fontFamily: fonts.monoMedium,
     fontSize: 11,
@@ -368,21 +333,21 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1.5,
     borderColor: colors.line,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingVertical: 13,
     paddingHorizontal: 20,
     backgroundColor: colors.surface,
   },
   oauthGlyph: {
     fontFamily: fonts.sansExtra,
-    fontSize: 18,
+    fontSize: 19,
     color: colors.accentInk,
     width: 22,
     textAlign: "center",
   },
   oauthLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 15.5,
+    fontSize: 17,
     color: colors.ink,
   },
   note: {
@@ -394,17 +359,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: fonts.body,
-    fontSize: 14,
-    color: "#c53030",
+    fontSize: 15,
+    color: colors.danger,
     textAlign: "center",
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: "#fff5f5",
-    borderRadius: 8,
+    backgroundColor: colors.washWarm,
+    borderRadius: radii.control,
   },
   legalNote: {
     fontFamily: fonts.bodyLight,
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 18,
     color: colors.muted,
     textAlign: "center",
@@ -417,10 +382,12 @@ const styles = StyleSheet.create({
   },
   footer: {
     fontFamily: fonts.serifItalic,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
-    marginTop: "auto",
+    // The panel's marginTop:auto owns the flexible space now; the footer
+    // just sits under the legal note.
+    marginTop: 4,
     paddingBottom: 20,
   },
 });

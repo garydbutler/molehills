@@ -28,3 +28,7 @@ graphify-out/
 
 # full-res mascot source art (app ships the resized copies)
 mobile/assets/mascots/_originals/
+
+# scratch / not part of the app
+son-portrait-3d/
+.impeccable/

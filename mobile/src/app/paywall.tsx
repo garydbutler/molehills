@@ -13,22 +13,24 @@
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { PurchasesPackage } from "react-native-purchases";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Headline, Kicker, Mascot, SerifEm } from "@/components/ui";
+import { radii } from "@/theme/tokens";
+import { Card, Headline, Kicker, Mountain, Press, SerifEm } from "@/components/ui";
 import { getPackages, purchase, restore, hasPro } from "@/lib/purchases";
 import { tell } from "@/lib/dialog";
 
 export default function Paywall() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [packages, setPackages] = useState<PurchasesPackage[] | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -76,14 +78,20 @@ export default function Paywall() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
-      <Pressable onPress={close} style={styles.back} hitSlop={8}>
+    <ScrollView style={styles.scroll} contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(24, insets.top + 12),
+          paddingBottom: Math.max(40, insets.bottom + 24),
+        },
+      ]}>
+      <Press onPress={close} style={styles.back} hitSlop={8}>
         <Text style={styles.backLabel}>← Not now</Text>
-      </Pressable>
+      </Press>
 
       <View style={styles.header}>
-        <Mascot pose="measure" height={92} />
-        <Kicker>Inchmeal in full</Kicker>
+        <Mountain state="crumbling" height={82} />
+        <Kicker>unbig in full</Kicker>
         <Headline>
           Keep going, <SerifEm>little and often</SerifEm>.
         </Headline>
@@ -109,13 +117,12 @@ export default function Paywall() {
       ) : (
         <View style={styles.options}>
           {packages.map((pkg) => (
-            <Pressable
+            <Press
               key={pkg.identifier}
               onPress={() => buy(pkg)}
               disabled={busy}
-              style={({ pressed }) => [
+              style={[
                 styles.option,
-                (pressed || busy) && { opacity: 0.6 },
               ]}
             >
               <View style={styles.optionText}>
@@ -129,14 +136,14 @@ export default function Paywall() {
                 ) : null}
               </View>
               <Text style={styles.optionPrice}>{pkg.product.priceString}</Text>
-            </Pressable>
+            </Press>
           ))}
         </View>
       )}
 
-      <Pressable onPress={doRestore} disabled={busy} hitSlop={8}>
+      <Press onPress={doRestore} disabled={busy} hitSlop={8}>
         <Text style={styles.restore}>Restore a purchase</Text>
-      </Pressable>
+      </Press>
 
       <Text style={styles.fine}>
         Subscriptions renew until cancelled, and you can cancel any time in your
@@ -165,7 +172,7 @@ const styles = StyleSheet.create({
   header: { gap: 8, alignItems: "flex-start" },
   lead: {
     fontFamily: fonts.bodyLight,
-    fontSize: 15.5,
+    fontSize: 17,
     lineHeight: 24,
     color: colors.inkSoft,
   },
@@ -186,7 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1.5,
     borderColor: colors.accentInk,
-    borderRadius: 16,
+    borderRadius: radii.frame,
     paddingVertical: 16,
     paddingHorizontal: 18,
   },
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
   },
   optionMeta: {
     fontFamily: fonts.body,
-    fontSize: 13.5,
+    fontSize: 13,
     color: colors.muted,
   },
   optionPrice: {
@@ -208,13 +215,13 @@ const styles = StyleSheet.create({
   },
   restore: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14.5,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
   },
   fine: {
     fontFamily: fonts.bodyLight,
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 19,
     color: colors.faint,
     textAlign: "center",

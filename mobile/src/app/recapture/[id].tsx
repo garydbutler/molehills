@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,11 +13,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { radii } from "@/theme/tokens";
 import {
   Card,
   Field,
   Headline,
   Kicker,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -77,7 +78,7 @@ export default function Recapture() {
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      tell("Permission needed", "Inchmeal needs access to add that photo.");
+      tell("Permission needed", "unbig needs access to add that photo.");
       return;
     }
 
@@ -186,9 +187,9 @@ export default function Recapture() {
       style={styles.scroll}
       contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
     >
-      <Pressable onPress={goBack} style={styles.back}>
+      <Press onPress={goBack} style={styles.back}>
         <Text style={styles.backLabel}>← Back</Text>
-      </Pressable>
+      </Press>
       <View style={styles.header}>
         <Kicker>{kind === "optional" ? "Log progress" : "Checkpoint"}</Kicker>
         <Headline>
@@ -203,16 +204,26 @@ export default function Recapture() {
       {latestPhoto ? (
         <Card style={styles.guideCard}>
           <Text style={styles.guideLabel}>LAST LOOK</Text>
-          <Image source={{ uri: latestPhoto }} resizeMode="cover" style={styles.guide} />
+          <Image
+            accessibilityLabel="Your last check-in photo, for comparison"
+            source={{ uri: latestPhoto }}
+            resizeMode="cover"
+            style={styles.guide}
+          />
         </Card>
       ) : null}
 
       {photoUri ? (
         <Card style={styles.photoCard}>
-          <Image source={{ uri: photoUri }} resizeMode="cover" style={styles.photoPreview} />
-          <Pressable onPress={() => setPhotoUri(undefined)} hitSlop={8}>
+          <Image
+            accessibilityLabel="The photo you just took"
+            source={{ uri: photoUri }}
+            resizeMode="cover"
+            style={styles.photoPreview}
+          />
+          <Press onPress={() => setPhotoUri(undefined)} hitSlop={8}>
             <Text style={styles.removePhoto}>Remove photo</Text>
-          </Pressable>
+          </Press>
         </Card>
       ) : (
         <View style={styles.actions}>
@@ -232,6 +243,12 @@ export default function Recapture() {
         multiline
         maxLength={MAX_NOTE_CHARS}
       />
+      {/* Same rule as Capture: warn before the cap bites, never after. */}
+      {note.length > MAX_NOTE_CHARS - 100 ? (
+        <Text style={styles.counter}>
+          {MAX_NOTE_CHARS - note.length} characters left
+        </Text>
+      ) : null}
       <PrimaryButton
         label={kind === "optional" ? "Save progress" : "Finish check-in"}
         onPress={submit}
@@ -250,19 +267,26 @@ const styles = StyleSheet.create({
   back: { alignSelf: "flex-start" },
   backLabel: { fontFamily: fonts.bodySemi, fontSize: 15, color: colors.accentInk },
   header: { gap: 4 },
-  lead: { fontFamily: fonts.body, fontSize: 15.5, lineHeight: 23, color: colors.inkSoft },
+  lead: { fontFamily: fonts.body, fontSize: 17, lineHeight: 23, color: colors.inkSoft },
   guideCard: { gap: 10 },
-  guideLabel: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1.4, color: colors.muted },
-  guide: { width: "100%", height: 160, borderRadius: 12, opacity: 0.6, backgroundColor: colors.tintDeep },
+  guideLabel: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1.4, color: colors.muted },
+  guide: { width: "100%", height: 160, borderRadius: radii.frame, opacity: 0.6, backgroundColor: colors.tintDeep },
   actions: { gap: 10, alignSelf: "stretch" },
   photoCard: { gap: 10 },
-  photoPreview: { width: "100%", height: 220, borderRadius: 12, backgroundColor: colors.tintDeep },
-  removePhoto: { fontFamily: fonts.bodySemi, fontSize: 14, color: colors.muted, textAlign: "center" },
-  privacyNote: { fontFamily: fonts.serifItalic, fontSize: 13.5, lineHeight: 20, color: colors.muted, textAlign: "center" },
+  photoPreview: { width: "100%", height: 220, borderRadius: radii.frame, backgroundColor: colors.tintDeep },
+  removePhoto: { fontFamily: fonts.bodySemi, fontSize: 15, color: colors.muted, textAlign: "center" },
+  counter: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    letterSpacing: 1,
+    color: colors.muted,
+    textAlign: "right",
+  },
+  privacyNote: { fontFamily: fonts.serifItalic, fontSize: 13, lineHeight: 20, color: colors.muted, textAlign: "center" },
   outcomeCard: { alignItems: "center", gap: 14, paddingVertical: 28 },
-  outcomeGlyph: { fontSize: 34, color: colors.clay },
-  outcomeTitle: { fontFamily: fonts.sansSemi, fontSize: 20, color: colors.ink, textAlign: "center" },
+  outcomeGlyph: { fontSize: 34, color: colors.clayInk },
+  outcomeTitle: { fontFamily: fonts.sansSemi, fontSize: 21, color: colors.ink, textAlign: "center" },
   outcomeBody: { fontFamily: fonts.body, fontSize: 15, lineHeight: 23, color: colors.inkSoft, textAlign: "center" },
   feedbackPending: { flexDirection: "row", alignItems: "center", gap: 10 },
-  feedbackPendingText: { fontFamily: fonts.serifItalic, fontSize: 14, color: colors.muted },
+  feedbackPendingText: { fontFamily: fonts.serifItalic, fontSize: 15, color: colors.muted },
 });

@@ -5,5 +5,5 @@
 // every environment, and needed at module scope by metadata/robots/sitemap.
 // Move to env only if a deploy ever needs a different domain than the source.
 
-export const SITE_URL = "https://inchmeal.app";
-export const CONTACT_EMAIL = "hello@molehills.app";
+export const SITE_URL = "https://unbig.app";
+export const CONTACT_EMAIL = "contact@unbig.app";

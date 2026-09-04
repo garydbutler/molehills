@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SITE_URL as SHARE_URL } from "@/lib/site";
 const SHARE_TEXT =
-  "Big things, finished gently — Inchmeal turns any task that feels too big into three small steps a day.";
+  "Make big things small enough to start — Unbig turns any task that feels too big into three small steps a day.";
 
 // ponytail: plain share-intent URLs, no SDK. Facebook ignores custom text and
 // pulls the OG tags from layout.tsx instead.

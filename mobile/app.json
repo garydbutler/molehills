@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Inchmeal",
+    "name": "unbig",
     "slug": "molehill",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/unbig-mountain-icon.png",
     "userInterfaceStyle": "light",
     "scheme": "molehill",
     "experiments": {
@@ -21,18 +21,16 @@
     "android": {
       "package": "app.inchmeal",
       "adaptiveIcon": {
-        "backgroundColor": "#e3ebdd",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#faf7f2",
+        "foregroundImage": "./assets/unbig-mountain-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
+      "blockedPermissions": [
         "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/unbig-mountain-favicon.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -41,12 +39,18 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Inchmeal to access your photos so you can show it where a project stands.",
-          "cameraPermission": "Allow Inchmeal to use the camera so you can photograph a project before and after."
+          "photosPermission": "Allow unbig to access your photos so you can show it where a project stands.",
+          "cameraPermission": "Allow unbig to use the camera so you can photograph a project before and after."
         }
       ],
       "expo-secure-store",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f8f3f0"
+        }
+      ]
     ],
     "extra": {
       "router": {},

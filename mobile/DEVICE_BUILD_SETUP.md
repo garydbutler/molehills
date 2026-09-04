@@ -91,7 +91,7 @@ other testers, look at TestFlight (also covered by your paid membership).
 
 Google sign-in runs through the deployed backend. Its authorized redirect URI
 is:
-`https://inchmeal.app/api/auth/callback/google`
+`https://unbig.app/api/auth/callback/google`
 
 Sign in with Apple is native. The Expo config enables the Apple capability and
 the backend verifies the identity token; there is no browser callback URI to

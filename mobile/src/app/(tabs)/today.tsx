@@ -3,8 +3,9 @@
   never share a day. The day ends by showing the project again, not by ticking
   a box.
 */
-import { useEffect } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { useEffect, useRef } from "react";
+import * as Haptics from "expo-haptics";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
@@ -14,13 +15,16 @@ import {
   DonePicture,
   Headline,
   Kicker,
-  Mascot,
+  Mountain,
+  Press,
   PrimaryButton,
   Ring,
   SerifEm,
   StepRow,
 } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
+
+const TODAY_MOUNTAIN = require("../../../assets/brand/banner-parts/today-mountain.jpg");
 
 const DAYS = [
   "Sunday",
@@ -61,6 +65,21 @@ export default function Today() {
   const activeId = active?.id;
   const pendingKind = active?.pendingCheckpoint?.kind;
 
+  /* The three-jobs-done moment is the one success note in the app; anything
+     more and the tick's own impact stops meaning anything. Latched so a
+     re-render on the finished day doesn't buzz again. */
+  const congratulated = useRef(false);
+  const planComplete = active ? projectStats(active).todayPlanComplete : false;
+  useEffect(() => {
+    if (!planComplete) {
+      congratulated.current = false;
+      return;
+    }
+    if (congratulated.current) return;
+    congratulated.current = true;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [planComplete]);
+
   useEffect(() => {
     if (activeId && pendingKind) {
       router.push(`/recapture/${activeId}?kind=${pendingKind}`);
@@ -77,9 +96,9 @@ export default function Today() {
                 {dayName} · {firstName}
               </Kicker>
             </View>
-            <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
+            <Press onPress={() => router.push("/settings")} hitSlop={8}>
               <Text style={styles.signOut}>Settings</Text>
-            </Pressable>
+            </Press>
           </View>
           <Headline>
             Nothing on today<SerifEm>.</SerifEm>
@@ -87,7 +106,7 @@ export default function Today() {
         </View>
         {saved.length > 0 ? (
           <Card style={styles.doneCard}>
-            <Mascot pose="sprout" height={92} />
+            <Mountain state="whole" height={78} />
             <Text style={styles.doneBody}>
               You have projects waiting. Pick one from Journey when you’re
               ready.
@@ -98,7 +117,7 @@ export default function Today() {
              "capture" means, and an empty screen with one line of text reads
              as a dead end. Say what happens, in the order it happens. */
           <Card style={styles.introCard}>
-            <Mascot pose="sprout" height={92} />
+            <Mountain state="whole" height={78} />
             <Text style={styles.introLead}>
               Here’s how it goes.
             </Text>
@@ -133,42 +152,62 @@ export default function Today() {
   const latestCheckpointPhoto = [...(active.recaptures ?? [])]
     .reverse()
     .find((entry) => entry.photoUri)?.photoUri;
+  /* When the day is over the screen is just a recap — give the photo and the
+     mascot card less room so it fits without a scroll. */
+  const dayOver = stats.restingUntilTomorrow || stats.complete;
 
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
+      contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(68, insets.top + 24),
+          /* The tab bar floats over the paper now, so the last card needs
+             room to clear it instead of hiding behind the blur. */
+          paddingBottom: 64 + insets.bottom + 24,
+        },
+      ]}
     >
-      <View style={styles.header}>
-        <View style={styles.kickerRow}>
-          <View style={styles.kickerFill}>
-            <Kicker numberOfLines={1}>
-              {dayName} · {firstName}
-            </Kicker>
-          </View>
-          <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
-            <Text style={styles.signOut}>Settings</Text>
-          </Pressable>
+      <View style={styles.visualHeader}>
+        <Image
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          source={TODAY_MOUNTAIN}
+          resizeMode="contain"
+          style={styles.todayMountain}
+        />
+        <Press
+          onPress={() => router.push("/settings")}
+          hitSlop={8}
+          style={styles.settingsAction}
+        >
+          <Text style={styles.signOut}>Settings</Text>
+        </Press>
+        <View style={styles.visualHeaderCopy}>
+          <Kicker numberOfLines={1}>
+            {dayName} · {firstName}
+          </Kicker>
+          <Headline style={styles.visualHeadline}>
+            {stats.pendingCheckpoint ? (
+              <>
+                Checkpoint time<SerifEm>.</SerifEm>
+              </>
+            ) : stats.restingUntilTomorrow ? (
+              <>
+                Done for today<SerifEm>.</SerifEm>
+              </>
+            ) : stats.tired ? (
+              <>
+                One small thing<SerifEm>.</SerifEm>
+              </>
+            ) : (
+              <>
+                Three little jobs<SerifEm>.</SerifEm>
+              </>
+            )}
+          </Headline>
         </View>
-        <Headline>
-          {stats.pendingCheckpoint ? (
-            <>
-              Checkpoint time<SerifEm>.</SerifEm>
-            </>
-          ) : stats.restingUntilTomorrow ? (
-            <>
-              Done for today<SerifEm>.</SerifEm>
-            </>
-          ) : stats.tired ? (
-            <>
-              One small thing<SerifEm>.</SerifEm>
-            </>
-          ) : (
-            <>
-              Three little jobs<SerifEm>.</SerifEm>
-            </>
-          )}
-        </Headline>
       </View>
 
       {/* The done picture, filling in as the project actually moves. */}
@@ -182,7 +221,7 @@ export default function Today() {
                 : undefined
             }
             progress={active.progress ?? 0}
-            height={180}
+            height={dayOver ? 140 : 180}
           />
           <Text style={styles.pictureMeta}>
             {latestCheckpointPhoto ? "Latest check-in" : `${Math.round((active.progress ?? 0) * 100)}% of the way there`}
@@ -190,23 +229,9 @@ export default function Today() {
         </Card>
       ) : null}
 
-      {!stats.pendingCheckpoint && (active.completedSinceLog ?? 0) > 0 ? (
-        <Card style={styles.logProgressCard}>
-          <Text style={styles.logProgressTitle}>Pause for a quick look.</Text>
-          <Text style={styles.logProgressBody}>
-            Add a photo or note so you can see this progress later.
-          </Text>
-          <PrimaryButton
-            label={`Log today’s progress · ${active.completedSinceLog} ${active.completedSinceLog === 1 ? "job" : "jobs"}`}
-            variant="outline"
-            onPress={() => router.push(`/recapture/${active.id}?kind=optional`)}
-          />
-        </Card>
-      ) : null}
-
       {stats.pendingCheckpoint ? (
         <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
+          <Mountain state="crumbling" height={78} />
           <Text style={styles.doneTitle}>One last little thing.</Text>
           <Text style={styles.doneBody}>
             Add a photo or note to close out this checkpoint.
@@ -222,7 +247,7 @@ export default function Today() {
         </Card>
       ) : stats.restingUntilTomorrow ? (
         <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
+          <Mountain state="stones" height={62} />
           <Text style={styles.doneTitle}>
             That&apos;s everything for today.
           </Text>
@@ -235,7 +260,7 @@ export default function Today() {
         </Card>
       ) : stats.complete ? (
         <Card style={styles.doneCard}>
-          <Mascot pose="sprout" height={92} />
+          <Mountain state="stones" height={62} />
           <Text style={styles.doneTitle}>{active.title} is finished.</Text>
           <Link href={`/vision/${active.id}`} style={styles.visionLink}>
             See how it changed →
@@ -274,11 +299,11 @@ export default function Today() {
           </View>
 
           {!stats.tired ? (
-            <Pressable onPress={() => markTired(active.id)} hitSlop={8}>
+            <Press onPress={() => markTired(active.id)} hitSlop={8}>
               <Text style={styles.tiredLink}>
                 I&apos;m exhausted — give me just one
               </Text>
-            </Pressable>
+            </Press>
           ) : (
             <Text style={styles.gentle}>
               One real job. That still counts as a day.
@@ -286,6 +311,28 @@ export default function Today() {
           )}
         </>
       )}
+
+      {/* Below the jobs, never above them: this card appears the moment a job
+          is ticked, and inserting it above the list would slide the remaining
+          rows down under the finger mid-tap. And never once the day has
+          closed — the last thing on a finished day is not another ask. */}
+      {!stats.pendingCheckpoint &&
+      !stats.restingUntilTomorrow &&
+      !stats.complete &&
+      (active.completedSinceLog ?? 0) > 0 ? (
+        <Card style={styles.logProgressCard}>
+          <Text style={styles.logProgressTitle}>Pause for a quick look.</Text>
+          <Text style={styles.logProgressBody}>
+            Add a photo or note so you can see this progress later.
+          </Text>
+          <PrimaryButton
+            label={`Log today’s progress · ${active.completedSinceLog} ${active.completedSinceLog === 1 ? "job" : "jobs"}`}
+            variant="outline"
+            onPress={() => router.push(`/recapture/${active.id}?kind=optional`)}
+          />
+        </Card>
+      ) : null}
+
     </ScrollView>
   );
 }
@@ -300,10 +347,42 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   header: { gap: 2 },
+  visualHeader: {
+    minHeight: 196,
+    position: "relative",
+    overflow: "hidden",
+    marginHorizontal: -24,
+    marginTop: -12,
+  },
+  todayMountain: {
+    position: "absolute",
+    left: -28,
+    bottom: -8,
+    width: "54%",
+    height: 205,
+    opacity: 0.9,
+  },
+  visualHeaderCopy: {
+    position: "absolute",
+    top: 48,
+    left: "46%",
+    right: 24,
+    gap: 2,
+  },
+  visualHeadline: {
+    fontSize: 34,
+    lineHeight: 38,
+  },
+  settingsAction: {
+    position: "absolute",
+    zIndex: 2,
+    top: 0,
+    right: 24,
+  },
   logProgressCard: { gap: 12 },
   logProgressTitle: {
     fontFamily: fonts.sansSemi,
-    fontSize: 18,
+    fontSize: 19,
     color: colors.ink,
   },
   logProgressBody: {
@@ -344,12 +423,12 @@ const styles = StyleSheet.create({
   introStepText: { flex: 1, gap: 3 },
   introStepTitle: {
     fontFamily: fonts.sansExtra,
-    fontSize: 16,
+    fontSize: 17,
     color: colors.ink,
   },
   introStepBody: {
     fontFamily: fonts.sans,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     color: colors.muted,
   },
@@ -364,7 +443,7 @@ const styles = StyleSheet.create({
   pictureCard: { gap: 8 },
   pictureMeta: {
     fontFamily: fonts.mono,
-    fontSize: 10.5,
+    fontSize: 11,
     letterSpacing: 1.3,
     color: colors.muted,
   },
@@ -381,19 +460,19 @@ const styles = StyleSheet.create({
   },
   progressMeta: {
     fontFamily: fonts.body,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
   },
   visionLink: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14.5,
+    fontSize: 15,
     color: colors.accentInk,
     marginTop: 6,
   },
   steps: { gap: 10 },
   tiredLink: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14.5,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
   },
@@ -404,7 +483,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 10,
   },
-  doneCard: { alignItems: "center", gap: 8, paddingVertical: 30 },
+  /* Rest and completion are the only moments that earn the warm ground. */
+  doneCard: {
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 18,
+    backgroundColor: colors.washWarm,
+  },
   doneTitle: {
     fontFamily: fonts.sansSemi,
     fontSize: 19,

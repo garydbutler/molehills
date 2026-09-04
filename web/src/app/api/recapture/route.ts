@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { requireUser } from "@/lib/require-user";
 import { findOrCreateUser, claimRecapture } from "@/lib/quota";
+import { pickCheckpointMessage } from "@/lib/checkpoint-message";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ const RECAPTURE_SCHEMA = {
   required: ["assessment", "message"],
 } as const;
 
-const SYSTEM_PROMPT = `You are Inchmeal's warm progress observer. Someone with ADHD has checked off work and is saving a photo, a note, or both as a checkpoint. Their checkboxes are authoritative. You are not verifying, grading, crediting, or rejecting their work.
+const SYSTEM_PROMPT = `You are UNBIG's warm progress observer. Someone with ADHD has checked off work and is saving a photo, a note, or both as a checkpoint. Their checkboxes are authoritative. You are not verifying, grading, crediting, or rejecting their work.
 
 A project is any piece of work: a kitchen, a bathroom remodel, a job application, a tax return, a chapter of a book. Never call these "rooms".
 
@@ -202,13 +203,7 @@ export async function POST(request: NextRequest) {
         ? "visible_progress"
         : "not_obvious";
 
-    // The model may recognise progress and still word its encouragement as if
-    // nothing happened. The assessment is the contract; derive the displayed
-    // message from it so a successful checkpoint can never be contradicted.
-    const message =
-      assessment === "visible_progress"
-        ? "You made real progress here—take a moment to notice what changed."
-        : "You showed up and moved this forward. That counts, even when the camera can’t tell the whole story.";
+    const message = pickCheckpointMessage(assessment, parsed.message);
 
     return NextResponse.json({ assessment, message }, { headers });
   } catch (error) {

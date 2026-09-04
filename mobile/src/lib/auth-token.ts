@@ -40,6 +40,20 @@ export async function setAuthToken(token: string): Promise<void> {
   }
 }
 
+/* Read the claims out of a JWT without verifying it — the signature check
+   happens server-side on every API call. Used to populate the local user
+   record right after sign-in. */
+export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const decoded = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
 export async function clearAuthToken(): Promise<void> {
   cached = null;
   try {

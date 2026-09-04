@@ -83,7 +83,7 @@ export async function checkPlanQuota(user: DbUser): Promise<QuotaDecision> {
       return {
         allowed: false,
         upgrade: false,
-        reason: `That's ${PRO_PLANS_PER_WINDOW} new projects in 30 days — the most Inchmeal makes at once. A slot frees up as your earlier ones pass 30 days.`,
+        reason: `That's ${PRO_PLANS_PER_WINDOW} new projects in 30 days — the most UNBIG makes at once. A slot frees up as your earlier ones pass 30 days.`,
       };
     }
     return { allowed: true };

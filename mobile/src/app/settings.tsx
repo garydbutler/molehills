@@ -11,16 +11,16 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Headline, Kicker, SerifEm } from "@/components/ui";
+import { Card, Headline, Kicker, Press, SerifEm } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 import { deleteAccount } from "@/lib/api";
 import { restore, hasPro } from "@/lib/purchases";
@@ -29,6 +29,7 @@ import { ask, tell } from "@/lib/dialog";
 
 export default function Settings() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, signOut, wipeLocalData, projects } = useStore();
   const [busy, setBusy] = useState<"restore" | "delete" | null>(null);
 
@@ -83,7 +84,13 @@ export default function Settings() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
+    <ScrollView style={styles.scroll} contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(24, insets.top + 12),
+          paddingBottom: Math.max(40, insets.bottom + 24),
+        },
+      ]}>
       <View style={styles.header}>
         <Kicker>Settings</Kicker>
         <Headline>
@@ -96,15 +103,15 @@ export default function Settings() {
 
       <Card style={styles.definitionCard}>
         <View style={styles.definitionTermRow}>
-          <Text style={styles.definitionTerm}>Inchmeal</Text>
-          <Text style={styles.definitionPart}>adverb</Text>
+          <Text style={styles.definitionTerm}>unbig</Text>
+          <Text style={styles.definitionPart}>verb</Text>
         </View>
         <Text style={styles.definitionMeaning}>
-          Inch by inch; little by little.
+          To make big things small enough to start.
         </Text>
         <Text style={styles.definitionNote}>
-          Here, it means turning something too big to start into small steps
-          you can actually finish.
+          Show us something too big to face, and we break it into small steps
+          you can actually finish — three a day, never a fourth.
         </Text>
       </Card>
 
@@ -142,9 +149,9 @@ export default function Settings() {
         />
       </Card>
 
-      <Pressable onPress={close} hitSlop={8} style={styles.done}>
+      <Press onPress={close} hitSlop={8} style={styles.done}>
         <Text style={styles.doneLabel}>Done</Text>
-      </Pressable>
+      </Press>
     </ScrollView>
   );
 }
@@ -163,19 +170,15 @@ function Row({
   destructive?: boolean;
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={busy}
-      style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]}
-    >
+    <Press onPress={onPress} disabled={busy} scaleTo={0.985} style={styles.row}>
       <View style={styles.rowText}>
-        <Text style={[styles.rowLabel, destructive && { color: colors.clay }]}>
+        <Text style={[styles.rowLabel, destructive && { color: colors.danger }]}>
           {label}
         </Text>
         {hint ? <Text style={styles.rowHint}>{hint}</Text> : null}
       </View>
       {busy ? <ActivityIndicator size="small" color={colors.muted} /> : null}
-    </Pressable>
+    </Press>
   );
 }
 
@@ -192,24 +195,24 @@ const styles = StyleSheet.create({
   },
   definitionTerm: {
     fontFamily: fonts.serifItalic,
-    fontSize: 22,
+    fontSize: 21,
     color: colors.ink,
   },
   definitionPart: {
     fontFamily: fonts.monoMedium,
-    fontSize: 9.5,
+    fontSize: 11,
     letterSpacing: 1.5,
     textTransform: "uppercase",
     color: colors.muted,
   },
   definitionMeaning: {
     fontFamily: fonts.sansSemi,
-    fontSize: 16,
+    fontSize: 17,
     color: colors.ink,
   },
   definitionNote: {
     fontFamily: fonts.bodyLight,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 21,
     color: colors.inkSoft,
   },
@@ -225,5 +228,5 @@ const styles = StyleSheet.create({
   rowLabel: { fontFamily: fonts.sans, fontSize: 17, color: colors.ink },
   rowHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
   done: { alignSelf: "center", paddingVertical: 12 },
-  doneLabel: { fontFamily: fonts.sans, fontSize: 16, color: colors.muted },
+  doneLabel: { fontFamily: fonts.sans, fontSize: 17, color: colors.muted },
 });
