@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Inchmeal",
+    "name": "unbig",
     "slug": "molehill",
     "version": "1.0.2",
     "orientation": "portrait",
@@ -21,7 +21,7 @@
     "android": {
       "package": "app.inchmeal",
       "adaptiveIcon": {
-        "backgroundColor": "#e3ebdd",
+        "backgroundColor": "#e7e4f4",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -41,12 +41,18 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Inchmeal to access your photos so you can show it where a project stands.",
-          "cameraPermission": "Allow Inchmeal to use the camera so you can photograph a project before and after."
+          "photosPermission": "Allow unbig to access your photos so you can show it where a project stands.",
+          "cameraPermission": "Allow unbig to use the camera so you can photograph a project before and after."
         }
       ],
       "expo-secure-store",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f8f3f0"
+        }
+      ]
     ],
     "extra": {
       "router": {},

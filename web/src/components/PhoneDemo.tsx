@@ -5,7 +5,7 @@ export default function PhoneDemo() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/app/ios-today.png"
-          alt="The Inchmeal app showing today's three small jobs and a progress ring"
+          alt="The UNBIG app showing today's three small jobs and a progress ring"
           width={1206}
           height={2622}
         />

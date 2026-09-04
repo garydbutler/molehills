@@ -1,4 +1,4 @@
--- Starter schema for Inchmeal.
+-- Starter schema for Unbig.
 -- Apply with: npm run db:push   (from web/, with POSTGRES_URL set)
 -- All statements are idempotent.
 

@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { colors } from "@/theme/colors";
 import { fontMap } from "@/theme/fonts";
+import { BrandSplash } from "@/components/ui";
 import { StoreProvider, useStore } from "@/store/app-store";
 import {
   configurePurchases,
@@ -59,11 +60,16 @@ function Routes() {
 
 export default function RootLayout() {
   const [loaded] = useFonts(fontMap);
+  // Full-bleed launch art over the app until it fades out. Only after fonts
+  // load, so it appears already styled and covers the native colour splash.
+  const [splashDone, setSplashDone] = useState(false);
+  const dismissSplash = useCallback(() => setSplashDone(true), []);
   if (!loaded) return null;
   return (
     <StoreProvider>
       <StatusBar style="dark" />
       <Routes />
+      {!splashDone && <BrandSplash onDone={dismissSplash} />}
     </StoreProvider>
   );
 }

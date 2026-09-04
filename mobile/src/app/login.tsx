@@ -20,10 +20,10 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import {
+  BrandLogo,
   Card,
   Field,
   Kicker,
-  Mascot,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -184,21 +184,14 @@ export default function Login() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.hero}>
-        <Mascot pose="wave" height={88} style={styles.mascot} />
-        <View style={styles.definition}>
-          <View style={styles.definitionTermRow}>
-            <Text style={styles.definitionTerm}>Inchmeal</Text>
-            <Text style={styles.definitionPart}>adverb</Text>
-          </View>
-          <Text style={styles.definitionBody}>Inch by inch; little by little.</Text>
-        </View>
+        <BrandLogo style={styles.logo} />
         <Kicker>A calmer way to get things done</Kicker>
         <Text style={styles.title}>
           Big things,{"\n"}
           finished <SerifEm>gently</SerifEm>.
         </Text>
         <Text style={styles.lead}>
-          Show Inchmeal where the thing stands — a photo, or one sentence. It
+          Show unbig where the thing stands — a photo, or one sentence. It
           writes the plan and gives you three small steps a day, never a
           fourth.
         </Text>
@@ -265,7 +258,7 @@ export default function Login() {
       </Card>
 
       <Text style={styles.legalNote}>
-        Inchmeal is for adults 18 and over. By continuing, you agree to the{" "}
+        unbig is for adults 18 and over. By continuing, you agree to the{" "}
         <Text style={styles.legalLink} onPress={() => Linking.openURL(TERMS_URL)}>
           Terms
         </Text>{" "}
@@ -289,12 +282,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: colors.paper,
     padding: 24,
-    paddingTop: 72,
-    gap: 26,
+    paddingTop: 56,
+    gap: 20,
   },
-  hero: { gap: 14 },
+  hero: { gap: 16 },
   appleBtn: { height: 52, width: "100%" },
-  mascot: { alignSelf: "flex-start", marginBottom: -2 },
+  logo: { alignSelf: "flex-start", width: "72%", maxWidth: 288, marginBottom: 6 },
   title: {
     fontFamily: fonts.sansExtra,
     fontSize: 42,
@@ -309,32 +302,10 @@ const styles = StyleSheet.create({
     color: colors.inkSoft,
     maxWidth: 340,
   },
-  definition: {
-    gap: 3,
-    maxWidth: 340,
-  },
-  definitionTermRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 8,
-  },
-  definitionTerm: {
-    fontFamily: fonts.sansExtra,
-    fontSize: 22,
-    color: colors.ink,
-  },
-  definitionPart: {
-    fontFamily: fonts.serifItalic,
-    fontSize: 13,
-    color: colors.muted,
-  },
-  definitionBody: {
-    fontFamily: fonts.serifItalic,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.inkSoft,
-  },
-  panel: { gap: 12 },
+  // Float the sign-in card toward the bottom so hero + card span the full
+  // height instead of clumping under the notch. Collapses to 0 when the
+  // content is tall enough to scroll (e.g. the dev-only email block).
+  panel: { gap: 12, marginTop: "auto" },
   panelTitle: {
     fontFamily: fonts.monoMedium,
     fontSize: 11,
@@ -413,7 +384,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.muted,
     textAlign: "center",
-    marginTop: "auto",
+    // The panel's marginTop:auto owns the flexible space now; the footer
+    // just sits under the legal note.
+    marginTop: 4,
     paddingBottom: 20,
   },
 });

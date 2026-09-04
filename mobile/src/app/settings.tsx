@@ -96,15 +96,15 @@ export default function Settings() {
 
       <Card style={styles.definitionCard}>
         <View style={styles.definitionTermRow}>
-          <Text style={styles.definitionTerm}>Inchmeal</Text>
-          <Text style={styles.definitionPart}>adverb</Text>
+          <Text style={styles.definitionTerm}>unbig</Text>
+          <Text style={styles.definitionPart}>verb</Text>
         </View>
         <Text style={styles.definitionMeaning}>
-          Inch by inch; little by little.
+          To make big things small enough to start.
         </Text>
         <Text style={styles.definitionNote}>
-          Here, it means turning something too big to start into small steps
-          you can actually finish.
+          Show us something too big to face, and we break it into small steps
+          you can actually finish — three a day, never a fourth.
         </Text>
       </Card>
 

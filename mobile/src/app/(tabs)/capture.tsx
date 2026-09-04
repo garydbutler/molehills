@@ -78,7 +78,7 @@ export default function Capture() {
     if (status !== "granted") {
       tell(
         "Permission needed",
-        "Inchmeal needs access to your photos to select an image of your project.",
+        "unbig needs access to your photos to select an image of your project.",
       );
       return;
     }
@@ -106,7 +106,7 @@ export default function Capture() {
     if (status !== "granted") {
       tell(
         "Permission needed",
-        "Inchmeal needs camera access to photograph your project.",
+        "unbig needs camera access to photograph your project.",
       );
       return;
     }
@@ -267,7 +267,7 @@ export default function Capture() {
         <Text style={styles.inputHint}>
           {photoUri
             ? "The photo is enough on its own. Add a line only if it helps."
-            : "A sentence or two is plenty. Inchmeal names the project and works out what kind of thing it is."}
+            : "A sentence or two is plenty. unbig names the project and works out what kind of thing it is."}
         </Text>
 
         {loading ? (

@@ -1,0 +1,11 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1240, "h": 1980, "title": "Foundations" },
+    { "file": "Components.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 2160, "title": "Components" },
+    { "file": "Signatures.dc.html", "x": 2720, "y": 0, "w": 1240, "h": 1820, "title": "Signatures" }
+  ],
+  "annotations": [
+    { "id": "intro", "x": 0, "y": -150, "w": 620, "text": "Unbig Design System\nLifted verbatim from the live web app — every oklch token, the four-font stack (Montserrat / Caveat / Nunito Sans / IBM Plex Mono), pill controls, soft cards, the noise-textured paper, and the dusk slab. Three sheets: Foundations, Components, Signatures." }
+  ],
+  "launch": { "view": "canvas" }
+}

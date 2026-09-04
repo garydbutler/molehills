@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LegalDocument from "@/components/LegalDocument";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Inchmeal",
-  description: "The terms that govern use of the Inchmeal website and mobile app.",
+  title: "Terms of Service | UNBIG",
+  description: "The terms that govern use of the UNBIG website and mobile app.",
 };
 
 export default function TermsOfServicePage() {

@@ -113,10 +113,10 @@ export default function Vision() {
     !s.pendingCheckpoint;
 
   const reportIncorrectVision = async () => {
-    const subject = encodeURIComponent("Incorrect Inchmeal vision result");
+    const subject = encodeURIComponent("Incorrect unbig vision result");
     const body = encodeURIComponent(
       [
-        "What did Inchmeal get wrong?",
+        "What did unbig get wrong?",
         "",
         "",
         "---",

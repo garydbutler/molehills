@@ -83,7 +83,7 @@ export default function Paywall() {
 
       <View style={styles.header}>
         <Mascot pose="measure" height={92} />
-        <Kicker>Inchmeal in full</Kicker>
+        <Kicker>unbig in full</Kicker>
         <Headline>
           Keep going, <SerifEm>little and often</SerifEm>.
         </Headline>

@@ -35,7 +35,7 @@ export default function SiteNav() {
           <a
             className="brand"
             href="#top"
-            aria-label="Inchmeal home"
+            aria-label="UNBIG home"
             aria-describedby="brand-definition"
           >
             <span className="brand-mark" aria-hidden="true">
@@ -49,10 +49,10 @@ export default function SiteNav() {
             </span>
             <span className="brand-lockup">
               <span className="brand-name">
-                Inchmeal<span className="dot">.</span>
+                UNBIG<span className="dot">.</span>
               </span>
               <span className="brand-definition" id="brand-definition">
-                <span>adverb</span> inch by inch; little by little
+                <span>verb</span> to make a big thing small enough to start
               </span>
             </span>
           </a>

@@ -1,0 +1,13 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1280, "h": 520, "title": "A — Unified footer (recommended)" },
+    { "file": "OptionB.dc.html", "x": 1400, "y": 0, "w": 1280, "h": 520, "title": "B — Centered CTA" },
+    { "file": "OptionC.dc.html", "x": 2800, "y": 0, "w": 1280, "h": 520, "title": "C — Split sign-off" }
+  ],
+  "annotations": [
+    { "id": "note-a", "x": 0, "y": -150, "w": 460, "text": "A — Unified footer (recommended)\nThe waitlist band and footer become one dark section: CTA on top, sitemap below a hairline. Kills the ~600px double-band, gives the email controls a clear home in the reading path.\nTradeoff: still a wide banner — the form shares the top row with the headline." },
+    { "id": "note-b", "x": 1400, "y": -150, "w": 460, "text": "B — Centered CTA\nEverything centered; the email field sits dead-center as the one focal control, then a single thin footer strip. Shortest and most editorial.\nTradeoff: less room for the sitemap — links compress to two inline runs." },
+    { "id": "note-c", "x": 2800, "y": -170, "w": 460, "text": "C — Split sign-off\nClassic SaaS footer: a dedicated signup panel on the left, full sitemap on the right, one sign-off row beneath. Best if the link list needs to stay prominent.\nTradeoff: tallest of the three; the stacked form is less punchy than an inline one." }
+  ],
+  "launch": { "view": "canvas" }
+}

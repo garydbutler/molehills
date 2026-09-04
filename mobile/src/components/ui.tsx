@@ -1,12 +1,14 @@
 /* Shared UI pieces styled to match references/mobiledesigh.html. */
 import React from "react";
 import {
+  Animated,
   Image,
   PanResponder,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
   type ImageStyle,
   type StyleProp,
@@ -565,6 +567,89 @@ const doneStyles = StyleSheet.create({
     top: 0,
     width: "100%",
     height: "100%",
+  },
+});
+
+/* ---- brand ----
+
+   The unbig wordmark lockup: the purple mountain crumbling into small stones,
+   the UNBIG wordmark with its clay-dotted "i", and the tagline. Transparent
+   PNG, trimmed to the artwork (the source JPG's white padding was keyed out),
+   so it sits flush on paper with no visible box. Decorative — it carries the
+   brand as its alt text but is otherwise plain. */
+const UNBIG_LOGO = require("../../assets/brand/unbig-logo.png");
+
+export function BrandLogo({
+  width = "100%",
+  style,
+}: {
+  width?: number | `${number}%`;
+  style?: StyleProp<ImageStyle>;
+}) {
+  return (
+    <Image
+      accessibilityLabel="unbig — make big things small enough to start"
+      source={UNBIG_LOGO}
+      resizeMode="contain"
+      // Trimmed lockup is 662×151; aspectRatio keeps it honest at any width.
+      style={[{ width, aspectRatio: 662 / 151 }, style]}
+    />
+  );
+}
+
+/* ---- launch splash ----
+
+   Full-bleed launch art (the mountain crumbling into a path up to the
+   wordmark). expo-splash-screen can only center a small logo, so the native
+   splash is just the matching paper colour (#f8f3f0) and this covers the
+   screen edge-to-edge the instant JS mounts, then fades into the app. Driven
+   from the root layout; owning it in JS keeps it prebuild-proof. */
+const UNBIG_SPLASH = require("../../assets/brand/unbig-splash.png");
+
+export function BrandSplash({ onDone, hold = 1400 }: { onDone: () => void; hold?: number }) {
+  const opacity = React.useRef(new Animated.Value(1)).current;
+  // Explicit window size — the overlay can't rely on absoluteFill resolving to
+  // the screen here (it collapses and the Image renders at intrinsic size).
+  const { width, height } = useWindowDimensions();
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 420,
+        useNativeDriver: true,
+      }).start(({ finished }) => finished && onDone());
+    }, hold);
+    return () => clearTimeout(t);
+  }, [hold, onDone, opacity]);
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[splashStyles.fill, { width, height, opacity }]}
+    >
+      <Image
+        accessibilityLabel="unbig — make big things small enough to start"
+        source={UNBIG_SPLASH}
+        // contain: show the whole composition (wordmark included). The art's
+        // aspect is near the phone's and its background matches the fill, so
+        // the thin side bars are invisible — reads full-bleed.
+        resizeMode="contain"
+        style={{ width, height }}
+      />
+    </Animated.View>
+  );
+}
+
+const splashStyles = StyleSheet.create({
+  // Matches the art's paper background so the contain letterbox is invisible.
+  fill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f8f3f0",
   },
 });
 

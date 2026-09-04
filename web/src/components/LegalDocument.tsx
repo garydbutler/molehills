@@ -32,7 +32,7 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
 
       <header className="legal-nav">
         <div className="container legal-nav-inner">
-          <Link className="brand" href="/" aria-label="Inchmeal home">
+          <Link className="brand" href="/" aria-label="UNBIG home">
             <span className="brand-mark" aria-hidden="true">
               <svg viewBox="0 0 16 16" width="14" height="14">
                 <path
@@ -45,7 +45,7 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
                 />
               </svg>
             </span>
-            Inchmeal<span className="dot">.</span>
+            UNBIG<span className="dot">.</span>
           </Link>
           <nav className="legal-links" aria-label="Legal pages">
             <Link href="/">Home</Link>
@@ -83,7 +83,7 @@ export default async function LegalDocument({ fileName }: LegalDocumentProps) {
 
       <footer className="legal-footer">
         <div className="container legal-footer-inner">
-          <span>© 2026 Inchmeal · Inchmeal.app</span>
+          <span>© 2026 UNBIG · unbig.app</span>
           <nav aria-label="Footer legal links">
             <Link href="/privacy-policy">Privacy</Link>
             <Link href="/terms-of-service">Terms</Link>

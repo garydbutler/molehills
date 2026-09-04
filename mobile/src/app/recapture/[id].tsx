@@ -77,7 +77,7 @@ export default function Recapture() {
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      tell("Permission needed", "Inchmeal needs access to add that photo.");
+      tell("Permission needed", "unbig needs access to add that photo.");
       return;
     }
 

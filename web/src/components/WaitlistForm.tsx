@@ -44,7 +44,7 @@ export default function WaitlistForm() {
           </p>
         )}
         <p style={{ marginTop: 12 }}>
-          We&apos;ll email you once — the day Inchmeal&apos;s ready to try. Nothing
+          We&apos;ll email you once — the day Unbig&apos;s ready to try. Nothing
           before that.
         </p>
         <ShareLinks />

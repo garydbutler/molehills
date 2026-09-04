@@ -29,7 +29,7 @@ const RECAPTURE_SCHEMA = {
   required: ["assessment", "message"],
 } as const;
 
-const SYSTEM_PROMPT = `You are Inchmeal's warm progress observer. Someone with ADHD has checked off work and is saving a photo, a note, or both as a checkpoint. Their checkboxes are authoritative. You are not verifying, grading, crediting, or rejecting their work.
+const SYSTEM_PROMPT = `You are UNBIG's warm progress observer. Someone with ADHD has checked off work and is saving a photo, a note, or both as a checkpoint. Their checkboxes are authoritative. You are not verifying, grading, crediting, or rejecting their work.
 
 A project is any piece of work: a kitchen, a bathroom remodel, a job application, a tax return, a chapter of a book. Never call these "rooms".
 

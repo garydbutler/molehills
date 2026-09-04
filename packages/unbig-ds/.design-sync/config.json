@@ -1,0 +1,12 @@
+{
+  "pkg": "@unbig/ds",
+  "globalName": "UnbigDS",
+  "projectId": "26d39966-9431-4637-bfd9-ecb2c67ef0f4",
+  "shape": "package",
+  "buildCmd": "npm run build",
+  "cssEntry": "src/tokens.css",
+  "componentSrcMap": {
+    "Accent": null
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

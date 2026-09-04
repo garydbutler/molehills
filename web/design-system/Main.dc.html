@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --paper: oklch(0.975 0.008 85);
+      --paper-deep: oklch(0.945 0.014 86);
+      --surface: oklch(0.993 0.004 90);
+      --tint: oklch(0.926 0.022 293);
+      --tint-deep: oklch(0.845 0.045 292);
+      --ink: oklch(0.265 0.075 285);
+      --ink-soft: oklch(0.375 0.072 285);
+      --muted: oklch(0.505 0.055 285);
+      --faint: oklch(0.545 0.045 285);
+      --line: oklch(0.265 0.075 285 / 0.16);
+      --line-soft: oklch(0.265 0.075 285 / 0.08);
+      --accent: oklch(0.565 0.19 285);
+      --accent-hover: oklch(0.50 0.195 285);
+      --accent-ink: oklch(0.48 0.185 285);
+      --clay: oklch(0.72 0.115 45);
+      --danger: oklch(0.52 0.17 27);
+      --bone: oklch(0.955 0.014 88);
+      --dusk: oklch(0.285 0.08 285);
+      --dusk-mute: oklch(0.735 0.045 288);
+      --serif: 'Caveat', 'Segoe Script', cursive;
+      --sans: 'Montserrat', 'Avenir Next', system-ui, sans-serif;
+      --body: 'Nunito Sans', -apple-system, system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--body); color: var(--ink-soft); background: var(--paper); }
+    .sheet {
+      position: relative;
+      width: 1240px;
+      min-height: 1980px;
+      background: var(--paper);
+      padding: 72px 72px 96px;
+    }
+    .sheet::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        radial-gradient(circle at 12% 14%, oklch(0.55 0.14 285 / 0.05) 0, transparent 30%),
+        radial-gradient(circle at 88% 80%, oklch(0.62 0.10 60 / 0.05) 0, transparent 34%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.16  0 0 0 0 0.21  0 0 0 0.055 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      background-size: auto, auto, 240px 240px;
+      mix-blend-mode: multiply;
+    }
+    .sheet > * { position: relative; z-index: 1; }
+    a { color: var(--accent-ink); } a:hover { color: var(--accent-hover); }
+
+    .eyebrow {
+      font-family: var(--mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .eyebrow::before { content: ''; width: 26px; height: 1px; background: var(--clay); display: inline-block; }
+
+    .cover-word {
+      font-family: var(--sans); font-weight: 800; font-size: 128px;
+      line-height: 0.9; letter-spacing: -0.035em; color: var(--ink); margin: 18px 0 0;
+    }
+    .cover-word .dot { color: var(--clay); }
+    .cover-sub {
+      font-family: var(--sans); font-weight: 600; font-size: 26px; line-height: 1.3;
+      letter-spacing: -0.015em; color: var(--ink-soft); margin: 14px 0 0; max-width: 46ch;
+    }
+    .cover-sub em { font-style: normal; color: var(--accent);
+      text-decoration: underline; text-decoration-color: var(--tint-deep);
+      text-decoration-thickness: 0.06em; text-underline-offset: 0.16em; }
+    .cover-serif { font-family: var(--serif); font-size: 30px; color: var(--ink); margin-top: 18px; }
+
+    .block { margin-top: 72px; }
+    .block-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      border-bottom: 1px dotted var(--line); padding-bottom: 14px; margin-bottom: 30px;
+    }
+    .block-title { font-family: var(--sans); font-weight: 800; font-size: 30px; letter-spacing: -0.02em; color: var(--ink); }
+    .block-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+    /* Palette */
+    .pal-group { margin-bottom: 26px; }
+    .pal-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .swatches { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+    .sw { border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; background: var(--surface); }
+    .sw-chip { height: 78px; }
+    .sw-meta { padding: 10px 12px 13px; }
+    .sw-name { font-family: var(--sans); font-weight: 700; font-size: 13px; color: var(--ink); }
+    .sw-var { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .sw-val { font-family: var(--mono); font-size: 9.5px; color: var(--faint); margin-top: 5px; line-height: 1.3; }
+
+    /* Typography */
+    .type-row { display: flex; align-items: baseline; gap: 24px; padding: 18px 0; border-bottom: 1px dotted var(--line-soft); }
+    .type-spec { flex: 0 0 190px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--muted); line-height: 1.5; }
+    .type-spec b { display: block; color: var(--ink); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px; }
+    .type-sample { flex: 1; min-width: 0; color: var(--ink); }
+    .t-h1 { font-family: var(--sans); font-weight: 800; font-size: 64px; letter-spacing: -0.03em; line-height: 1.04; }
+    .t-h2 { font-family: var(--sans); font-weight: 800; font-size: 44px; letter-spacing: -0.025em; line-height: 1.08; }
+    .t-lead { font-family: var(--body); font-weight: 300; font-size: 19px; line-height: 1.65; color: var(--ink-soft); }
+    .t-body { font-family: var(--body); font-weight: 400; font-size: 16.5px; line-height: 1.7; color: var(--ink-soft); }
+    .t-serif { font-family: var(--serif); font-size: 34px; color: var(--ink); }
+    .t-mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+
+    .fonts-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 18px; margin-top: 8px; }
+    .font-card { border: 1px solid var(--line-soft); border-radius: 14px; background: var(--surface); padding: 20px 20px 22px; }
+    .font-glyph { font-size: 46px; color: var(--ink); line-height: 1; margin-bottom: 14px; }
+    .font-role { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); }
+    .font-name { font-family: var(--sans); font-weight: 700; font-size: 16px; color: var(--ink); margin-top: 4px; }
+    .font-use { font-family: var(--body); font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+
+    /* Tokens */
+    .tok-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; }
+    .radii { display: flex; flex-direction: column; gap: 16px; }
+    .radii-row { display: flex; align-items: center; gap: 18px; }
+    .radii-demo { width: 84px; height: 56px; background: var(--tint); border: 1px solid var(--tint-deep); flex: none; }
+    .radii-txt { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .radii-txt b { font-family: var(--sans); font-size: 13px; color: var(--ink); display: block; margin-bottom: 2px; }
+    .space-scale { display: flex; flex-direction: column; gap: 12px; }
+    .space-row { display: flex; align-items: center; gap: 16px; }
+    .space-bar { height: 14px; background: var(--accent); border-radius: 3px; }
+    .space-lbl { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div class="eyebrow">Unbig · Design System</div>
+  <h1 class="cover-word">Unbig<span class="dot">.</span></h1>
+  <p class="cover-sub">The visual language behind <em>making big things small enough to start</em>.</p>
+  <p class="cover-serif">warm, quiet, unhurried — never a fourth thing.</p>
+
+  <!-- PALETTE -->
+  <div class="block">
+    <div class="block-head">
+      <div class="block-title">Color</div>
+      <div class="block-meta">oklch · light-first · warm neutrals</div>
+    </div>
+
+    <div class="pal-group">
+      <div class="pal-label">Grounds — paper &amp; surfaces</div>
+      <div class="swatches">
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.975 0.008 85)"></div><div class="sw-meta"><div class="sw-name">Paper</div><div class="sw-var">--paper</div><div class="sw-val">0.975 0.008 85</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.945 0.014 86)"></div><div class="sw-meta"><div class="sw-name">Paper Deep</div><div class="sw-var">--paper-deep</div><div class="sw-val">0.945 0.014 86</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.993 0.004 90)"></div><div class="sw-meta"><div class="sw-name">Surface</div><div class="sw-var">--surface</div><div class="sw-val">0.993 0.004 90</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.955 0.014 88)"></div><div class="sw-meta"><div class="sw-name">Bone</div><div class="sw-var">--bone</div><div class="sw-val">0.955 0.014 88</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.926 0.022 293)"></div><div class="sw-meta"><div class="sw-name">Tint</div><div class="sw-var">--tint</div><div class="sw-val">0.926 0.022 293</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.845 0.045 292)"></div><div class="sw-meta"><div class="sw-name">Tint Deep</div><div class="sw-var">--tint-deep</div><div class="sw-val">0.845 0.045 292</div></div></div>
+      </div>
+    </div>
+
+    <div class="pal-group">
+      <div class="pal-label">Ink — text &amp; type</div>
+      <div class="swatches">
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.265 0.075 285)"></div><div class="sw-meta"><div class="sw-name">Ink</div><div class="sw-var">--ink</div><div class="sw-val">0.265 0.075 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.375 0.072 285)"></div><div class="sw-meta"><div class="sw-name">Ink Soft</div><div class="sw-var">--ink-soft</div><div class="sw-val">0.375 0.072 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.505 0.055 285)"></div><div class="sw-meta"><div class="sw-name">Muted</div><div class="sw-var">--muted</div><div class="sw-val">0.505 0.055 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.545 0.045 285)"></div><div class="sw-meta"><div class="sw-name">Faint</div><div class="sw-var">--faint</div><div class="sw-val">0.545 0.045 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.265 0.075 285 / 0.16)"></div><div class="sw-meta"><div class="sw-name">Line</div><div class="sw-var">--line</div><div class="sw-val">ink / 0.16</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.265 0.075 285 / 0.08)"></div><div class="sw-meta"><div class="sw-name">Line Soft</div><div class="sw-var">--line-soft</div><div class="sw-val">ink / 0.08</div></div></div>
+      </div>
+    </div>
+
+    <div class="pal-group">
+      <div class="pal-label">Accents &amp; dark</div>
+      <div class="swatches">
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.565 0.19 285)"></div><div class="sw-meta"><div class="sw-name">Accent</div><div class="sw-var">--accent</div><div class="sw-val">0.565 0.19 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.48 0.185 285)"></div><div class="sw-meta"><div class="sw-name">Accent Ink</div><div class="sw-var">--accent-ink</div><div class="sw-val">0.48 0.185 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.72 0.115 45)"></div><div class="sw-meta"><div class="sw-name">Clay</div><div class="sw-var">--clay</div><div class="sw-val">0.72 0.115 45</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.52 0.17 27)"></div><div class="sw-meta"><div class="sw-name">Danger</div><div class="sw-var">--danger</div><div class="sw-val">0.52 0.17 27</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.285 0.08 285)"></div><div class="sw-meta"><div class="sw-name">Dusk</div><div class="sw-var">--dusk</div><div class="sw-val">0.285 0.08 285</div></div></div>
+        <div class="sw"><div class="sw-chip" style="background: oklch(0.735 0.045 288)"></div><div class="sw-meta"><div class="sw-name">Dusk Mute</div><div class="sw-var">--dusk-mute</div><div class="sw-val">0.735 0.045 288</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="block">
+    <div class="block-head">
+      <div class="block-title">Typography</div>
+      <div class="block-meta">4 families · display / hand / body / label</div>
+    </div>
+
+    <div class="fonts-grid">
+      <div class="font-card">
+        <div class="font-glyph" style="font-family: var(--sans); font-weight: 800;">Aa</div>
+        <div class="font-role">Display</div>
+        <div class="font-name">Montserrat</div>
+        <div class="font-use">Wordmark, headings, buttons. 700–800, negative tracking.</div>
+      </div>
+      <div class="font-card">
+        <div class="font-glyph" style="font-family: var(--serif);">Aa</div>
+        <div class="font-role">Hand</div>
+        <div class="font-name">Caveat</div>
+        <div class="font-use">Warm asides, pull-quotes, the human voice. 500–600.</div>
+      </div>
+      <div class="font-card">
+        <div class="font-glyph" style="font-family: var(--body); font-weight: 400;">Aa</div>
+        <div class="font-role">Body</div>
+        <div class="font-name">Nunito Sans</div>
+        <div class="font-use">Running copy, leads. 300–600, 1.6–1.7 line-height.</div>
+      </div>
+      <div class="font-card">
+        <div class="font-glyph" style="font-family: var(--mono);">Aa</div>
+        <div class="font-role">Label</div>
+        <div class="font-name">IBM Plex Mono</div>
+        <div class="font-use">Eyebrows, indices, fine print. Uppercase, wide tracking.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 34px;">
+      <div class="type-row">
+        <div class="type-spec"><b>Display H1</b>Montserrat 800<br>64→88px · -0.03em · 1.04</div>
+        <div class="type-sample"><div class="t-h1">Too big to start</div></div>
+      </div>
+      <div class="type-row">
+        <div class="type-spec"><b>Display H2</b>Montserrat 800<br>34→56px · -0.025em</div>
+        <div class="type-sample"><div class="t-h2">Three a day, never a fourth</div></div>
+      </div>
+      <div class="type-row">
+        <div class="type-spec"><b>Hand serif</b>Caveat 500<br>28→37px · 1.32</div>
+        <div class="type-sample"><div class="t-serif">a photo, or one sentence — that's all it takes.</div></div>
+      </div>
+      <div class="type-row">
+        <div class="type-spec"><b>Lead</b>Nunito Sans 300<br>19px · 1.65</div>
+        <div class="type-sample"><div class="t-lead">Show Unbig the task that feels too big. It writes a plan of small steps and hands you a few at a time.</div></div>
+      </div>
+      <div class="type-row">
+        <div class="type-spec"><b>Body</b>Nunito Sans 400<br>16.5px · 1.7</div>
+        <div class="type-sample"><div class="t-body">No streaks, no timers, no guilt. Just the next small thing, and then the one after that.</div></div>
+      </div>
+      <div class="type-row">
+        <div class="type-spec"><b>Label / mono</b>IBM Plex Mono 500<br>11px · 0.22em · upper</div>
+        <div class="type-sample"><div class="t-mono">01 — How it works</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOKENS -->
+  <div class="block">
+    <div class="block-head">
+      <div class="block-title">Shape &amp; space</div>
+      <div class="block-meta">pill controls · soft cards · roomy rhythm</div>
+    </div>
+    <div class="tok-grid">
+      <div>
+        <div class="pal-label">Radii</div>
+        <div class="radii">
+          <div class="radii-row"><div class="radii-demo" style="border-radius: 999px;"></div><div class="radii-txt"><b>Pill · 999px</b>buttons, chips, inputs, share links</div></div>
+          <div class="radii-row"><div class="radii-demo" style="border-radius: 18px;"></div><div class="radii-txt"><b>Card · 18px</b>tiles, vision card, task cards (16px)</div></div>
+          <div class="radii-row"><div class="radii-demo" style="border-radius: 12px;"></div><div class="radii-txt"><b>Chip · 12px</b>swatches, small thumbnails</div></div>
+          <div class="radii-row"><div class="radii-demo" style="border-radius: 0;"></div><div class="radii-txt"><b>Square · 0</b>method steps, framed art, plates</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="pal-label">Spacing rhythm</div>
+        <div class="space-scale">
+          <div class="space-row"><div class="space-bar" style="width: 22px;"></div><div class="space-lbl">22px · grid gap</div></div>
+          <div class="space-row"><div class="space-bar" style="width: 40px;"></div><div class="space-lbl">40px · block padding</div></div>
+          <div class="space-row"><div class="space-bar" style="width: 56px;"></div><div class="space-lbl">56px · container inset</div></div>
+          <div class="space-row"><div class="space-bar" style="width: 72px;"></div><div class="space-lbl">72px · column gutter</div></div>
+          <div class="space-row"><div class="space-bar" style="width: 104px;"></div><div class="space-lbl">104px · section padding</div></div>
+        </div>
+        <div class="pal-label" style="margin-top: 30px;">Texture</div>
+        <div class="radii-txt" style="line-height: 1.6;">A fixed fractal-noise overlay at <b style="display:inline;">multiply, ~5.5% ink</b> sits over every ground, with two faint radial washes (indigo top-left, clay bottom-right). It's what keeps the paper feeling printed, not flat.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

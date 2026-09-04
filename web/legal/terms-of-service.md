@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Inchmeal**
+**Unbig**
 
 **Last updated: 29 August 2026**
 **Effective: 29 August 2026**
@@ -10,9 +10,9 @@
 ## 1. Agreement to these Terms
 
 These Terms of Service ("**Terms**") are a binding agreement between you and
-**Gary Butler**, doing business as **Inchmeal** ("Inchmeal", "we", "us", or
+**Gary Butler**, doing business as **Unbig** ("Unbig", "we", "us", or
 "our"). They govern your use
-of **inchmeal.app** (the "**Website**") and the Inchmeal mobile app for iOS and
+of **unbig.app** (the "**Website**") and the Unbig mobile app for iOS and
 Android (the "**App**", and together with the Website, the "**Service**").
 
 By joining the waitlist, creating an account, or otherwise using the Service, you
@@ -21,7 +21,7 @@ not agree, please do not use the Service.
 
 ---
 
-## 2. Who may use Inchmeal
+## 2. Who may use Unbig
 
 You must be at least **18 years old** to create an account or use the App. By
 using the Service, you confirm that you are 18 or older. If you use the Service
@@ -30,13 +30,13 @@ these Terms for it.
 
 ---
 
-## 3. What Inchmeal does
+## 3. What Unbig does
 
-Inchmeal helps you break a task that feels too big into a small daily plan. You
-photograph or describe the thing you want to change; Inchmeal uses AI to produce a
+Unbig helps you break a task that feels too big into a small daily plan. You
+photograph or describe the thing you want to change; Unbig uses AI to produce a
 project name, a description of what "done" looks like, an optional generated image,
 and a set of small steps sorted into days. To close out a day, you show your
-progress with a new photo or a short note, and Inchmeal gives you a gentle read on
+progress with a new photo or a short note, and Unbig gives you a gentle read on
 how far along you are.
 
 We may add, change, or remove features at any time. During early access and beta,
@@ -45,21 +45,21 @@ unavailable.
 
 ---
 
-## 4. Inchmeal is not medical, health, or professional advice
+## 4. Unbig is not medical, health, or professional advice
 
-**This is important.** Inchmeal is a productivity tool. It is **not** a medical
+**This is important.** Unbig is a productivity tool. It is **not** a medical
 device and does **not** diagnose, treat, cure, or prevent ADHD or any other
 condition, and it does not provide medical, psychological, therapeutic, legal,
 financial, or other professional advice. Nothing in the Service is a substitute for
 advice from a qualified professional. Never disregard or delay seeking professional
-advice because of something in Inchmeal. If you may be experiencing a medical or
+advice because of something in Unbig. If you may be experiencing a medical or
 mental‑health emergency, contact your local emergency services.
 
 ---
 
 ## 5. AI‑generated content
 
-Inchmeal's plans, generated images, and progress checks are produced by automated
+Unbig's plans, generated images, and progress checks are produced by automated
 AI systems (see the [Privacy Policy](./privacy-policy.md), Section 5, for how your
 input is processed by Google's Gemini models). AI output:
 
@@ -67,7 +67,7 @@ input is processed by Google's Gemini models). AI output:
 - is provided for your general assistance only; and
 - should be reviewed with your own judgement before you rely on it.
 
-You are responsible for how you act on Inchmeal's suggestions. Do not rely on a
+You are responsible for how you act on Unbig's suggestions. Do not rely on a
 progress check, plan, or generated image as a statement of fact.
 
 ---
@@ -76,7 +76,7 @@ progress check, plan, or generated image as a statement of fact.
 
 You sign in through **Google** or **Apple**. You
 are responsible for keeping access to your sign‑in account secure and for activity
-that happens under your Inchmeal account. Tell us at **contact@inchmeal.app** if you
+that happens under your Unbig account. Tell us at **contact@unbig.app** if you
 believe your account has been used without your permission. Your use of Google and
 Apple sign‑in is also subject to their own terms.
 
@@ -87,7 +87,7 @@ Apple sign‑in is also subject to their own terms.
 **You keep your content.** As between you and us, you own the photos, notes,
 descriptions, and other material you put into the Service ("**Your Content**").
 
-**You grant us a limited licence.** You grant Inchmeal a worldwide,
+**You grant us a limited licence.** You grant Unbig a worldwide,
 non‑exclusive, royalty‑free licence to host, store, transmit, display, and process
 Your Content **solely to operate and provide the Service to you** — including
 sending it to our AI provider to generate plans, images, and progress checks. This
@@ -102,7 +102,7 @@ must keep to comply with law.
 - you have any consent needed from other people who appear in your photos.
 
 Please don't submit the underlying private work itself (for example the full text
-of a document) when a short note about what changed will do — Inchmeal is designed
+of a document) when a short note about what changed will do — Unbig is designed
 not to need it.
 
 ---
@@ -130,7 +130,7 @@ Terms.
 ## 9. Early access and the waitlist
 
 The Website currently collects a waitlist. Joining it does not guarantee access,
-pricing, timing, or that Inchmeal will launch at all. We will use your email only
+pricing, timing, or that Unbig will launch at all. We will use your email only
 as described in the [Privacy Policy](./privacy-policy.md). Early‑access and beta
 features are provided on an "as is" basis and may change or end at any time.
 
@@ -138,7 +138,7 @@ features are provided on an "as is" basis and may change or end at any time.
 
 ## 10. Subscriptions and billing
 
-Inchmeal includes limited free use and offers auto-renewable monthly and annual
+Unbig includes limited free use and offers auto-renewable monthly and annual
 subscriptions for additional access. The App shows the current price, billing
 period, and included features before you subscribe. Prices may vary by country,
 currency, taxes, and app store.
@@ -148,7 +148,7 @@ confirm the purchase. A subscription renews automatically unless you cancel it
 through your store account at least 24 hours before the end of the current billing
 period. The store may charge the renewal within 24 hours before that period ends.
 You can manage or cancel a subscription in your app-store account settings.
-Deleting your Inchmeal account or removing the App does **not** cancel a
+Deleting your Unbig account or removing the App does **not** cancel a
 subscription. Refunds and billing disputes are handled under the applicable app
 store's rules. We may change subscription prices or features with the notice and
 consent required by the store and applicable law.
@@ -157,8 +157,8 @@ consent required by the store and applicable law.
 
 ## 11. Our intellectual property
 
-The Service — including the Inchmeal name, logo, design, text, and software (but
-not Your Content) — is owned by Inchmeal or its licensors and is protected by
+The Service — including the Unbig name, logo, design, text, and software (but
+not Your Content) — is owned by Unbig or its licensors and is protected by
 intellectual‑property laws. We grant you a personal, limited, non‑exclusive,
 non‑transferable, revocable licence to use the Service for its intended purpose
 under these Terms. You may not copy, modify, distribute, sell, or create derivative
@@ -174,7 +174,7 @@ Google Play. Your use of those services is governed by their terms, and we are
 not responsible for them.
 
 **Apple‑specific terms.** If you use the App on an Apple device, you acknowledge
-that these Terms are between you and Inchmeal only, not Apple; that Apple has no
+that these Terms are between you and Unbig only, not Apple; that Apple has no
 obligation to provide support for the App; and that Apple and its subsidiaries are
 third‑party beneficiaries of these Terms and may enforce them. Your use must comply
 with the Apple Media Services Terms and the Apple standard EULA. Similar terms apply
@@ -198,7 +198,7 @@ exclusions may not apply to you.
 
 To the fullest extent permitted by law:
 
-- Inchmeal and its owners, employees, and suppliers will **not** be liable for any
+- Unbig and its owners, employees, and suppliers will **not** be liable for any
   indirect, incidental, special, consequential, exemplary, or punitive damages, or
   for lost profits, data, or goodwill, arising from your use of (or inability to
   use) the Service; and
@@ -214,7 +214,7 @@ you are a consumer, you may have rights that these Terms do not override.
 
 ## 15. Indemnification
 
-You agree to indemnify and hold harmless Inchmeal and its owners, employees, and
+You agree to indemnify and hold harmless Unbig and its owners, employees, and
 suppliers from any claims, losses, and reasonable expenses (including legal fees)
 arising out of Your Content, your use of the Service, or your breach of these
 Terms or of anyone's rights.
@@ -244,7 +244,7 @@ effect, you accept the revised Terms.
 ## 18. Governing law and disputes
 
 These Terms are governed by the laws of the **State of Oklahoma**, United States,
-without regard to its conflict-of-laws rules. You and Inchmeal agree to the
+without regard to its conflict-of-laws rules. You and Unbig agree to the
 exclusive jurisdiction of the state and federal courts located in **Oklahoma** for
 any dispute.
 
@@ -266,9 +266,9 @@ of residence.
 
 ## 20. Contact us
 
-**Email:** contact@inchmeal.app
-**Post:** Gary Butler (d/b/a Inchmeal), 109885 S 4743 RD, Muldrow, OK 74948
+**Email:** contact@unbig.app
+**Post:** Gary Butler (d/b/a Unbig), 109885 S 4743 RD, Muldrow, OK 74948
 
 ---
 
-*© 2026 Inchmeal. These Terms cover inchmeal.app and the Inchmeal mobile app.*
+*© 2026 Unbig. These Terms cover unbig.app and the Unbig mobile app.*
