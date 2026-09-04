@@ -22,9 +22,10 @@ import Reanimated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { TOUCH_MIN, lift, radii, space, type as typeScale } from "@/theme/tokens";
 
 /* ---- progress ring ---- */
 
@@ -41,7 +42,11 @@ export function Ring({
   const c = 2 * Math.PI * r;
   const clamped = Math.max(0, Math.min(100, pct));
   return (
-    <View style={{ width: size, height: size }}>
+    <View
+      style={{ width: size, height: size }}
+      accessibilityRole="progressbar"
+      accessibilityLabel={`${clamped}% complete`}
+    >
       <Svg width={size} height={size}>
         <Circle
           cx={size / 2}
@@ -51,19 +56,26 @@ export function Ring({
           strokeWidth={stroke}
           fill="none"
         />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          stroke={colors.clay}
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={`${(clamped / 100) * c} ${c}`}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
+        {clamped > 0 ? (
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={colors.clay}
+            strokeWidth={stroke}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${(clamped / 100) * c} ${c}`}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        ) : null}
       </Svg>
-      <View style={ringStyles.center} pointerEvents="none">
+      <View
+        style={ringStyles.center}
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <Text style={[ringStyles.pct, { fontSize: size * 0.24 }]}>
           {clamped}%
         </Text>
@@ -110,6 +122,11 @@ export function Press({
   hitSlop,
   style,
   children,
+  accessibilityLabel,
+  accessibilityHint,
+  role = "button",
+  checked,
+  dimWhenDisabled = true,
 }: {
   onPress?: () => void;
   disabled?: boolean;
@@ -117,6 +134,15 @@ export function Press({
   hitSlop?: number;
   style?: StyleProp<ViewStyle>;
   children: React.ReactNode;
+  /* Only needed when the visible text is not the whole story — the label
+     defaults to the child text, which is usually the right answer. */
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  role?: "button" | "checkbox" | "link" | undefined;
+  checked?: boolean;
+  /* Off for controls that express "disabled" with their own colours rather
+     than by fading an enabled style. */
+  dimWhenDisabled?: boolean;
 }) {
   const scale = useSharedValue(1);
   const reduced = useReducedMotion();
@@ -131,21 +157,34 @@ export function Press({
       onPressIn={() => scale.set(withSpring(scaleTo, SPRING))}
       onPressOut={() => scale.set(withSpring(1, SPRING))}
       hitSlop={hitSlop}
-      style={[style, animated, { opacity: disabled ? 0.4 : 1 }]}
+      style={[
+        /* A bare text link still owes 44pt of real target; hitSlop is extra
+           reach on top of that, never the target itself. */
+        hitSlop != null ? pressStyles.textLink : null,
+        style,
+        animated,
+        disabled && dimWhenDisabled ? { opacity: 0.5 } : null,
+      ]}
     >
       {children}
     </AnimatedPressable>
   );
 }
 
+const pressStyles = StyleSheet.create({
+  textLink: {
+    minHeight: TOUCH_MIN,
+    justifyContent: "center",
+  },
+});
+
 /* ---- text styles ---- */
 
 export const kickerStyle: TextStyle = {
   fontFamily: fonts.monoMedium,
-  fontSize: 11,
-  letterSpacing: 3,
+  ...typeScale.kicker,
+  color: colors.dusk,
   textTransform: "uppercase",
-  color: colors.muted,
 };
 
 export function Kicker({
@@ -178,9 +217,7 @@ export function Headline({
 const headlineStyles = StyleSheet.create({
   base: {
     fontFamily: fonts.sansExtra,
-    fontSize: 34,
-    lineHeight: 38,
-    letterSpacing: -1,
+    ...typeScale.display,
     color: colors.ink,
     marginTop: 10,
   },
@@ -203,16 +240,25 @@ export function PrimaryButton({
   disabled?: boolean;
   variant?: "solid" | "outline" | "quiet";
 }) {
-  const bg =
-    variant === "solid" ? colors.accent : "transparent";
-  const border =
-    variant === "outline" ? 1.5 : 0;
-  const fg =
-    variant === "solid" ? colors.bone : colors.accentInk;
+  /* A dimmed version of the enabled fill still reads as tappable and earns a
+     dead first tap. Disabled gets its own quiet pair instead. */
+  const bg = disabled
+    ? colors.tint
+    : variant === "solid"
+      ? colors.accentInk
+      : "transparent";
+  const border = !disabled && variant === "outline" ? 1.5 : 0;
+  const fg = disabled
+    ? colors.faint
+    : variant === "solid"
+      ? colors.bone
+      : colors.accentInk;
+
   return (
     <Press
       onPress={onPress}
       disabled={disabled}
+      dimWhenDisabled={false}
       style={[buttonStyles.base, { backgroundColor: bg, borderWidth: border }]}
     >
       <Text style={[buttonStyles.label, { color: fg }]}>{label}</Text>
@@ -222,65 +268,17 @@ export function PrimaryButton({
 
 const buttonStyles = StyleSheet.create({
   base: {
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingVertical: 15,
     paddingHorizontal: 26,
+    minHeight: 44,
+    justifyContent: "center",
     alignItems: "center",
     borderColor: colors.line,
   },
   label: {
     fontFamily: fonts.bodySemi,
     fontSize: 16,
-  },
-});
-
-/* ---- chips ---- */
-
-export function Chip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active?: boolean;
-  onPress?: () => void;
-}) {
-  return (
-    <Press
-      onPress={onPress}
-      style={[chipStyles.base, active && chipStyles.active]}
-    >
-      <Text
-        style={[
-          chipStyles.label,
-          active && { color: colors.accentInk },
-        ]}
-      >
-        {label}
-      </Text>
-    </Press>
-  );
-}
-
-const chipStyles = StyleSheet.create({
-  base: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderStyle: "dotted",
-    borderColor: colors.muted,
-    backgroundColor: colors.surface,
-    paddingVertical: 9,
-    paddingHorizontal: 16,
-  },
-  active: {
-    backgroundColor: colors.tint,
-    borderStyle: "solid",
-    borderColor: colors.accentInk,
-  },
-  label: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 13.5,
-    color: colors.inkSoft,
   },
 });
 
@@ -324,13 +322,13 @@ export function Field({
 const fieldStyles = StyleSheet.create({
   base: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    ...typeScale.subhead,
     color: colors.ink,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 14,
-    paddingHorizontal: 16,
+    borderRadius: radii.frame,
+    paddingHorizontal: space.lg,
     paddingVertical: 14,
   },
   multiline: {
@@ -356,7 +354,7 @@ const cardStyles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 20,
+    borderRadius: radii.card,
     padding: 18,
   },
 });
@@ -368,11 +366,14 @@ export function StepRow({
   meta,
   done,
   onPress,
+  readOnly,
 }: {
   label: string;
   meta: string;
   done: boolean;
   onPress: () => void;
+  /* A finished project's plan is a record, not a checklist. */
+  readOnly?: boolean;
 }) {
   const reduced = useReducedMotion();
   /* The box fills from wherever it currently is, so a fast double-tap
@@ -383,7 +384,7 @@ export function StepRow({
   }, [done, fill, reduced]);
 
   const boxStyle = useAnimatedStyle(() => ({
-    backgroundColor: `rgba(89, 67, 191, ${fill.get()})`,
+    backgroundColor: `rgba(89, 67, 191, ${fill.get()})`, // accentInk #5943bf; RN cannot interpolate a hex in a worklet
   }));
   const checkStyle = useAnimatedStyle(() => ({
     opacity: fill.get(),
@@ -392,11 +393,23 @@ export function StepRow({
 
   return (
     <Press
+      role={readOnly ? undefined : "checkbox"}
+      checked={done}
+      disabled={readOnly}
+      accessibilityLabel={`${label}, ${meta}`}
+      accessibilityHint={
+        readOnly
+          ? undefined
+          : done
+            ? "Double tap to undo"
+            : "Double tap to complete"
+      }
       /* Harmony: the tick, the spring and the tap land together, so the
          haptic goes on the same handler as the state change — not in an
          effect a frame later. Ticking a job is a commit; unticking is a
          correction, so it gets the lighter of the two. */
       onPress={() => {
+        if (readOnly) return;
         Haptics.impactAsync(
           done
             ? Haptics.ImpactFeedbackStyle.Light
@@ -413,10 +426,7 @@ export function StepRow({
         </Reanimated.Text>
       </Reanimated.View>
       <View style={stepStyles.textWrap}>
-        <Text
-          style={[stepStyles.label, done && stepStyles.labelDone]}
-          numberOfLines={2}
-        >
+        <Text style={[stepStyles.label, done && stepStyles.labelDone]}>
           {label}
         </Text>
         <Text style={stepStyles.meta}>{meta}</Text>
@@ -431,15 +441,16 @@ const stepStyles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 16,
-    padding: 14,
+    /* The one lifted tier in the app: today's jobs leave the page so the
+       primary action is not the third identical rectangle down. */
+    ...lift,
+    borderRadius: radii.frame,
+    padding: space.lg,
   },
   box: {
     width: 30,
     height: 30,
-    borderRadius: 9,
+    borderRadius: radii.control,
     borderWidth: 1.5,
     borderColor: colors.accentInk,
     alignItems: "center",
@@ -453,7 +464,7 @@ const stepStyles = StyleSheet.create({
   textWrap: { flex: 1, gap: 2 },
   label: {
     fontFamily: fonts.bodySemi,
-    fontSize: 15.5,
+    ...typeScale.subhead,
     color: colors.ink,
   },
   labelDone: {
@@ -495,6 +506,8 @@ export function BeforeAfter({
 
   return (
     <View
+      accessibilityRole="adjustable"
+      accessibilityLabel="Before and after. Drag to compare."
       style={[revealStyles.frame, { height }]}
       onLayout={(e) => {
         const w = e.nativeEvent.layout.width;
@@ -600,7 +613,11 @@ export function DonePicture({
   if (!before && !done) return null;
 
   return (
-    <View style={[doneStyles.frame, { height }]}>
+    <View
+      accessibilityRole="image"
+      accessibilityLabel={`Your project, ${Math.round(clamped * 100)}% of the way to done`}
+      style={[doneStyles.frame, { height }]}
+    >
       {before ? (
         <Image source={{ uri: before }} resizeMode="cover" style={doneStyles.layer} />
       ) : null}
@@ -666,7 +683,9 @@ export function BrandLogo({
    from the root layout; owning it in JS keeps it prebuild-proof. */
 const UNBIG_SPLASH = require("../../assets/brand/unbig-splash.png");
 
-export function BrandSplash({ onDone, hold = 1400 }: { onDone: () => void; hold?: number }) {
+/* Held long enough to actually be read — 1.4s was gone before the eye
+   settled on the wordmark. 2.2s hold plus the 420ms fade. */
+export function BrandSplash({ onDone, hold = 2200 }: { onDone: () => void; hold?: number }) {
   const opacity = React.useRef(new Animated.Value(1)).current;
   // Explicit window size — the overlay can't rely on absoluteFill resolving to
   // the screen here (it collapses and the Image renders at intrinsic size).
@@ -713,41 +732,133 @@ const splashStyles = StyleSheet.create({
   },
 });
 
-/* ---- mascot ----
+/* ---- icons ----
 
-   The inchworm. Four poses, each with a job:
-     wave     — greeting (login)
-     notebook — writing the plan (while the plan is being built)
-     sprout   — a small beginning, and a quiet finish
-     measure  — the brand mark; also the app icon
+   Stroked line icons in the brand purple, replacing the Apple system emoji
+   that used to sit on the capture buttons — glossy 3D vendor art next to a
+   faceted mountain read as two brands on one screen. Decorative: every use
+   sits beside its own label. */
 
-   Decorative only, so it is hidden from screen readers. Every source is
-   transparent, sized by height with the aspect ratio kept.
-*/
-const MASCOTS = {
-  wave: require("../../assets/mascots/inchworm-peeking-wave.png"),
-  notebook: require("../../assets/mascots/inchworm-field-guide.png"),
-  sprout: require("../../assets/mascots/inchworm-sprout.png"),
-  measure: require("../../assets/mascots/inchworm-measuring-tape.png"),
-} as const;
-
-export function Mascot({
-  pose,
-  height = 120,
-  style,
+export function Icon({
+  name,
+  size = 26,
+  color = colors.accentInk,
 }: {
-  pose: keyof typeof MASCOTS;
-  height?: number;
-  style?: StyleProp<ImageStyle>;
+  name: "camera" | "library";
+  size?: number;
+  color?: string;
 }) {
   return (
-    <Image
+    <View accessible={false} importantForAccessibility="no-hide-descendants">
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        {name === "camera" ? (
+          <>
+            <Path
+              d="M3 8.5A2 2 0 0 1 5 6.5h2.2l1.2-2h7.2l1.2 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+              stroke={color}
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <Circle cx="12" cy="13" r="3.6" stroke={color} strokeWidth="1.6" />
+          </>
+        ) : (
+          <>
+            <Path
+              d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"
+              stroke={color}
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <Path
+              d="M4.4 16.2l4.3-4a1.5 1.5 0 0 1 2 0l3 2.8 1.9-1.7a1.5 1.5 0 0 1 2 0l2 1.8"
+              stroke={color}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Circle cx="9.2" cy="9.4" r="1.4" fill={color} />
+          </>
+        )}
+      </Svg>
+    </View>
+  );
+}
+
+/* ---- the mountain ----
+
+   The brand mark is a purple faceted mountain crumbling into small stones,
+   and that image is the product thesis: a big thing broken into small ones.
+   It replaces the retired inchworm mascot (Inchmeal era — never reintroduce
+   it) as the app's only illustrative language.
+
+   Three states, each meaning something:
+     whole    — nothing started yet
+     crumbling — mid-project, the peak breaking into stones
+     stones   — done; only the small pieces remain
+
+   Drawn in SVG rather than shipped as a raster, so it takes its colour from
+   the tokens and stays crisp at any size. Decorative: hidden from screen
+   readers, since every use sits beside text that already says the thing.
+*/
+
+export function Mountain({
+  state = "whole",
+  height = 96,
+  style,
+}: {
+  state?: "whole" | "crumbling" | "stones";
+  height?: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const w = height * 1.9;
+  return (
+    <View
       accessible={false}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      source={MASCOTS[pose]}
-      resizeMode="contain"
-      style={[{ height, width: "100%" }, style]}
-    />
+      style={[{ height, width: w, alignSelf: "center" }, style]}
+    >
+      <Svg width={w} height={height} viewBox="0 0 190 100">
+        {state !== "stones" ? (
+          <>
+            {/* The massif: two faceted planes so the peak reads as solid
+                rock rather than a flat triangle. */}
+            <Path
+              d="M8 92 L52 14 L96 92 Z"
+              fill={colors.accentInk}
+            />
+            <Path
+              d="M52 14 L96 92 L66 92 Z"
+              fill={colors.accent}
+            />
+            <Path
+              d="M52 14 L63 34 L44 44 Z"
+              fill={colors.tint}
+            />
+          </>
+        ) : null}
+
+        {/* The stones. The mountain sheds them left to right, getting
+            smaller and warmer as they go — the last one is clay, the
+            colour of progress and the dot on the wordmark's "i". */}
+        {state !== "whole" ? (
+          <>
+            <Circle cx="108" cy="84" r="9" fill={colors.accent} />
+            <Circle cx="128" cy="88" r="6.5" fill={colors.tintDeep} />
+            <Circle cx="145" cy="85" r="4.5" fill={colors.tintDeep} />
+            <Circle cx="159" cy="89" r="3.2" fill={colors.clay} />
+            <Circle cx="170" cy="86" r="2.2" fill={colors.clay} />
+          </>
+        ) : null}
+
+        {/* Ground line: the path they came to rest on. */}
+        <Path
+          d="M4 95 L186 95"
+          stroke={colors.tintDeep}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </Svg>
+    </View>
   );
 }

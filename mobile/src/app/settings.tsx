@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import { Card, Headline, Kicker, Press, SerifEm } from "@/components/ui";
@@ -28,6 +29,7 @@ import { ask, tell } from "@/lib/dialog";
 
 export default function Settings() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, signOut, wipeLocalData, projects } = useStore();
   const [busy, setBusy] = useState<"restore" | "delete" | null>(null);
 
@@ -82,7 +84,13 @@ export default function Settings() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
+    <ScrollView style={styles.scroll} contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(24, insets.top + 12),
+          paddingBottom: Math.max(40, insets.bottom + 24),
+        },
+      ]}>
       <View style={styles.header}>
         <Kicker>Settings</Kicker>
         <Headline>
@@ -164,7 +172,7 @@ function Row({
   return (
     <Press onPress={onPress} disabled={busy} scaleTo={0.985} style={styles.row}>
       <View style={styles.rowText}>
-        <Text style={[styles.rowLabel, destructive && { color: colors.clay }]}>
+        <Text style={[styles.rowLabel, destructive && { color: colors.danger }]}>
           {label}
         </Text>
         {hint ? <Text style={styles.rowHint}>{hint}</Text> : null}
@@ -187,24 +195,24 @@ const styles = StyleSheet.create({
   },
   definitionTerm: {
     fontFamily: fonts.serifItalic,
-    fontSize: 22,
+    fontSize: 21,
     color: colors.ink,
   },
   definitionPart: {
     fontFamily: fonts.monoMedium,
-    fontSize: 9.5,
+    fontSize: 11,
     letterSpacing: 1.5,
     textTransform: "uppercase",
     color: colors.muted,
   },
   definitionMeaning: {
     fontFamily: fonts.sansSemi,
-    fontSize: 16,
+    fontSize: 17,
     color: colors.ink,
   },
   definitionNote: {
     fontFamily: fonts.bodyLight,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 21,
     color: colors.inkSoft,
   },
@@ -220,5 +228,5 @@ const styles = StyleSheet.create({
   rowLabel: { fontFamily: fonts.sans, fontSize: 17, color: colors.ink },
   rowHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.muted },
   done: { alignSelf: "center", paddingVertical: 12 },
-  doneLabel: { fontFamily: fonts.sans, fontSize: 16, color: colors.muted },
+  doneLabel: { fontFamily: fonts.sans, fontSize: 17, color: colors.muted },
 });

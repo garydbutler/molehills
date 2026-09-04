@@ -16,7 +16,16 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Kicker, Mascot, Press, PrimaryButton, Ring } from "@/components/ui";
+import { radii } from "@/theme/tokens";
+import {
+  Card,
+  Kicker,
+  Mountain,
+  Press,
+  PrimaryButton,
+  Ring,
+  StepRow,
+} from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
 import { tell } from "@/lib/dialog";
@@ -168,7 +177,7 @@ export default function Vision() {
 
       {s.complete ? (
         <Card style={styles.finishedCard}>
-          <Mascot pose="sprout" height={120} />
+          <Mountain state="stones" height={92} />
           <Text style={styles.finishedTitle}>{project.title} is finished.</Text>
           <Text style={styles.finishedBody}>
             Nothing magical happened here. Twelve small visits did.
@@ -194,12 +203,18 @@ export default function Vision() {
       <Card style={styles.visionCard}>
         {displayingEndState && project.endStateImage ? (
           <Image
+            accessibilityLabel={`How ${project.title} could look when it is done`}
             source={{ uri: `data:${project.endStateImageMimeType ?? "image/png"};base64,${project.endStateImage}` }}
             resizeMode="cover"
             style={styles.visionPhoto}
           />
         ) : project.photoUri ? (
-          <Image source={{ uri: project.photoUri }} resizeMode="cover" style={styles.visionPhoto} />
+          <Image
+            accessibilityLabel={`Your photo of ${project.title}`}
+            source={{ uri: project.photoUri }}
+            resizeMode="cover"
+            style={styles.visionPhoto}
+          />
         ) : null}
         <Kicker>
           {displayingEndState ? "The calm version" : "Your vision"}
@@ -300,27 +315,17 @@ export default function Vision() {
           {project.steps
             .filter((st) => st.dayIndex === d)
             .map((st) => (
-              <Press
+              /* The same row component Today uses. Two hand-rolled variants
+                 meant ticking the same job felt different depending on which
+                 screen you were standing on. */
+              <StepRow
                 key={st.id}
-                disabled={readOnly}
-                scaleTo={0.985}
+                label={st.label}
+                meta={`${st.minutes} min`}
+                done={st.done}
+                readOnly={readOnly}
                 onPress={() => toggleStep(project.id, st.id)}
-                style={styles.stepRow}
-              >
-                {st.done ? (
-                  <View style={[styles.box, styles.boxDone]}>
-                    <Text style={styles.check}>{"\u2713"}</Text>
-                  </View>
-                ) : readOnly ? (
-                  <View style={styles.bullet} />
-                ) : (
-                  <View style={styles.box} />
-                )}
-                <Text style={[styles.stepLabel, st.done && styles.stepDone]}>
-                  {st.label}
-                </Text>
-                <Text style={styles.minutes}>{st.minutes} min</Text>
-              </Press>
+              />
             ))}
         </View>
       ))}
@@ -341,6 +346,7 @@ export default function Vision() {
                 </Text>
                 {entry.photoUri ? (
                   <Image
+                    accessibilityLabel="Check-in photo"
                     source={{ uri: entry.photoUri }}
                     resizeMode="cover"
                     style={styles.timelinePhoto}
@@ -363,14 +369,14 @@ export default function Vision() {
 const styles = StyleSheet.create({
   checkpointCard: { gap: 9 },
   checkpointTitle: { fontFamily: fonts.sansSemi, fontSize: 17, color: colors.ink },
-  checkpointBody: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: colors.inkSoft },
+  checkpointBody: { fontFamily: fonts.body, fontSize: 15, lineHeight: 21, color: colors.inkSoft },
   timeline: { gap: 10, marginTop: 4 },
   timelineTitle: { fontFamily: fonts.sansSemi, fontSize: 19, color: colors.ink },
   timelineEntry: { gap: 9 },
-  timelineDate: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1.2, color: colors.muted },
-  timelinePhoto: { width: "100%", height: 180, borderRadius: 12, backgroundColor: colors.tintDeep },
-  timelineNote: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: colors.ink },
-  timelineFeedback: { fontFamily: fonts.serifItalic, fontSize: 14.5, lineHeight: 21, color: colors.inkSoft },
+  timelineDate: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1.2, color: colors.muted },
+  timelinePhoto: { width: "100%", height: 180, borderRadius: radii.frame, backgroundColor: colors.tintDeep },
+  timelineNote: { fontFamily: fonts.body, fontSize: 15, lineHeight: 21, color: colors.ink },
+  timelineFeedback: { fontFamily: fonts.serifItalic, fontSize: 15, lineHeight: 21, color: colors.inkSoft },
   finishedCard: { alignItems: "center", gap: 10, paddingVertical: 26 },
   finishedTitle: {
     fontFamily: fonts.sansSemi,
@@ -387,7 +393,7 @@ const styles = StyleSheet.create({
   finishedActions: { alignSelf: "stretch", gap: 8 },
   finishedRest: {
     fontFamily: fonts.body,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
   },
@@ -413,7 +419,7 @@ const styles = StyleSheet.create({
   visionPhoto: {
     width: "100%",
     height: 180,
-    borderRadius: 14,
+    borderRadius: radii.frame,
     backgroundColor: colors.tintDeep,
   },
   visionLine: {
@@ -424,7 +430,7 @@ const styles = StyleSheet.create({
   },
   visionTitle: {
     fontFamily: fonts.sansExtra,
-    fontSize: 24,
+    fontSize: 21,
     letterSpacing: -0.5,
     color: colors.ink,
     textAlign: "center",
@@ -439,7 +445,7 @@ const styles = StyleSheet.create({
   },
   aiNoteText: {
     fontFamily: fonts.body,
-    fontSize: 13.5,
+    fontSize: 13,
     lineHeight: 20,
     color: colors.muted,
   },
@@ -450,7 +456,7 @@ const styles = StyleSheet.create({
   },
   feedbackLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.accentInk,
   },
   generatingContainer: {
@@ -462,7 +468,7 @@ const styles = StyleSheet.create({
   },
   generatingText: {
     fontFamily: fonts.serifItalic,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
   },
   toggleButton: {
@@ -471,7 +477,7 @@ const styles = StyleSheet.create({
   },
   toggleLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.accentInk,
   },
   progressRow: {
@@ -487,7 +493,7 @@ const styles = StyleSheet.create({
   },
   progressMeta: {
     fontFamily: fonts.body,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
   },
   dayBlock: { gap: 8 },
@@ -498,53 +504,5 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: colors.muted,
     marginBottom: 2,
-  },
-  stepRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  box: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: colors.accentInk,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  boxDone: { backgroundColor: colors.accentInk },
-  bullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.line,
-    marginHorizontal: 9,
-  },
-  check: {
-    color: colors.bone,
-    fontSize: 14,
-    fontFamily: fonts.bodySemi,
-  },
-  stepLabel: {
-    flex: 1,
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.ink,
-  },
-  stepDone: {
-    textDecorationLine: "line-through",
-    color: colors.muted,
-  },
-  minutes: {
-    fontFamily: fonts.mono,
-    fontSize: 11.5,
-    color: colors.muted,
   },
 });

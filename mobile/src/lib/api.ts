@@ -1,8 +1,11 @@
-import { File } from "expo-file-system";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
 import { API_URL } from "@/lib/site";
 import { loadAuthToken } from "@/lib/auth-token";
+
+/* No deadline meant a stalled upload spun the spinner indefinitely with no
+   way back. Generous, because a plan genuinely takes a while to think. */
+const REQUEST_TIMEOUT_MS = 60_000;
 
 export type PlanStep = {
   label: string;
@@ -68,16 +71,13 @@ async function authHeaders(): Promise<Record<string, string>> {
   };
 }
 
-async function fileToBase64(uri: string): Promise<string> {
-  const file = new File(uri);
-  const base64 = file.base64Sync();
-  return base64;
-}
-
 /*
-  Camera files can be several megabytes; sending both before and now as base64
-  used to overflow the request before the route could answer. Keep the durable
-  local original, but create a small JPEG solely for AI feedback transport.
+  Camera and library files run to several megabytes, and base64 adds a third
+  on top: the raw original overflowed the route, which answered 413 and left
+  the caller holding a multi-megabyte upload for nothing. Keep the durable
+  local original; upload a small JPEG. Every AI request goes through here —
+  plan, end-state and recapture alike. Sending the original from any of them
+  is the bug this function exists to prevent.
 */
 async function imageToFeedbackBase64(uri: string): Promise<string> {
   const context = ImageManipulator.manipulate(uri);
@@ -96,10 +96,13 @@ export async function fetchPlan(
   photoUri: string | undefined,
   description?: string,
 ): Promise<PlanResponse> {
-  const base64Image = photoUri ? await fileToBase64(photoUri) : undefined;
+  const base64Image = photoUri
+    ? await imageToFeedbackBase64(photoUri)
+    : undefined;
 
   const response = await fetch(`${API_URL}/api/plan`, {
     method: "POST",
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     headers: await authHeaders(),
     body: JSON.stringify({
       image: base64Image,
@@ -109,7 +112,10 @@ export async function fetchPlan(
 
   if (!response.ok) {
     const errorBody = (await response.json().catch(() => ({}))) as ApiError;
-    const message = errorBody.error || `API error: ${response.status}`;
+    const message =
+      response.status === 413
+        ? "That photo was too large to send. Try taking it again."
+        : errorBody.error || `API error: ${response.status}`;
     if ([401, 402, 429].includes(response.status)) {
       throw new ApiRefusal(message, response.status, errorBody.upgrade === true);
     }
@@ -127,10 +133,11 @@ export async function fetchEndState(
   /* Server bounds image-generation retries per project. */
   projectId?: string,
 ): Promise<EndStateResponse> {
-  const base64Image = await fileToBase64(photoUri);
+  const base64Image = await imageToFeedbackBase64(photoUri);
 
   const response = await fetch(`${API_URL}/api/end-state`, {
     method: "POST",
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     headers: await authHeaders(),
     body: JSON.stringify({
       image: base64Image,
@@ -143,7 +150,10 @@ export async function fetchEndState(
 
   if (!response.ok) {
     const errorBody = (await response.json().catch(() => ({}))) as ApiError;
-    const message = errorBody.error || `API error: ${response.status}`;
+    const message =
+      response.status === 413
+        ? "That photo was too large to send. Try taking it again."
+        : errorBody.error || `API error: ${response.status}`;
     if ([401, 402, 429].includes(response.status)) {
       throw new ApiRefusal(message, response.status, errorBody.upgrade === true);
     }
@@ -199,7 +209,10 @@ export async function fetchProgressFeedback(args: {
 
   if (!response.ok) {
     const errorBody = (await response.json().catch(() => ({}))) as ApiError;
-    const message = errorBody.error || `API error: ${response.status}`;
+    const message =
+      response.status === 413
+        ? "That photo was too large to send. Try taking it again."
+        : errorBody.error || `API error: ${response.status}`;
     if ([401, 402, 429].includes(response.status)) {
       throw new ApiRefusal(message, response.status, errorBody.upgrade === true);
     }

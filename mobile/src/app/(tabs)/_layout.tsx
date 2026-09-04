@@ -53,7 +53,7 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
           fontFamily: fonts.monoMedium,
-          fontSize: 10,
+          fontSize: 11,
           letterSpacing: 1.5,
           textTransform: "uppercase",
         },

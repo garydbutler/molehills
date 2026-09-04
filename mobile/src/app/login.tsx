@@ -18,6 +18,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { radii } from "@/theme/tokens";
 import {
   BrandLogo,
   Card,
@@ -285,6 +286,9 @@ const styles = StyleSheet.create({
   hero: { gap: 16 },
   appleBtn: { height: 52, width: "100%" },
   logo: { alignSelf: "flex-start", width: "72%", maxWidth: 288, marginBottom: 6 },
+  /* The sign-in headline is the one place the display step is allowed to run
+     larger than 34 — it sits alone under the wordmark with nothing to rank
+     against. Tracking tightens with the size, per DESIGN.md. */
   title: {
     fontFamily: fonts.sansExtra,
     fontSize: 42,
@@ -294,7 +298,7 @@ const styles = StyleSheet.create({
   },
   lead: {
     fontFamily: fonts.bodyLight,
-    fontSize: 16.5,
+    fontSize: 17,
     lineHeight: 25,
     color: colors.inkSoft,
     maxWidth: 340,
@@ -329,21 +333,21 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1.5,
     borderColor: colors.line,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingVertical: 13,
     paddingHorizontal: 20,
     backgroundColor: colors.surface,
   },
   oauthGlyph: {
     fontFamily: fonts.sansExtra,
-    fontSize: 18,
+    fontSize: 19,
     color: colors.accentInk,
     width: 22,
     textAlign: "center",
   },
   oauthLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 15.5,
+    fontSize: 17,
     color: colors.ink,
   },
   note: {
@@ -355,17 +359,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: fonts.body,
-    fontSize: 14,
-    color: "#c53030",
+    fontSize: 15,
+    color: colors.danger,
     textAlign: "center",
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: "#fff5f5",
-    borderRadius: 8,
+    backgroundColor: colors.washWarm,
+    borderRadius: radii.control,
   },
   legalNote: {
     fontFamily: fonts.bodyLight,
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 18,
     color: colors.muted,
     textAlign: "center",
@@ -378,7 +382,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     fontFamily: fonts.serifItalic,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
     // The panel's marginTop:auto owns the flexible space now; the footer

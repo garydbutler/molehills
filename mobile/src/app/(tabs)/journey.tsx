@@ -13,18 +13,22 @@ import { Link, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { radii } from "@/theme/tokens";
 import {
   BeforeAfter,
   Card,
   Headline,
   Kicker,
+  Mountain,
   Press,
   PrimaryButton,
-  Ring,
   SerifEm,
 } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { ask } from "@/lib/dialog";
+
+const JOURNEY_STEPS = require("../../../assets/brand/banner-parts/journey-progress-steps.jpg");
+const TEXT_PROJECT_FALLBACK = require("../../../assets/brand/banner-parts/project-text-fallback.jpg");
 
 export default function Journey() {
   const { projects, todayProject, setTodayProject } = useStore();
@@ -67,27 +71,52 @@ export default function Journey() {
       ]}
     >
       <View style={styles.header}>
-        <Kicker>Step 04 · Journey</Kicker>
+        <Kicker>Your projects</Kicker>
         <Headline>
           Watch it <SerifEm>change</SerifEm>.
         </Headline>
+        <View style={styles.journeyArtwork}>
+          <Image
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            source={JOURNEY_STEPS}
+            resizeMode="cover"
+            style={styles.journeyArtworkImage}
+          />
+          <Text style={styles.journeyAside}>
+            Every small visit changes the view.
+          </Text>
+        </View>
       </View>
 
       {active.map((p) => {
         const s = projectStats(p);
-        const latestEntry = [...(p.recaptures ?? [])]
-          .reverse()
-          .find((entry) => entry.photoUri || entry.note);
-        const latestPhoto = latestEntry?.photoUri ?? p.photoUri;
+        /* The original capture, not the newest check-in: Journey is the
+           "watch it change" screen, so the row should show what it looked
+           like before. */
+        const beforePhoto = p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
             <Link href={`/vision/${p.id}`} asChild>
               <Press scaleTo={0.985}>
-                <Card style={styles.projectRow}>
-                  {latestPhoto ? (
-                    <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
+                <Card
+                  style={[
+                    styles.projectRow,
+                    p.id === todayProject?.id && styles.projectRowToday,
+                  ]}
+                >
+                  {beforePhoto ? (
+                    <Image
+                      accessibilityLabel={`${p.title} before you started`}
+                      source={{ uri: beforePhoto }}
+                      style={styles.projectThumb}
+                    />
                   ) : (
-                    <Ring pct={s.pct} size={72} stroke={6} />
+                    <Image
+                      accessibilityLabel={`${p.title}, a project described in words`}
+                      source={TEXT_PROJECT_FALLBACK}
+                      style={styles.projectThumb}
+                    />
                   )}
                   <View style={styles.projectText}>
                     <Text style={styles.projectTitle}>{p.title}</Text>
@@ -110,31 +139,38 @@ export default function Journey() {
                 </Card>
               </Press>
             </Link>
-            {p.id === todayProject?.id ? (
-              <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
-            ) : (
-              <Press onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
-                <Text style={styles.switchLink}>Make this today&apos;s project</Text>
-              </Press>
-            )}
-            {p.pendingCheckpoint ? (
-              <Press
-                onPress={() =>
-                  router.push(
-                    `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
-                  )
-                }
-                hitSlop={8}
-              >
-                <Text style={styles.logLink}>Finish your check-in →</Text>
-              </Press>
-            ) : (p.completedSinceLog ?? 0) > 0 ? (
-              <PrimaryButton
-                label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
-                variant="outline"
-                onPress={() => router.push(`/recapture/${p.id}?kind=optional`)}
-              />
-            ) : null}
+            {/* Owned by the card above, so it reads as belonging to it: these
+                used to float in the gap with equal spacing to both
+                neighbours, claiming neither. */}
+            <View style={styles.cardFooter}>
+              {p.id === todayProject?.id ? (
+                <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
+              ) : (
+                <Press onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
+                  <Text style={styles.switchLink}>
+                    Make this today&apos;s project
+                  </Text>
+                </Press>
+              )}
+              {p.pendingCheckpoint ? (
+                <Press
+                  onPress={() =>
+                    router.push(
+                      `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
+                    )
+                  }
+                  hitSlop={8}
+                >
+                  <Text style={styles.logLink}>Finish your check-in →</Text>
+                </Press>
+              ) : (p.completedSinceLog ?? 0) > 0 ? (
+                <PrimaryButton
+                  label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
+                  variant="outline"
+                  onPress={() => router.push(`/recapture/${p.id}?kind=optional`)}
+                />
+              ) : null}
+            </View>
             {p.photoUri && p.endStateImage ? (
               <Card>
                 <Text style={styles.revealCaption}>DRAG TO SEE IT DONE</Text>
@@ -150,9 +186,7 @@ export default function Journey() {
 
       {finished.map((p) => {
         const s = projectStats(p);
-        const latestPhoto = [...(p.recaptures ?? [])]
-          .reverse()
-          .find((entry) => entry.photoUri)?.photoUri ?? p.photoUri;
+        const beforePhoto = p.photoUri;
         return (
           <View key={p.id} style={styles.reveal}>
             <Link href={`/vision/${p.id}`} asChild>
@@ -163,10 +197,18 @@ export default function Journey() {
                     styles.finishedRow,
                   ])}
                 >
-                  {latestPhoto ? (
-                    <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
+                  {beforePhoto ? (
+                    <Image
+                      accessibilityLabel={`${p.title} before you started`}
+                      source={{ uri: beforePhoto }}
+                      style={styles.projectThumb}
+                    />
                   ) : (
-                    <Ring pct={100} size={72} stroke={6} />
+                    <Image
+                      accessibilityLabel={`${p.title}, a project described in words`}
+                      source={TEXT_PROJECT_FALLBACK}
+                      style={styles.projectThumb}
+                    />
                   )}
                   <View style={styles.projectText}>
                     <Text style={styles.projectTitle}>{p.title}</Text>
@@ -194,9 +236,28 @@ export default function Journey() {
         );
       })}
 
-      <Text style={styles.closing}>
-        Nothing magical happened to any of these. Twelve tiny visits did.
-      </Text>
+      {projects.length === 0 ? (
+        <Card style={styles.emptyCard}>
+          <Mountain state="whole" height={78} />
+          <Text style={styles.emptyTitle}>Nothing here yet.</Text>
+          <Text style={styles.emptyBody}>
+            Every project you start shows up here, with the photos you take
+            along the way. Nothing is ever removed for being unfinished.
+          </Text>
+          <PrimaryButton
+            label="Start something"
+            onPress={() => router.push("/capture")}
+          />
+        </Card>
+      ) : null}
+
+      {/* Speaks only about projects that exist — it used to print under an
+          empty list, closing a story that had not started. */}
+      {finished.length > 0 ? (
+        <Text style={styles.closing}>
+          Nothing magical happened to any of these. Twelve tiny visits did.
+        </Text>
+      ) : null}
     </ScrollView>
   );
 }
@@ -207,35 +268,90 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 24,
     paddingTop: 68,
-    gap: 14,
+    /* Must stay clearly larger than `reveal`/`cardFooter` (10) so a project
+       and its own controls group before they group with the next project. */
+    gap: 28,
   },
-  reveal: { gap: 10 },
+  emptyCard: { alignItems: "center", gap: 16, paddingVertical: 26 },
+  emptyTitle: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 19,
+    color: colors.ink,
+  },
+  emptyBody: {
+    fontFamily: fonts.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.inkSoft,
+    textAlign: "center",
+  },
+  /* The live project: tinted ground + a solid accent edge. Nothing else on
+     this screen carries a fill, so "which one is today's" is answerable
+     without reading a word. */
+  projectRowToday: {
+    backgroundColor: colors.tint,
+    borderColor: colors.accentInk,
+    borderLeftWidth: 4,
+  },
+  /* Sits tight under its own card and indented from the page, so proximity
+     assigns it to the card above rather than the one below. */
+  cardFooter: {
+    gap: 10,
+    paddingLeft: 16,
+    paddingTop: 2,
+  },
+  reveal: { gap: 10 },  // card + its own footer: one group
   todayTag: {
     fontFamily: fonts.mono,
-    fontSize: 10,
+    fontSize: 11,
     letterSpacing: 1.5,
     color: colors.accentInk,
     paddingLeft: 4,
   },
   switchLink: {
     fontFamily: fonts.bodySemi,
-    fontSize: 13.5,
+    fontSize: 13,
     color: colors.muted,
     paddingLeft: 4,
   },
   logLink: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.accentInk,
     paddingLeft: 4,
   },
   revealCaption: {
     fontFamily: fonts.mono,
-    fontSize: 10.5,
+    fontSize: 11,
     letterSpacing: 1.4,
     color: colors.muted,
   },
-  header: { gap: 2, marginBottom: 8 },
+  header: { gap: 2, marginBottom: 0 },
+  journeyArtwork: {
+    height: 160,
+    marginTop: 18,
+    marginHorizontal: -24,
+    overflow: "hidden",
+    justifyContent: "flex-start",
+  },
+  journeyArtworkImage: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
+  journeyAside: {
+    marginTop: 16,
+    marginLeft: 24,
+    maxWidth: 220,
+    fontFamily: fonts.serifItalic,
+    fontSize: 21,
+    lineHeight: 27,
+    color: colors.inkSoft,
+  },
   projectRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -244,7 +360,7 @@ const styles = StyleSheet.create({
   projectThumb: {
     width: 72,
     height: 72,
-    borderRadius: 12,
+    borderRadius: radii.frame,
     backgroundColor: colors.tintDeep,
   },
   finishedRow: {
@@ -258,13 +374,13 @@ const styles = StyleSheet.create({
   },
   projectMeta: {
     fontFamily: fonts.mono,
-    fontSize: 11.5,
+    fontSize: 11,
     letterSpacing: 1,
     color: colors.muted,
   },
   projectVision: {
     fontFamily: fonts.serifItalic,
-    fontSize: 13.5,
+    fontSize: 13,
     color: colors.inkSoft,
   },
   visionAction: {
@@ -275,22 +391,22 @@ const styles = StyleSheet.create({
   },
   updateCount: {
     fontFamily: fonts.bodySemi,
-    fontSize: 12.5,
+    fontSize: 13,
     color: colors.accentInk,
   },
   finishedLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 13.5,
+    fontSize: 13,
     color: colors.accentInk,
   },
   chevron: {
     fontFamily: fonts.body,
-    fontSize: 18,
+    fontSize: 19,
     color: colors.muted,
   },
   closing: {
     fontFamily: fonts.serifItalic,
-    fontSize: 14.5,
+    fontSize: 15,
     lineHeight: 22,
     color: colors.muted,
     textAlign: "center",

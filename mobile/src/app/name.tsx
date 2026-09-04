@@ -20,7 +20,7 @@ import {
   Field,
   Headline,
   Kicker,
-  Mascot,
+  Mountain,
   Press,
   PrimaryButton,
   SerifEm,
@@ -77,7 +77,7 @@ function NameForm({
   return (
     <View style={styles.page}>
       <View style={styles.hero}>
-        <Mascot pose="wave" height={88} style={styles.mascot} />
+        <Mountain state="whole" height={78} style={styles.motif} />
         <Kicker>One small thing</Kicker>
         <Headline>
           What should we <SerifEm>call you</SerifEm>?
@@ -118,10 +118,10 @@ const styles = StyleSheet.create({
     gap: 26,
   },
   hero: { gap: 14 },
-  mascot: { alignSelf: "flex-start", marginBottom: -2 },
+  motif: { alignSelf: "flex-start", marginBottom: -2 },
   lead: {
     fontFamily: fonts.sans,
-    fontSize: 16,
+    fontSize: 17,
     lineHeight: 23,
     color: colors.muted,
   },

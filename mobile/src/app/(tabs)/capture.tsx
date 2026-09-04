@@ -13,6 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -21,15 +22,14 @@ import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
+import { radii } from "@/theme/tokens";
 import {
   Card,
   Field,
-  Headline,
-  Kicker,
-  Mascot,
+  Icon,
+  Mountain,
   Press,
   PrimaryButton,
-  SerifEm,
 } from "@/components/ui";
 import {
   makeProject,
@@ -41,6 +41,8 @@ import { ApiRefusal, fetchPlan } from "@/lib/api";
 import { FREE_PLAN_ALLOWANCE, useProAccess } from "@/lib/purchases";
 import { copyToDurableStorage } from "@/lib/photos";
 import { ask, tell } from "@/lib/dialog";
+
+const CAPTURE_HERO = require("../../../assets/brand/banner-parts/capture-hero-composite.jpg");
 
 /* The plan names the project. This is only a stand-in for the offline
    fallback, where there is no model to name it. */
@@ -64,9 +66,11 @@ export default function Capture() {
   const { pro, ready: proReady } = useProAccess();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
   const [description, setDescription] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // Start as they began. This is only the default for later check-ins; the
   // recapture screen always lets them use the other method that day.
@@ -132,6 +136,12 @@ export default function Capture() {
     setPhotoUri(null);
   };
 
+  /* Any new input means they have moved on from the last outcome. */
+  const onDescriptionChange = (text: string) => {
+    setDescription(text);
+    if (notice) setNotice(null);
+  };
+
   /* Switching projects mid-day is how nothing gets finished, so a second
      project asks before it takes over the day. */
   const startProject = (projectId: string) => {
@@ -146,7 +156,16 @@ export default function Capture() {
       `${todayProject.title} is today's project. Its leftover jobs stay with it either way — nothing is deleted.`,
       ["Work on it now", "Save for later"],
     ).then((choice) => {
-      if (choice === 0) setTodayProject(projectId);
+      if (choice !== 0) {
+        /* Saved for later means today is untouched: stay put and say where
+           it went, rather than dropping them into the project they just
+           declined to start. */
+        setNotice("Saved. It's in Journey whenever you're ready.");
+        setDescription("");
+        setPhotoUri(null);
+        return;
+      }
+      setTodayProject(projectId);
       router.replace(`/vision/${projectId}?fresh=1`);
     });
   };
@@ -223,20 +242,28 @@ export default function Capture() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>
-        <Kicker>Step 01 · Capture</Kicker>
-        <Headline>
-          What feels <SerifEm>too big</SerifEm>?
-        </Headline>
-        <Text style={styles.lead}>
-          Photograph it, mess and all — or, if there is nothing to
-          photograph, just describe it. No tidying first, ever.
-        </Text>
+        <Image
+          accessibilityLabel="Something new. What feels too big? No tidying first, ever."
+          source={CAPTURE_HERO}
+          resizeMode="cover"
+          style={[
+            styles.captureHero,
+            {
+              width: screenWidth,
+              height: screenWidth * (1101 / 1429),
+            },
+          ]}
+        />
       </View>
 
       <Card style={styles.panel}>
         {photoUri ? (
           <View style={styles.previewContainer}>
-            <Image source={{ uri: photoUri }} style={styles.preview} />
+            <Image
+              accessibilityLabel="The photo you just took"
+              source={{ uri: photoUri }}
+              style={styles.preview}
+            />
             <Press
               onPress={clearPhoto}
               style={styles.clearButton}
@@ -248,11 +275,11 @@ export default function Capture() {
         ) : (
           <View style={styles.captureButtons}>
             <Press onPress={takePhoto} style={styles.captureButton}>
-              <Text style={styles.captureIcon}>📷</Text>
+              <Icon name="camera" size={28} />
               <Text style={styles.captureLabel}>Take photo</Text>
             </Press>
             <Press onPress={pickFromLibrary} style={styles.captureButton}>
-              <Text style={styles.captureIcon}>🖼️</Text>
+              <Icon name="library" size={28} />
               <Text style={styles.captureLabel}>Choose from library</Text>
             </Press>
           </View>
@@ -270,8 +297,15 @@ export default function Capture() {
               : "e.g. The job application closes Friday and I’ve saved the listing, nothing else."
           }
           value={description}
-          onChangeText={setDescription}
+          onChangeText={onDescriptionChange}
         />
+        {/* A cap that silently stops typing reads as a broken keyboard. It
+            appears only as the limit comes into reach. */}
+        {description.length > MAX_DESCRIPTION_CHARS - 100 ? (
+          <Text style={styles.counter}>
+            {MAX_DESCRIPTION_CHARS - description.length} characters left
+          </Text>
+        ) : null}
         <Text style={styles.inputHint}>
           {photoUri
             ? "The photo is enough on its own. Add a line only if it helps."
@@ -280,7 +314,7 @@ export default function Capture() {
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <Mascot pose="notebook" height={104} />
+            <Mountain state="crumbling" height={88} />
             <ActivityIndicator size="small" color={colors.accentInk} />
             <Text style={styles.loadingText}>
               Looking at your project and making a calm plan…
@@ -293,6 +327,8 @@ export default function Capture() {
             disabled={!canBegin}
           />
         )}
+
+        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
         {!canBegin && !loading && (
           <Text style={styles.note}>
@@ -312,17 +348,14 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingTop: 68,
     paddingBottom: 40,
-    gap: 22,
+    gap: 0,
   },
-  header: { gap: 4 },
-  lead: {
-    fontFamily: fonts.bodyLight,
-    fontSize: 15.5,
-    lineHeight: 24,
-    color: colors.inkSoft,
-    maxWidth: 330,
+  header: { marginHorizontal: -24 },
+  captureHero: {
+    marginTop: -12,
+    backgroundColor: colors.paper,
   },
-  panel: { gap: 12 },
+  panel: { gap: 12, marginTop: -4 },
   label: {
     fontFamily: fonts.monoMedium,
     fontSize: 11,
@@ -336,6 +369,25 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: colors.muted,
     marginTop: -2,
+  },
+  counter: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    letterSpacing: 1,
+    color: colors.muted,
+    textAlign: "right",
+  },
+  /* Warm ground, so a saved-for-later reads as a good outcome rather than
+     an error notice. */
+  notice: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.clayInk,
+    backgroundColor: colors.washWarm,
+    borderRadius: radii.frame,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   note: {
     fontFamily: fonts.bodyLight,
@@ -352,16 +404,13 @@ const styles = StyleSheet.create({
   captureButton: {
     flex: 1,
     backgroundColor: colors.tint,
-    borderRadius: 14,
+    borderRadius: radii.frame,
     paddingVertical: 20,
     alignItems: "center",
     gap: 6,
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: colors.accentInk,
-  },
-  captureIcon: {
-    fontSize: 28,
   },
   captureLabel: {
     fontFamily: fonts.bodySemi,
@@ -376,7 +425,7 @@ const styles = StyleSheet.create({
   preview: {
     width: "100%",
     height: 180,
-    borderRadius: 14,
+    borderRadius: radii.frame,
     backgroundColor: colors.tintDeep,
   },
   clearButton: {
@@ -395,7 +444,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontFamily: fonts.serifItalic,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.muted,
     textAlign: "center",
   },
