@@ -1,5 +1,6 @@
 import { Tabs, Redirect } from "expo-router";
-import { Text } from "react-native";
+import { Platform, StyleSheet, Text } from "react-native";
+import { BlurView } from "expo-blur";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
 import { useStore } from "@/store/app-store";
@@ -26,13 +27,28 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        /* Floating chrome, not an opaque strip: the paper scrolls under a
+           blurred layer with a bright top edge, the way iOS bars catch light.
+           Android has no cheap backdrop blur, so it keeps the solid surface. */
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          position: "absolute",
+          backgroundColor:
+            Platform.OS === "ios" ? "transparent" : colors.surface,
           borderTopColor: colors.line,
           height: 64,
           paddingBottom: 8,
           paddingTop: 6,
         },
+        tabBarBackground:
+          Platform.OS === "ios"
+            ? () => (
+                <BlurView
+                  tint="light"
+                  intensity={60}
+                  style={StyleSheet.absoluteFill}
+                />
+              )
+            : undefined,
         tabBarActiveTintColor: colors.accentInk,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {

@@ -14,7 +14,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,6 +27,7 @@ import {
   Headline,
   Kicker,
   Mascot,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -211,7 +211,15 @@ export default function Capture() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
+      contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(68, insets.top + 24),
+          /* The tab bar floats over the paper now, so the last card needs
+             room to clear it instead of hiding behind the blur. */
+          paddingBottom: 64 + insets.bottom + 24,
+        },
+      ]}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>
@@ -229,24 +237,24 @@ export default function Capture() {
         {photoUri ? (
           <View style={styles.previewContainer}>
             <Image source={{ uri: photoUri }} style={styles.preview} />
-            <Pressable
+            <Press
               onPress={clearPhoto}
               style={styles.clearButton}
               disabled={loading}
             >
               <Text style={styles.clearLabel}>✕ Retake</Text>
-            </Pressable>
+            </Press>
           </View>
         ) : (
           <View style={styles.captureButtons}>
-            <Pressable onPress={takePhoto} style={styles.captureButton}>
+            <Press onPress={takePhoto} style={styles.captureButton}>
               <Text style={styles.captureIcon}>📷</Text>
               <Text style={styles.captureLabel}>Take photo</Text>
-            </Pressable>
-            <Pressable onPress={pickFromLibrary} style={styles.captureButton}>
+            </Press>
+            <Press onPress={pickFromLibrary} style={styles.captureButton}>
               <Text style={styles.captureIcon}>🖼️</Text>
               <Text style={styles.captureLabel}>Choose from library</Text>
-            </Pressable>
+            </Press>
           </View>
         )}
 

@@ -3,7 +3,6 @@
   small steps add up: before → during → after.
 */
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +18,7 @@ import {
   Card,
   Headline,
   Kicker,
+  Press,
   PrimaryButton,
   Ring,
   SerifEm,
@@ -56,7 +56,15 @@ export default function Journey() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
+      contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(68, insets.top + 24),
+          /* The tab bar floats over the paper now, so the last card needs
+             room to clear it instead of hiding behind the blur. */
+          paddingBottom: 64 + insets.bottom + 24,
+        },
+      ]}
     >
       <View style={styles.header}>
         <Kicker>Step 04 · Journey</Kicker>
@@ -74,7 +82,7 @@ export default function Journey() {
         return (
           <View key={p.id} style={styles.reveal}>
             <Link href={`/vision/${p.id}`} asChild>
-              <Pressable>
+              <Press scaleTo={0.985}>
                 <Card style={styles.projectRow}>
                   {latestPhoto ? (
                     <Image source={{ uri: latestPhoto }} style={styles.projectThumb} />
@@ -100,17 +108,17 @@ export default function Journey() {
                   </View>
                   <Text style={styles.chevron}>→</Text>
                 </Card>
-              </Pressable>
+              </Press>
             </Link>
             {p.id === todayProject?.id ? (
               <Text style={styles.todayTag}>TODAY&apos;S PROJECT</Text>
             ) : (
-              <Pressable onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
+              <Press onPress={() => switchToday(p.id, p.title)} hitSlop={8}>
                 <Text style={styles.switchLink}>Make this today&apos;s project</Text>
-              </Pressable>
+              </Press>
             )}
             {p.pendingCheckpoint ? (
-              <Pressable
+              <Press
                 onPress={() =>
                   router.push(
                     `/recapture/${p.id}?kind=${p.pendingCheckpoint?.kind}`,
@@ -119,7 +127,7 @@ export default function Journey() {
                 hitSlop={8}
               >
                 <Text style={styles.logLink}>Finish your check-in →</Text>
-              </Pressable>
+              </Press>
             ) : (p.completedSinceLog ?? 0) > 0 ? (
               <PrimaryButton
                 label={`Log today’s progress · ${p.completedSinceLog} ${p.completedSinceLog === 1 ? "job" : "jobs"}`}
@@ -148,7 +156,7 @@ export default function Journey() {
         return (
           <View key={p.id} style={styles.reveal}>
             <Link href={`/vision/${p.id}`} asChild>
-              <Pressable>
+              <Press scaleTo={0.985}>
                 <Card
                   style={StyleSheet.flatten([
                     styles.projectRow,
@@ -171,7 +179,7 @@ export default function Journey() {
                   </View>
                   <Text style={styles.chevron}>→</Text>
                 </Card>
-              </Pressable>
+              </Press>
             </Link>
             {p.photoUri && p.endStateImage ? (
               <Card>

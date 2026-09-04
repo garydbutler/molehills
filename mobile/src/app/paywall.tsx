@@ -13,7 +13,6 @@
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,7 +22,7 @@ import { useRouter } from "expo-router";
 import type { PurchasesPackage } from "react-native-purchases";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Headline, Kicker, Mascot, SerifEm } from "@/components/ui";
+import { Card, Headline, Kicker, Mascot, Press, SerifEm } from "@/components/ui";
 import { getPackages, purchase, restore, hasPro } from "@/lib/purchases";
 import { tell } from "@/lib/dialog";
 
@@ -77,9 +76,9 @@ export default function Paywall() {
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.page}>
-      <Pressable onPress={close} style={styles.back} hitSlop={8}>
+      <Press onPress={close} style={styles.back} hitSlop={8}>
         <Text style={styles.backLabel}>← Not now</Text>
-      </Pressable>
+      </Press>
 
       <View style={styles.header}>
         <Mascot pose="measure" height={92} />
@@ -109,13 +108,12 @@ export default function Paywall() {
       ) : (
         <View style={styles.options}>
           {packages.map((pkg) => (
-            <Pressable
+            <Press
               key={pkg.identifier}
               onPress={() => buy(pkg)}
               disabled={busy}
-              style={({ pressed }) => [
+              style={[
                 styles.option,
-                (pressed || busy) && { opacity: 0.6 },
               ]}
             >
               <View style={styles.optionText}>
@@ -129,14 +127,14 @@ export default function Paywall() {
                 ) : null}
               </View>
               <Text style={styles.optionPrice}>{pkg.product.priceString}</Text>
-            </Pressable>
+            </Press>
           ))}
         </View>
       )}
 
-      <Pressable onPress={doRestore} disabled={busy} hitSlop={8}>
+      <Press onPress={doRestore} disabled={busy} hitSlop={8}>
         <Text style={styles.restore}>Restore a purchase</Text>
-      </Pressable>
+      </Press>
 
       <Text style={styles.fine}>
         Subscriptions renew until cancelled, and you can cancel any time in your

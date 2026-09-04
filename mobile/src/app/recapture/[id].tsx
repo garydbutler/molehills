@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +18,7 @@ import {
   Field,
   Headline,
   Kicker,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -186,9 +186,9 @@ export default function Recapture() {
       style={styles.scroll}
       contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
     >
-      <Pressable onPress={goBack} style={styles.back}>
+      <Press onPress={goBack} style={styles.back}>
         <Text style={styles.backLabel}>← Back</Text>
-      </Pressable>
+      </Press>
       <View style={styles.header}>
         <Kicker>{kind === "optional" ? "Log progress" : "Checkpoint"}</Kicker>
         <Headline>
@@ -210,9 +210,9 @@ export default function Recapture() {
       {photoUri ? (
         <Card style={styles.photoCard}>
           <Image source={{ uri: photoUri }} resizeMode="cover" style={styles.photoPreview} />
-          <Pressable onPress={() => setPhotoUri(undefined)} hitSlop={8}>
+          <Press onPress={() => setPhotoUri(undefined)} hitSlop={8}>
             <Text style={styles.removePhoto}>Remove photo</Text>
-          </Pressable>
+          </Press>
         </Card>
       ) : (
         <View style={styles.actions}>

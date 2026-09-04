@@ -3,8 +3,9 @@
   never share a day. The day ends by showing the project again, not by ticking
   a box.
 */
-import { useEffect } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { useEffect, useRef } from "react";
+import * as Haptics from "expo-haptics";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
@@ -15,6 +16,7 @@ import {
   Headline,
   Kicker,
   Mascot,
+  Press,
   PrimaryButton,
   Ring,
   SerifEm,
@@ -61,6 +63,21 @@ export default function Today() {
   const activeId = active?.id;
   const pendingKind = active?.pendingCheckpoint?.kind;
 
+  /* The three-jobs-done moment is the one success note in the app; anything
+     more and the tick's own impact stops meaning anything. Latched so a
+     re-render on the finished day doesn't buzz again. */
+  const congratulated = useRef(false);
+  const planComplete = active ? projectStats(active).todayPlanComplete : false;
+  useEffect(() => {
+    if (!planComplete) {
+      congratulated.current = false;
+      return;
+    }
+    if (congratulated.current) return;
+    congratulated.current = true;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [planComplete]);
+
   useEffect(() => {
     if (activeId && pendingKind) {
       router.push(`/recapture/${activeId}?kind=${pendingKind}`);
@@ -77,9 +94,9 @@ export default function Today() {
                 {dayName} · {firstName}
               </Kicker>
             </View>
-            <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
+            <Press onPress={() => router.push("/settings")} hitSlop={8}>
               <Text style={styles.signOut}>Settings</Text>
-            </Pressable>
+            </Press>
           </View>
           <Headline>
             Nothing on today<SerifEm>.</SerifEm>
@@ -140,7 +157,15 @@ export default function Today() {
   return (
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={[styles.page, { paddingTop: Math.max(68, insets.top + 24) }]}
+      contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(68, insets.top + 24),
+          /* The tab bar floats over the paper now, so the last card needs
+             room to clear it instead of hiding behind the blur. */
+          paddingBottom: 64 + insets.bottom + 24,
+        },
+      ]}
     >
       <View style={styles.header}>
         <View style={styles.kickerRow}>
@@ -149,9 +174,9 @@ export default function Today() {
               {dayName} · {firstName}
             </Kicker>
           </View>
-          <Pressable onPress={() => router.push("/settings")} hitSlop={8}>
+          <Press onPress={() => router.push("/settings")} hitSlop={8}>
             <Text style={styles.signOut}>Settings</Text>
-          </Pressable>
+          </Press>
         </View>
         <Headline>
           {stats.pendingCheckpoint ? (
@@ -190,20 +215,6 @@ export default function Today() {
           <Text style={styles.pictureMeta}>
             {latestCheckpointPhoto ? "Latest check-in" : `${Math.round((active.progress ?? 0) * 100)}% of the way there`}
           </Text>
-        </Card>
-      ) : null}
-
-      {!stats.pendingCheckpoint && (active.completedSinceLog ?? 0) > 0 ? (
-        <Card style={styles.logProgressCard}>
-          <Text style={styles.logProgressTitle}>Pause for a quick look.</Text>
-          <Text style={styles.logProgressBody}>
-            Add a photo or note so you can see this progress later.
-          </Text>
-          <PrimaryButton
-            label={`Log today’s progress · ${active.completedSinceLog} ${active.completedSinceLog === 1 ? "job" : "jobs"}`}
-            variant="outline"
-            onPress={() => router.push(`/recapture/${active.id}?kind=optional`)}
-          />
         </Card>
       ) : null}
 
@@ -277,11 +288,11 @@ export default function Today() {
           </View>
 
           {!stats.tired ? (
-            <Pressable onPress={() => markTired(active.id)} hitSlop={8}>
+            <Press onPress={() => markTired(active.id)} hitSlop={8}>
               <Text style={styles.tiredLink}>
                 I&apos;m exhausted — give me just one
               </Text>
-            </Pressable>
+            </Press>
           ) : (
             <Text style={styles.gentle}>
               One real job. That still counts as a day.
@@ -289,6 +300,24 @@ export default function Today() {
           )}
         </>
       )}
+
+      {/* Below the jobs, never above them: this card appears the moment a job
+          is ticked, and inserting it above the list would slide the remaining
+          rows down under the finger mid-tap. */}
+      {!stats.pendingCheckpoint && (active.completedSinceLog ?? 0) > 0 ? (
+        <Card style={styles.logProgressCard}>
+          <Text style={styles.logProgressTitle}>Pause for a quick look.</Text>
+          <Text style={styles.logProgressBody}>
+            Add a photo or note so you can see this progress later.
+          </Text>
+          <PrimaryButton
+            label={`Log today’s progress · ${active.completedSinceLog} ${active.completedSinceLog === 1 ? "job" : "jobs"}`}
+            variant="outline"
+            onPress={() => router.push(`/recapture/${active.id}?kind=optional`)}
+          />
+        </Card>
+      ) : null}
+
     </ScrollView>
   );
 }

@@ -15,6 +15,13 @@ import {
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import * as Haptics from "expo-haptics";
+import Reanimated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
@@ -80,6 +87,56 @@ const ringStyles = StyleSheet.create({
     color: colors.ink,
   },
 });
+
+
+/* ---- press response ----
+
+   Apple's first rule: feedback happens on touch-DOWN, continuously, never on
+   release. One critically damped spring (damping 1.0, response ~0.35) so a
+   press that is grabbed and released fast is interruptible rather than
+   queued. Reduced motion keeps the opacity dip and drops the scale. */
+
+const SPRING = { dampingRatio: 1, duration: 350 } as const;
+
+/* The Pressable IS the animated view — no wrapper. A wrapper would swallow
+   any layout style the caller passes (flex, alignSelf), leaving the row's
+   real child unsized. */
+const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable);
+
+export function Press({
+  onPress,
+  disabled,
+  scaleTo = 0.97,
+  hitSlop,
+  style,
+  children,
+}: {
+  onPress?: () => void;
+  disabled?: boolean;
+  scaleTo?: number;
+  hitSlop?: number;
+  style?: StyleProp<ViewStyle>;
+  children: React.ReactNode;
+}) {
+  const scale = useSharedValue(1);
+  const reduced = useReducedMotion();
+  const animated = useAnimatedStyle(() => ({
+    transform: [{ scale: reduced ? 1 : scale.get() }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      disabled={disabled}
+      onPressIn={() => scale.set(withSpring(scaleTo, SPRING))}
+      onPressOut={() => scale.set(withSpring(1, SPRING))}
+      hitSlop={hitSlop}
+      style={[style, animated, { opacity: disabled ? 0.4 : 1 }]}
+    >
+      {children}
+    </AnimatedPressable>
+  );
+}
 
 /* ---- text styles ---- */
 
@@ -153,16 +210,13 @@ export function PrimaryButton({
   const fg =
     variant === "solid" ? colors.bone : colors.accentInk;
   return (
-    <Pressable
+    <Press
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        buttonStyles.base,
-        { backgroundColor: bg, borderWidth: border, opacity: disabled ? 0.4 : pressed ? 0.8 : 1 },
-      ]}
+      style={[buttonStyles.base, { backgroundColor: bg, borderWidth: border }]}
     >
       <Text style={[buttonStyles.label, { color: fg }]}>{label}</Text>
-    </Pressable>
+    </Press>
   );
 }
 
@@ -192,12 +246,9 @@ export function Chip({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Press
       onPress={onPress}
-      style={[
-        chipStyles.base,
-        active && chipStyles.active,
-      ]}
+      style={[chipStyles.base, active && chipStyles.active]}
     >
       <Text
         style={[
@@ -207,7 +258,7 @@ export function Chip({
       >
         {label}
       </Text>
-    </Pressable>
+    </Press>
   );
 }
 
@@ -323,26 +374,44 @@ export function StepRow({
   done: boolean;
   onPress: () => void;
 }) {
+  const reduced = useReducedMotion();
+  /* The box fills from wherever it currently is, so a fast double-tap
+     reverses mid-flight instead of queueing two animations. */
+  const fill = useSharedValue(done ? 1 : 0);
+  React.useEffect(() => {
+    fill.set(reduced ? (done ? 1 : 0) : withSpring(done ? 1 : 0, SPRING));
+  }, [done, fill, reduced]);
+
+  const boxStyle = useAnimatedStyle(() => ({
+    backgroundColor: `rgba(89, 67, 191, ${fill.get()})`,
+  }));
+  const checkStyle = useAnimatedStyle(() => ({
+    opacity: fill.get(),
+    transform: [{ scale: 0.6 + fill.get() * 0.4 }],
+  }));
+
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        stepStyles.row,
-        pressed && { opacity: 0.6 },
-      ]}
+    <Press
+      /* Harmony: the tick, the spring and the tap land together, so the
+         haptic goes on the same handler as the state change — not in an
+         effect a frame later. Ticking a job is a commit; unticking is a
+         correction, so it gets the lighter of the two. */
+      onPress={() => {
+        Haptics.impactAsync(
+          done
+            ? Haptics.ImpactFeedbackStyle.Light
+            : Haptics.ImpactFeedbackStyle.Medium,
+        );
+        onPress();
+      }}
+      scaleTo={0.985}
+      style={stepStyles.row}
     >
-      <View
-        style={[
-          stepStyles.box,
-          done && stepStyles.boxDone,
-        ]}
-      >
-        {done ? (
-          <Text style={stepStyles.check}>{"\u2713"}</Text>
-        ) : (
-          <View style={stepStyles.dot} />
-        )}
-      </View>
+      <Reanimated.View style={[stepStyles.box, boxStyle]}>
+        <Reanimated.Text style={[stepStyles.check, checkStyle]}>
+          {"\u2713"}
+        </Reanimated.Text>
+      </Reanimated.View>
       <View style={stepStyles.textWrap}>
         <Text
           style={[stepStyles.label, done && stepStyles.labelDone]}
@@ -352,7 +421,7 @@ export function StepRow({
         </Text>
         <Text style={stepStyles.meta}>{meta}</Text>
       </View>
-    </Pressable>
+    </Press>
   );
 }
 
@@ -376,19 +445,10 @@ const stepStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  boxDone: {
-    backgroundColor: colors.accentInk,
-  },
   check: {
     color: colors.bone,
     fontSize: 15,
     fontFamily: fonts.bodySemi,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.tintDeep,
   },
   textWrap: { flex: 1, gap: 2 },
   label: {

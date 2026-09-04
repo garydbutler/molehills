@@ -11,7 +11,7 @@
   nag for a name.
 */
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
@@ -21,6 +21,7 @@ import {
   Headline,
   Kicker,
   Mascot,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -99,13 +100,9 @@ function NameForm({
           onPress={() => onSave(name)}
         />
         {!editing ? (
-          <Pressable
-            onPress={onSkip}
-            hitSlop={8}
-            style={styles.skip}
-          >
+          <Press onPress={onSkip} hitSlop={8} style={styles.skip}>
             <Text style={styles.skipLabel}>Skip this</Text>
-          </Pressable>
+          </Press>
         ) : null}
       </Card>
     </View>

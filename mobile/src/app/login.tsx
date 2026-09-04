@@ -7,7 +7,6 @@
 import {
   ActivityIndicator,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,6 +23,7 @@ import {
   Card,
   Field,
   Kicker,
+  Press,
   PrimaryButton,
   SerifEm,
 } from "@/components/ui";
@@ -200,13 +200,10 @@ export default function Login() {
       <Card style={styles.panel}>
         <Text style={styles.panelTitle}>Sign in</Text>
 
-        <Pressable
+        <Press
           onPress={() => handleOAuth("google")}
           disabled={loading !== null}
-          style={({ pressed }) => [
-            styles.oauthBtn,
-            (pressed || loading === "google") && { opacity: 0.7 },
-          ]}
+          style={styles.oauthBtn}
         >
           {loading === "google" ? (
             <ActivityIndicator size="small" color={colors.accentInk} style={{ width: 22 }} />
@@ -214,7 +211,7 @@ export default function Login() {
             <Text style={styles.oauthGlyph}>G</Text>
           )}
           <Text style={styles.oauthLabel}>Continue with Google</Text>
-        </Pressable>
+        </Press>
 
         {appleAvailable && (
           <AppleAuthentication.AppleAuthenticationButton

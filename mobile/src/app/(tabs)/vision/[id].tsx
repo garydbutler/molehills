@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Pressable,
   ScrollView,
   Image,
 } from "react-native";
@@ -17,7 +16,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Kicker, Mascot, PrimaryButton, Ring } from "@/components/ui";
+import { Card, Kicker, Mascot, Press, PrimaryButton, Ring } from "@/components/ui";
 import { projectStats, useStore } from "@/store/app-store";
 import { fetchEndState } from "@/lib/api";
 import { tell } from "@/lib/dialog";
@@ -150,14 +149,22 @@ export default function Vision() {
     <ScrollView
       ref={scrollRef}
       style={styles.scroll}
-      contentContainerStyle={[styles.page, { paddingTop: Math.max(60, insets.top + 24) }]}
+      contentContainerStyle={[
+        styles.page,
+        {
+          paddingTop: Math.max(60, insets.top + 24),
+          /* The tab bar floats over the paper now, so the last card needs
+             room to clear it instead of hiding behind the blur. */
+          paddingBottom: 64 + insets.bottom + 24,
+        },
+      ]}
     >
-      <Pressable
+      <Press
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/journey"))}
         style={styles.back}
       >
         <Text style={styles.backLabel}>← Back</Text>
-      </Pressable>
+      </Press>
 
       {s.complete ? (
         <Card style={styles.finishedCard}>
@@ -193,10 +200,6 @@ export default function Vision() {
           />
         ) : project.photoUri ? (
           <Image source={{ uri: project.photoUri }} resizeMode="cover" style={styles.visionPhoto} />
-        ) : !s.complete ? (
-          // The finished card above already carries the mascot — a second one
-          // right below it just reads as a doubled logo.
-          <Mascot pose="sprout" height={62} />
         ) : null}
         <Kicker>
           {displayingEndState ? "The calm version" : "Your vision"}
@@ -214,11 +217,11 @@ export default function Vision() {
                 </Text>
               </View>
             ) : hasEndState ? (
-              <Pressable onPress={toggleImageView} style={styles.toggleButton}>
+              <Press onPress={toggleImageView} style={styles.toggleButton}>
                 <Text style={styles.toggleLabel}>
                   {displayingEndState ? "Show before" : "Show the end state"}
                 </Text>
-              </Pressable>
+              </Press>
             ) : (
               <PrimaryButton
                 label="Show me the end state"
@@ -235,14 +238,13 @@ export default function Vision() {
           AI can misread photos and descriptions. Check this vision and plan
           before you act on it.
         </Text>
-        <Pressable
-          accessibilityRole="button"
+        <Press
           hitSlop={8}
           onPress={reportIncorrectVision}
           style={styles.feedbackButton}
         >
           <Text style={styles.feedbackLabel}>Report an incorrect result →</Text>
-        </Pressable>
+        </Press>
       </View>
 
       {canStartToday ? (
@@ -298,9 +300,10 @@ export default function Vision() {
           {project.steps
             .filter((st) => st.dayIndex === d)
             .map((st) => (
-              <Pressable
+              <Press
                 key={st.id}
                 disabled={readOnly}
+                scaleTo={0.985}
                 onPress={() => toggleStep(project.id, st.id)}
                 style={styles.stepRow}
               >
@@ -317,7 +320,7 @@ export default function Vision() {
                   {st.label}
                 </Text>
                 <Text style={styles.minutes}>{st.minutes} min</Text>
-              </Pressable>
+              </Press>
             ))}
         </View>
       ))}

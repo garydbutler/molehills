@@ -11,7 +11,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,7 +19,7 @@ import {
 import { useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { fonts } from "@/theme/fonts";
-import { Card, Headline, Kicker, SerifEm } from "@/components/ui";
+import { Card, Headline, Kicker, Press, SerifEm } from "@/components/ui";
 import { useStore } from "@/store/app-store";
 import { deleteAccount } from "@/lib/api";
 import { restore, hasPro } from "@/lib/purchases";
@@ -142,9 +141,9 @@ export default function Settings() {
         />
       </Card>
 
-      <Pressable onPress={close} hitSlop={8} style={styles.done}>
+      <Press onPress={close} hitSlop={8} style={styles.done}>
         <Text style={styles.doneLabel}>Done</Text>
-      </Pressable>
+      </Press>
     </ScrollView>
   );
 }
@@ -163,11 +162,7 @@ function Row({
   destructive?: boolean;
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={busy}
-      style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]}
-    >
+    <Press onPress={onPress} disabled={busy} scaleTo={0.985} style={styles.row}>
       <View style={styles.rowText}>
         <Text style={[styles.rowLabel, destructive && { color: colors.clay }]}>
           {label}
@@ -175,7 +170,7 @@ function Row({
         {hint ? <Text style={styles.rowHint}>{hint}</Text> : null}
       </View>
       {busy ? <ActivityIndicator size="small" color={colors.muted} /> : null}
-    </Pressable>
+    </Press>
   );
 }
 
