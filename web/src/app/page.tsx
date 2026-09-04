@@ -54,9 +54,9 @@ export default function Home() {
         /* Reuse WaitlistForm logic, restyle + centre for the dark band */
         .unbig-waitlist .waitlist{max-width:480px;margin:28px auto 0}
         .unbig-waitlist .waitlist-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-        .unbig-waitlist input{flex:1;min-width:200px;padding:14px 18px;border-radius:999px;border:1px solid rgba(248,245,239,.25);background:rgba(248,245,239,.06);font-size:16px;font-family:var(--font-body),sans-serif;color:#F8F5EF;outline:none}
-        .unbig-waitlist input::placeholder{color:#9C95CF}
-        .unbig-waitlist input:focus{border-color:#C9C2EE}
+        .unbig-waitlist input{flex:1;min-width:200px;padding:14px 18px;border-radius:999px;border:1px solid rgba(33,28,78,.18);background:#FEFDFA;font-size:16px;font-family:var(--font-body),sans-serif;color:#211C4E;outline:none}
+        .unbig-waitlist input::placeholder{color:#6B6796}
+        .unbig-waitlist input:focus{border-color:#6D5BE3}
         .unbig-waitlist .btn-primary{background:#6D5BE3;color:#fff;border:none;padding:14px 24px;border-radius:999px;font-size:16px;font-weight:600;font-family:var(--font-body),sans-serif;cursor:pointer;transition:background .18s}
         .unbig-waitlist .btn-primary:hover{background:#8471F0}
         .unbig-waitlist .btn-primary:disabled{opacity:.6;cursor:default}

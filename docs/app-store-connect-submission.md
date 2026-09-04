@@ -8,10 +8,10 @@ Connect.
 
 | Field | Value |
 | --- | --- |
-| Privacy Policy URL | `https://inchmeal.app/privacy-policy` |
-| Support URL | `https://inchmeal.app/support` |
-| Marketing URL | `https://inchmeal.app` |
-| Support email | `support@inchmeal.app` |
+| Privacy Policy URL | `https://unbig.app/privacy-policy` |
+| Support URL | `https://unbig.app/support` |
+| Marketing URL | `https://unbig.app` |
+| Support email | `contact@unbig.app` |
 
 Publish the web changes before submitting so Apple can open all three URLs
 without signing in.

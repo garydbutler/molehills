@@ -68,9 +68,9 @@ Suggested listing and policy values:
 - Category: **Productivity**
 - Ads: **No**
 - Target audience: **Adults / 18 and over**
-- Privacy policy: `https://inchmeal.app/privacy-policy`
-- Support: `https://inchmeal.app/support`
-- Support email: `support@inchmeal.app`
+- Privacy policy: `https://unbig.app/privacy-policy`
+- Support: `https://unbig.app/support`
+- Support email: `contact@unbig.app`
 
 Prepare at least a 512 × 512 app icon, a 1024 × 500 feature graphic, two phone
 screenshots, a short description, and a full description. Complete App access,
