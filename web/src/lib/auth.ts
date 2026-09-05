@@ -48,7 +48,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-const MOBILE_TOKEN_EXPIRY = "7d";
+// 90 days: a weekly forced re-sign-in silently broke check-in feedback for
+// everyone past their first week. A refresh flow is the proper fix later.
+const MOBILE_TOKEN_EXPIRY = "90d";
 
 export async function createMobileToken(user: {
   name?: string | null;
